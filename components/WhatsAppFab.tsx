@@ -124,7 +124,11 @@ const DOCK_LINKS: DockLink[] = [
  */
 export function WhatsAppFab() {
   return (
-    <nav className="fab-dock" aria-label="Contact options">
+    // A <div>, not a <nav>: globals.css styles the site navbar with a bare
+    // `nav {}` selector (display:flex, padding, gap...), which also landed on
+    // this element and inflated the circle into a padded capsule with the
+    // icon pushed off-centre. role="navigation" keeps the semantics.
+    <div role="navigation" className="fab-dock" aria-label="Contact options">
       <span className="fab-dock-bg" aria-hidden="true" />
       <span className="fab-dock-items">
         {DOCK_LINKS.map((l) => (
@@ -142,6 +146,6 @@ export function WhatsAppFab() {
         ))}
       </span>
       <span className="fab-dock-ring" aria-hidden="true" />
-    </nav>
+    </div>
   );
 }

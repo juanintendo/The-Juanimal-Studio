@@ -619,6 +619,10 @@ nav.scrolled .nav-logo{height:55px}
    off-centre: with `overflow:hidden` and a 4px border, children centre inside
    a box 8px narrower than the circle you actually see. */
 .fab-dock{
+  /* Explicit resets: this element used to be a <nav> and inherited the site
+     navbar rule. Kept as a guard so no bare element selector can inflate it
+     again. */
+  display:block;padding:0;gap:0;margin:0;
   position:fixed;
   top:auto;left:auto;
   right:max(28px,env(safe-area-inset-right));
