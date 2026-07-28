@@ -5,15 +5,20 @@ import { Reveal } from "@/components/Reveal";
 
 export function AboutHero() {
   return (
-    <header className="merch-hero" id="top">
-      <Reveal as="span" className="eyebrow">
-        The Juanimal Studio
+    <header className="merch-hero about-hero" id="top">
+      <Reveal as="span" className="eyebrow about-hero-eyebrow">
+        About a Wizard
       </Reveal>
-      <Reveal as="h1">About a Wizard</Reveal>
-      <Reveal as="p">
-        Part designer, part developer, full-time tinkerer. One dragon, one
-        studio, no committee — every project gets treated like a spell worth
-        getting right.
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        className="about-hero-logotype"
+        src="/images/brand-logotype.png"
+        alt="The Juanimal Studio"
+      />
+      <Reveal as="p" className="about-hero-lede">
+        Part designer, part developer, full-time tinkerer. One studio, One
+        Wizard and All Magic! — every project gets treated like a spell worth
+        getting right. This is the right Studio for the most daring projects.
       </Reveal>
     </header>
   );
@@ -72,7 +77,7 @@ export function AboutStory() {
 
 export function AboutApproach() {
   return (
-    <section className="services sec-pad" id="approach">
+    <section className="services sec-pad about-approach" id="approach">
       <Reveal as="span" className="eyebrow">
         How it works
       </Reveal>

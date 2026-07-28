@@ -14,7 +14,7 @@ type MerchItem = {
   tag: string;
   title: string;
   price: number;
-  kind: "tee" | "hoodie" | "dragon-sticker" | "burst-sticker" | "brew-mug" | "seal-mug";
+  kind: "tee" | "dragon-sticker" | "burst-sticker" | "brew-mug" | "seal-mug";
 };
 
 const TEE = {
@@ -37,14 +37,6 @@ const ITEMS: MerchItem[] = [
     title: "Tech Wizard Tee",
     price: 28,
     kind: "tee",
-  },
-  {
-    id: "hoodie",
-    cat: "shirts",
-    tag: "Apparel",
-    title: "Spellbook Hoodie",
-    price: 52,
-    kind: "hoodie",
   },
   {
     id: "dragon",
@@ -95,34 +87,6 @@ function Thumb({ kind, tee }: { kind: MerchItem["kind"]; tee: TeeColor }) {
             display: "block",
           }}
         />
-      </div>
-    );
-  }
-
-  if (kind === "hoodie") {
-    return (
-      <div className="merch-thumb">
-        <svg viewBox="0 0 100 100" aria-hidden="true">
-          <path
-            d="M35 8 L15 20 L22 35 L30 29 L30 92 L70 92 L70 29 L78 35 L85 20 L65 8 C65 8 60 19 50 19 C40 19 35 8 35 8 Z"
-            fill="#171009"
-            stroke="#171009"
-            strokeWidth="4"
-            strokeLinejoin="round"
-            strokeLinecap="round"
-          />
-          <circle cx="50" cy="52" r="15" fill="none" stroke="#F3E9CE" strokeWidth="3" />
-          <text
-            x="50"
-            y="58"
-            textAnchor="middle"
-            fontFamily="Archivo Black, sans-serif"
-            fontSize="16"
-            fill="#F3E9CE"
-          >
-            JS
-          </text>
-        </svg>
       </div>
     );
   }
@@ -310,25 +274,6 @@ function Swatches({
           style={{ background: "#171009" }}
           aria-label="Black"
           onClick={() => onTee("black")}
-        />
-      </div>
-    );
-  }
-
-  if (kind === "hoodie") {
-    return (
-      <div className="merch-swatches" aria-label="Colors">
-        <button
-          type="button"
-          className="swatch active"
-          style={{ background: "#171009" }}
-          aria-label="Ink black"
-        />
-        <button
-          type="button"
-          className="swatch"
-          style={{ background: "#6E3410" }}
-          aria-label="Rust brown"
         />
       </div>
     );

@@ -894,3 +894,40 @@ nav.scrolled .nav-logo{height:55px}
 @media(max-width:768px){
   .social-fab:hover .social-fab-icon{transform:none;box-shadow:5px 5px 0 var(--ink)}
 }
+
+/* ---- About hero ---------------------------------------------------------
+   The eyebrow sits top-left like the section labels further down the page,
+   the logotype replaces the plain "The Juanimal Studio" text, and the lede
+   becomes the focal point rather than small supporting copy. */
+.about-hero{
+  position:relative;
+  padding-top:clamp(84px,12vw,110px);
+  padding-bottom:clamp(48px,7vw,74px);
+}
+.about-hero-eyebrow{
+  position:absolute;
+  top:clamp(96px,14vw,130px);
+  left:clamp(16px,4vw,40px);
+  z-index:3;
+}
+.about-hero-logotype{
+  display:block;
+  width:min(88vw,460px);
+  height:auto;
+  margin:0 auto;
+  filter:drop-shadow(3px 4px 0 rgba(23,16,9,.4));
+}
+.about-hero-lede{
+  font-family:var(--logo);
+  font-weight:800;
+  font-size:clamp(24px,3.6vw,36px);
+  line-height:1.4;
+  color:var(--cream);
+  text-shadow:2px 2px 0 var(--ink);
+  max-width:52ch;
+  margin:34px auto 0;
+}
+/* Process cards hold far less text than the home services cards, so they get
+   larger type and tighter spacing instead of a lot of empty card. */
+.about-approach .svc-card h3{font-size:clamp(26px,3vw,34px);margin:16px 0 12px}
+.about-approach .svc-card p{font-size:clamp(16px,1.8vw,18px);line-height:1.5}
