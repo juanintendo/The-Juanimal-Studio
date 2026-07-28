@@ -331,6 +331,7 @@ export function MerchShop() {
   // Real line items, so checkout can be priced server-side. The tee is
   // tracked per colour, since black and white are separate SKUs.
   const [lines, setLines] = useState<CartLine[]>([]);
+  const [cartOpen, setCartOpen] = useState(false);
   const [payError, setPayError] = useState<string | null>(null);
   const [paying, setPaying] = useState(false);
   const [toast, setToast] = useState(false);
@@ -376,7 +377,29 @@ export function MerchShop() {
     setBump(true);
     setToast(true);
     setAddedId(item.id);
+    setCartOpen(true);
   };
+
+  /** Line -> catalogue entry, so the panel can show titles and prices. */
+  const lineProduct = (line: CartLine) =>
+    ITEMS.find((i) => i.id === line.id);
+
+  const changeQty = (line: CartLine, delta: number) => {
+    setLines((prev) =>
+      prev
+        .map((l) =>
+          l.id === line.id && l.variant === line.variant
+            ? { ...l, qty: l.qty + delta }
+            : l
+        )
+        .filter((l) => l.qty > 0)
+    );
+  };
+
+  const subtotal = lines.reduce((sum, l) => {
+    const p = lineProduct(l);
+    return sum + (p ? p.price * l.qty : 0);
+  }, 0);
 
   const goToCheckout = async () => {
     if (!lines.length || paying) return;
@@ -455,8 +478,7 @@ export function MerchShop() {
         aria-label={
           cartCount ? `Checkout — ${cartCount} item(s)` : "Shopping cart (empty)"
         }
-        onClick={goToCheckout}
-        disabled={!cartCount || paying}
+        onClick={() => setCartOpen((o) => !o)}
       >
         <svg
           viewBox="0 0 24 24"
@@ -473,6 +495,78 @@ export function MerchShop() {
         </svg>
         <span className="cart-count">{cartCount}</span>
       </button>
+
+      <div
+        className={`cart-panel${cartOpen ? " open" : ""}`}
+        role="dialog"
+        aria-label="Your cart"
+        aria-hidden={!cartOpen}
+      >
+        <div className="cart-panel-head">
+          <h3>Your cart</h3>
+          <button
+            type="button"
+            className="cart-panel-close"
+            onClick={() => setCartOpen(false)}
+            aria-label="Close cart"
+          >
+            &times;
+          </button>
+        </div>
+
+        <div className="cart-panel-items">
+          {lines.length === 0 && <p className="cart-panel-empty">Your cart is empty.</p>}
+          {lines.map((line) => {
+            const p = lineProduct(line);
+            if (!p) return null;
+            const key = `${line.id}-${line.variant ?? ""}`;
+            const label = line.variant
+              ? `${p.title} — ${line.variant === "black" ? "Black" : "White"}`
+              : p.title;
+            return (
+              <div className="cart-line" key={key}>
+                <div className="cart-line-info">
+                  <span className="cart-line-name">{label}</span>
+                  <span className="cart-line-price">${p.price * line.qty}</span>
+                </div>
+                <div className="cart-qty">
+                  <button
+                    type="button"
+                    onClick={() => changeQty(line, -1)}
+                    aria-label={`Remove one ${label}`}
+                  >
+                    &minus;
+                  </button>
+                  <span>{line.qty}</span>
+                  <button
+                    type="button"
+                    onClick={() => changeQty(line, 1)}
+                    aria-label={`Add one ${label}`}
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        <div className="cart-panel-foot">
+          <div className="cart-total">
+            <span>Total</span>
+            <span>${subtotal}</span>
+          </div>
+          <button
+            type="button"
+            className="cta-btn cart-checkout"
+            onClick={goToCheckout}
+            disabled={!cartCount || paying}
+          >
+            {paying ? "Opening…" : "Checkout"}
+          </button>
+          {payError && <p className="cart-panel-error">{payError}</p>}
+        </div>
+      </div>
       <div className={`cart-toast${toast ? " show" : ""}`}>
         {paying ? "Opening checkout…" : "Added to cart!"}
       </div>
