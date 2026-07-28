@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { Reveal } from "@/components/Reveal";
+import { startCheckout, type CartLine } from "@/lib/checkout";
 
 type Filter = "all" | "shirts" | "stickers" | "mugs";
 type TeeColor = "white" | "black";
@@ -382,7 +383,11 @@ function Swatches({
 export function MerchShop() {
   const [filter, setFilter] = useState<Filter>("all");
   const [tee, setTee] = useState<TeeColor>("white");
-  const [cartCount, setCartCount] = useState(0);
+  // Real line items, so checkout can be priced server-side. The tee is
+  // tracked per colour, since black and white are separate SKUs.
+  const [lines, setLines] = useState<CartLine[]>([]);
+  const [payError, setPayError] = useState<string | null>(null);
+  const [paying, setPaying] = useState(false);
   const [toast, setToast] = useState(false);
   const [bump, setBump] = useState(false);
   const [addedId, setAddedId] = useState<string | null>(null);
@@ -410,11 +415,34 @@ export function MerchShop() {
     return () => window.clearTimeout(t);
   }, [addedId]);
 
+  const cartCount = lines.reduce((n, l) => n + l.qty, 0);
+
   const addToCart = (item: MerchItem) => {
-    setCartCount((c) => c + 1);
+    const variant = item.kind === "tee" ? tee : undefined;
+    setLines((prev) => {
+      const match = prev.find((l) => l.id === item.id && l.variant === variant);
+      if (match) {
+        return prev.map((l) =>
+          l === match ? { ...l, qty: l.qty + 1 } : l
+        );
+      }
+      return [...prev, { id: item.id, variant, qty: 1 }];
+    });
     setBump(true);
     setToast(true);
     setAddedId(item.id);
+  };
+
+  const goToCheckout = async () => {
+    if (!lines.length || paying) return;
+    setPaying(true);
+    setPayError(null);
+    const result = await startCheckout(lines, "standard");
+    if (!result.ok) {
+      setPayError(result.error);
+      setPaying(false);
+    }
+    // On success the browser is already navigating to Stripe.
   };
 
   return (
@@ -479,7 +507,11 @@ export function MerchShop() {
       <button
         type="button"
         className={`cart-fab${bump ? " bump" : ""}`}
-        aria-label="Shopping cart"
+        aria-label={
+          cartCount ? `Checkout — ${cartCount} item(s)` : "Shopping cart (empty)"
+        }
+        onClick={goToCheckout}
+        disabled={!cartCount || paying}
       >
         <svg
           viewBox="0 0 24 24"
@@ -496,7 +528,23 @@ export function MerchShop() {
         </svg>
         <span className="cart-count">{cartCount}</span>
       </button>
-      <div className={`cart-toast${toast ? " show" : ""}`}>Added to cart!</div>
+      <div className={`cart-toast${toast ? " show" : ""}`}>
+        {paying ? "Opening checkout…" : "Added to cart!"}
+      </div>
+      {payError && (
+        <p
+          role="alert"
+          style={{
+            marginTop: 18,
+            textAlign: "center",
+            color: "var(--red)",
+            fontWeight: 700,
+            fontSize: 14,
+          }}
+        >
+          {payError}
+        </p>
+      )}
     </section>
   );
 }
