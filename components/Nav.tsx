@@ -11,9 +11,11 @@ type NavProps = {
   active?: "merch" | "about" | "audit" | "contact" | null;
 };
 
+// /audit is intentionally NOT listed here. The UX-audit tool stays unlisted
+// and is shared by direct link with prospects, rather than being open to
+// anyone who lands on the site.
 const LINKS: { href: string; label: string; key: NavKey }[] = [
   { href: "/about", label: "About a Wizard", key: "about" },
-  { href: "/audit", label: "Free UX Audit", key: "audit" },
   { href: "/merch", label: "Studio Merch", key: "merch" },
   { href: "/contact", label: "Summon me", key: "contact" },
 ];

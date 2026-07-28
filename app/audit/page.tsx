@@ -2,10 +2,13 @@ import { AuditTool } from "@/components/AuditTool";
 import { Nav } from "@/components/Nav";
 import { PageShell } from "@/components/PageShell";
 
+// Unlisted page: reachable by direct link only, and kept out of search
+// results so it can be handed to specific prospects rather than used freely.
 export const metadata = {
-  title: "Free UX Audit — The Juanimal Studio",
+  title: "UX Audit — The Juanimal Studio",
   description:
-    "Drop a URL, get an instant AI-powered UX audit from The Juanimal Studio.",
+    "An AI-powered UX audit from The Juanimal Studio, by invitation.",
+  robots: { index: false, follow: false },
 };
 
 export default function AuditPage() {
