@@ -5,14 +5,15 @@ import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { useScrolled } from "@/hooks/useScrolled";
 
-type NavKey = "about" | "merch" | "contact";
+type NavKey = "about" | "audit" | "merch" | "contact";
 
 type NavProps = {
-  active?: "merch" | "about" | "contact" | null;
+  active?: "merch" | "about" | "audit" | "contact" | null;
 };
 
 const LINKS: { href: string; label: string; key: NavKey }[] = [
   { href: "/about", label: "About a Wizard", key: "about" },
+  { href: "/audit", label: "Free UX Audit", key: "audit" },
   { href: "/merch", label: "Studio Merch", key: "merch" },
   { href: "/contact", label: "Summon me", key: "contact" },
 ];
@@ -37,11 +38,13 @@ export function Nav({ active = null }: NavProps) {
       ? "merch"
       : active === "about"
         ? "about"
-        : active === "contact"
-          ? "contact"
-          : pathname === "/"
-            ? scrollKey
-            : null;
+        : active === "audit"
+          ? "audit"
+          : active === "contact"
+            ? "contact"
+            : pathname === "/"
+              ? scrollKey
+              : null;
 
   useEffect(() => {
     if (!open) return;
