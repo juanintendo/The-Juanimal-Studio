@@ -1,6 +1,7 @@
 export type CartLine = {
   id: string;
   variant?: string;
+  size?: string;
   qty: number;
 };
 

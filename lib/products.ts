@@ -15,7 +15,10 @@ export type Product = {
   currency: string;
   image: string;
   variants?: ProductVariant[];
+  sizes?: readonly string[];
 };
+
+export const APPAREL_SIZES = ["S", "M", "L", "XL", "XXL"] as const;
 
 export const PRODUCTS: Record<string, Product> = {
   tee: {
@@ -25,6 +28,7 @@ export const PRODUCTS: Record<string, Product> = {
     currency: "usd",
     image: "/images/merch-tee-black.jpg",
     variants: ["black", "white"],
+    sizes: APPAREL_SIZES,
   },
   hoodie: {
     id: "hoodie",

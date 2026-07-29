@@ -15,7 +15,14 @@ type MerchItem = {
   title: string;
   price: number;
   kind: "tee" | "dragon-sticker" | "burst-sticker" | "brew-mug" | "seal-mug";
+  /** Shown in the product detail view. */
+  blurb: string;
+  details: string[];
+  /** Only apparel carries sizes. */
+  sizes?: readonly string[];
 };
+
+const APPAREL_SIZES = ["S", "M", "L", "XL", "XXL"] as const;
 
 const TEE = {
   white: "/images/merch-tee-white.jpg",
@@ -37,6 +44,9 @@ const ITEMS: MerchItem[] = [
     title: "Tech Wizard Tee",
     price: 28,
     kind: "tee",
+    blurb: "Heavyweight cotton, printed the way the site looks: aged halftone, hard ink, no gloss. The dragon rides the chest; the studio mark sits on the back collar.",
+    details: ["240 gsm ringspun cotton","Water-based print, softens with every wash","Runs true to size — size up for a boxy fit"],
+    sizes: APPAREL_SIZES
   },
   {
     id: "dragon",
@@ -45,6 +55,8 @@ const ITEMS: MerchItem[] = [
     title: "Dragon Seal Pack ×5",
     price: 9,
     kind: "dragon-sticker",
+    blurb: "Five die-cut seals of the studio dragon, laminated so they survive laptops, bottles and weather.",
+    details: ["5 stickers, 7–9 cm each","Matte laminate, UV resistant","Weatherproof — outdoor safe"]
   },
   {
     id: "burst",
@@ -53,6 +65,8 @@ const ITEMS: MerchItem[] = [
     title: "Studio Burst Pack ×5",
     price: 9,
     kind: "burst-sticker",
+    blurb: "The starburst marks from the hero, cut loose as five stickers. Same aged print, same fire.",
+    details: ["5 stickers, 7–9 cm each","Matte laminate, UV resistant","Weatherproof — outdoor safe"]
   },
   {
     id: "brew",
@@ -61,6 +75,8 @@ const ITEMS: MerchItem[] = [
     title: "Wizard Brew Mug",
     price: 18,
     kind: "brew-mug",
+    blurb: "A mug built for the third coffee of the afternoon. Glazed inside and out, print wraps the full body.",
+    details: ["325 ml stoneware","Dishwasher and microwave safe","Print wraps both sides"]
   },
   {
     id: "seal",
@@ -69,6 +85,8 @@ const ITEMS: MerchItem[] = [
     title: "Midnight Seal Mug",
     price: 18,
     kind: "seal-mug",
+    blurb: "The midnight variant: ink-dark glaze with the seal in cream. Same body, opposite mood.",
+    details: ["325 ml stoneware","Dishwasher and microwave safe","Print wraps both sides"]
   },
 ];
 
@@ -332,6 +350,9 @@ export function MerchShop() {
   // tracked per colour, since black and white are separate SKUs.
   const [lines, setLines] = useState<CartLine[]>([]);
   const [cartOpen, setCartOpen] = useState(false);
+  const [detailId, setDetailId] = useState<string | null>(null);
+  const [detailSize, setDetailSize] = useState<string | null>(null);
+  const [sizeHint, setSizeHint] = useState(false);
   const [payError, setPayError] = useState<string | null>(null);
   const [paying, setPaying] = useState(false);
   const [toast, setToast] = useState(false);
@@ -356,6 +377,15 @@ export function MerchShop() {
   }, [toast]);
 
   useEffect(() => {
+    if (!detailId) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") closeDetail();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [detailId]);
+
+  useEffect(() => {
     if (!addedId) return;
     const t = window.setTimeout(() => setAddedId(null), 900);
     return () => window.clearTimeout(t);
@@ -363,22 +393,33 @@ export function MerchShop() {
 
   const cartCount = lines.reduce((n, l) => n + l.qty, 0);
 
-  const addToCart = (item: MerchItem) => {
+  const addToCart = (item: MerchItem, size?: string) => {
     const variant = item.kind === "tee" ? tee : undefined;
     setLines((prev) => {
-      const match = prev.find((l) => l.id === item.id && l.variant === variant);
+      const match = prev.find(
+        (l) => l.id === item.id && l.variant === variant && l.size === size
+      );
       if (match) {
         return prev.map((l) =>
           l === match ? { ...l, qty: l.qty + 1 } : l
         );
       }
-      return [...prev, { id: item.id, variant, qty: 1 }];
+      return [...prev, { id: item.id, variant, size, qty: 1 }];
     });
     setBump(true);
     setToast(true);
     setAddedId(item.id);
     setCartOpen(true);
   };
+
+  const detailItem = detailId ? ITEMS.find((i) => i.id === detailId) ?? null : null;
+
+  const openDetail = (item: MerchItem) => {
+    setDetailId(item.id);
+    setDetailSize(null);
+    setSizeHint(false);
+  };
+  const closeDetail = () => setDetailId(null);
 
   /** Line -> catalogue entry, so the panel can show titles and prices. */
   const lineProduct = (line: CartLine) =>
@@ -388,7 +429,7 @@ export function MerchShop() {
     setLines((prev) =>
       prev
         .map((l) =>
-          l.id === line.id && l.variant === line.variant
+          l.id === line.id && l.variant === line.variant && l.size === line.size
             ? { ...l, qty: l.qty + delta }
             : l
         )
@@ -452,25 +493,137 @@ export function MerchShop() {
             className="merch-card"
             data-cat={item.cat}
           >
-            <Thumb kind={item.kind} tee={tee} />
+            <button
+              type="button"
+              className="merch-card-open"
+              onClick={() => openDetail(item)}
+              aria-label={`View ${item.title}`}
+            >
+              <Thumb kind={item.kind} tee={tee} />
+            </button>
             <div className="merch-body">
               <span className="merch-tag">{item.tag}</span>
-              <h3>{item.title}</h3>
+              <h3>
+                <button
+                  type="button"
+                  className="merch-title-btn"
+                  onClick={() => openDetail(item)}
+                >
+                  {item.title}
+                </button>
+              </h3>
               <Swatches kind={item.kind} tee={tee} onTee={setTee} />
               <div className="merch-foot">
                 <span className="merch-price">${item.price}</span>
                 <button
                   type="button"
                   className={`merch-add${addedId === item.id ? " added" : ""}`}
-                  onClick={() => addToCart(item)}
+                  onClick={() =>
+                    item.sizes ? openDetail(item) : addToCart(item)
+                  }
                 >
-                  {addedId === item.id ? "Added!" : "Add to cart"}
+                  {addedId === item.id
+                    ? "Added!"
+                    : item.sizes
+                      ? "Choose size"
+                      : "Add to cart"}
                 </button>
               </div>
             </div>
           </Reveal>
         ))}
       </div>
+
+      {detailItem && (
+        <div
+          className="pd-backdrop"
+          role="dialog"
+          aria-modal="true"
+          aria-label={detailItem.title}
+          onClick={closeDetail}
+        >
+          <div className="pd-card" onClick={(e) => e.stopPropagation()}>
+            <button
+              type="button"
+              className="pd-close"
+              onClick={closeDetail}
+              aria-label="Close"
+            >
+              &times;
+            </button>
+
+            <div className="pd-art">
+              <Thumb kind={detailItem.kind} tee={tee} />
+            </div>
+
+            <div className="pd-info">
+              <span className="merch-tag">{detailItem.tag}</span>
+              <h3 className="pd-title">{detailItem.title}</h3>
+              <p className="pd-blurb">{detailItem.blurb}</p>
+
+              {detailItem.kind === "tee" && (
+                <div className="pd-block">
+                  <span className="pd-label">
+                    Colour — {tee === "black" ? "Black" : "White"}
+                  </span>
+                  <Swatches kind={detailItem.kind} tee={tee} onTee={setTee} />
+                </div>
+              )}
+
+              {detailItem.sizes && (
+                <div className="pd-block">
+                  <span className="pd-label">Size</span>
+                  <div className="pd-sizes">
+                    {detailItem.sizes.map((sz) => (
+                      <button
+                        key={sz}
+                        type="button"
+                        className={`pd-size${detailSize === sz ? " active" : ""}`}
+                        onClick={() => {
+                          setDetailSize(sz);
+                          setSizeHint(false);
+                        }}
+                        aria-pressed={detailSize === sz}
+                      >
+                        {sz}
+                      </button>
+                    ))}
+                  </div>
+                  {sizeHint && (
+                    <p className="pd-hint" role="alert">
+                      Pick a size first.
+                    </p>
+                  )}
+                </div>
+              )}
+
+              <ul className="pd-details">
+                {detailItem.details.map((d) => (
+                  <li key={d}>{d}</li>
+                ))}
+              </ul>
+
+              <div className="pd-foot">
+                <span className="merch-price">${detailItem.price}</span>
+                <button
+                  type="button"
+                  className="merch-add pd-add"
+                  onClick={() => {
+                    if (detailItem.sizes && !detailSize) {
+                      setSizeHint(true);
+                      return;
+                    }
+                    addToCart(detailItem, detailSize ?? undefined);
+                    closeDetail();
+                  }}
+                >
+                  Add to cart
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       <button
         type="button"
@@ -519,10 +672,14 @@ export function MerchShop() {
           {lines.map((line) => {
             const p = lineProduct(line);
             if (!p) return null;
-            const key = `${line.id}-${line.variant ?? ""}`;
-            const label = line.variant
-              ? `${p.title} — ${line.variant === "black" ? "Black" : "White"}`
-              : p.title;
+            const key = `${line.id}-${line.variant ?? ""}-${line.size ?? ""}`;
+            const label = [
+              p.title,
+              line.variant ? (line.variant === "black" ? "Black" : "White") : null,
+              line.size,
+            ]
+              .filter(Boolean)
+              .join(" — ");
             return (
               <div className="cart-line" key={key}>
                 <div className="cart-line-info">

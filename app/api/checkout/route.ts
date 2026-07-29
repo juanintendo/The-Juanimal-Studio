@@ -4,7 +4,7 @@ import { PRODUCTS, SHIPPING_RATES } from "@/lib/products";
 
 export const runtime = "nodejs";
 
-type IncomingLine = { id?: string; variant?: string; qty?: number };
+type IncomingLine = { id?: string; variant?: string; size?: string; qty?: number };
 
 export async function POST(req: NextRequest) {
   const secret = process.env.STRIPE_SECRET_KEY;
@@ -50,11 +50,32 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    let name = product.title;
-    if (line.variant && product.variants?.includes(line.variant as never)) {
-      const v = line.variant;
-      name = `${product.title} — ${v.charAt(0).toUpperCase()}${v.slice(1)}`;
+    // Build the display name from validated values only. A size or variant
+    // that isn't in the catalogue is rejected rather than passed through, so
+    // nothing user-supplied ends up on the Stripe line item verbatim.
+    const parts: string[] = [product.title];
+
+    if (line.variant) {
+      if (!product.variants?.includes(line.variant as never)) {
+        return NextResponse.json(
+          { error: `Unknown option for ${product.title}.` },
+          { status: 400 }
+        );
+      }
+      parts.push(line.variant.charAt(0).toUpperCase() + line.variant.slice(1));
     }
+
+    if (product.sizes) {
+      if (!line.size || !product.sizes.includes(line.size)) {
+        return NextResponse.json(
+          { error: `Pick a size for ${product.title}.` },
+          { status: 400 }
+        );
+      }
+      parts.push(line.size);
+    }
+
+    const name = parts.join(" — ");
 
     lineItems.push({
       quantity: qty,
