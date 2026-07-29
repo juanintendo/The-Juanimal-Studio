@@ -408,7 +408,10 @@ section{position:relative}
 }
 .svc-card h3{font-family:var(--disp);font-size:clamp(20px,2vw,26px);text-transform:uppercase;line-height:1.05;margin:14px 0 14px}
 .svc-card p{font-size:15px;line-height:1.65;color:#3a2c1c}
-.svc-icon{height:64px;margin-bottom:6px}
+/* Tall enough for the deepest badge. Each icon carries its own render height
+   (see Services.tsx) so every circle ends up the same diameter, regardless of
+   how far its artwork spills outside the ring. */
+.svc-icon{height:86px;display:flex;align-items:flex-end;margin-bottom:6px}
 .svc-icon svg{height:100%;width:auto}
 
 /* ---------- STATS ---------- */

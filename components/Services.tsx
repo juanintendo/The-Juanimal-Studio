@@ -6,24 +6,28 @@ const services = [
   {
     num: "A",
     icon: "/images/service-ux.png",
+    iconHeight: 64,
     title: "UX/UI & Web Development",
     body: "Interfaces people actually enjoy using. We design and build fast, accessible websites and web apps — from first wireframe to shipped product, with every pixel pulling its weight.",
   },
   {
     num: "B",
     icon: "/images/service-web.png",
+    iconHeight: 76,
     title: "App Development",
     body: "Native-feeling mobile and desktop apps, engineered light. Clear flows, snappy performance and a design system your team can grow with long after launch day.",
   },
   {
     num: "C",
     icon: "/images/service-apps.png",
+    iconHeight: 69,
     title: "AI Implementation & Business Tools",
     body: "We wire AI into real workflows — then package it. We build and sell specialized tools that save businesses hours every week, not slideware about the future.",
   },
   {
     num: "D",
     icon: "/images/service-branding.png",
+    iconHeight: 86,
     title: "Branding & Graphic Design",
     body: "Logos, color systems and visual identities with a point of view. We give your brand a face people remember — then keep it consistent across every touchpoint.",
   },
@@ -49,7 +53,7 @@ export function Services() {
               <img
                 src={s.icon}
                 alt=""
-                style={{ height: "100%", width: "auto", display: "block" }}
+                style={{ height: s.iconHeight, width: "auto", display: "block" }}
               />
             </div>
             <h3>{s.title}</h3>
