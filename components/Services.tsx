@@ -23,7 +23,7 @@ const services = [
   },
   {
     num: "D",
-    icon: "/images/service-ai.png",
+    icon: "/images/service-branding.png",
     title: "Branding & Graphic Design",
     body: "Logos, color systems and visual identities with a point of view. We give your brand a face people remember — then keep it consistent across every touchpoint.",
   },
