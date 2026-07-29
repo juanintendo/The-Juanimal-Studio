@@ -5,7 +5,7 @@ import { Reveal } from "@/components/Reveal";
 const services = [
   {
     num: "A",
-    icon: "/images/service-ux.png",
+    icon: "/images/service-ux-hd.png",
     iconHeight: 64,
     title: "UX/UI & Web Development",
     body: "Interfaces people actually enjoy using. We design and build fast, accessible websites and web apps — from first wireframe to shipped product, with every pixel pulling its weight.",
@@ -19,14 +19,14 @@ const services = [
   },
   {
     num: "C",
-    icon: "/images/service-apps.png",
+    icon: "/images/service-apps-hd.png",
     iconHeight: 69,
     title: "AI Implementation & Business Tools",
     body: "We wire AI into real workflows — then package it. We build and sell specialized tools that save businesses hours every week, not slideware about the future.",
   },
   {
     num: "D",
-    icon: "/images/service-branding.png",
+    icon: "/images/service-branding-v2.png",
     iconHeight: 86,
     title: "Branding & Graphic Design",
     body: "Logos, color systems and visual identities with a point of view. We give your brand a face people remember — then keep it consistent across every touchpoint.",

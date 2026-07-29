@@ -12,7 +12,7 @@ export function AboutHero() {
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         className="about-hero-logotype"
-        src="/images/brand-logotype.png"
+        src="/images/brand-logotype-v2.png"
         alt="The Juanimal Studio"
       />
       <Reveal as="p" className="about-hero-lede">
