@@ -1007,17 +1007,9 @@ nav.scrolled .nav-logo{height:55px}
   display:flex;justify-content:space-between;
   font-family:var(--disp);font-size:16px;margin-bottom:11px;
 }
-.cart-checkout{
-  display:block;margin:0 auto;position:relative;overflow:hidden;z-index:0;
-}
+.cart-checkout{display:block;margin:0 auto}
 .cart-checkout:disabled{opacity:.45;cursor:not-allowed}
-/* Same tornasol sweep the navbar uses, on hover. */
-.cart-checkout::before{
-  content:"";position:absolute;inset:0;z-index:-1;opacity:0;
-  background:linear-gradient(100deg,#f5b74a,#e04e1f 22%,#c2418f 45%,#4a72c4 65%,#3fae7c 84%,#f5b74a);
-  background-size:300% 100%;transition:opacity .35s ease;
-}
-.cart-checkout:hover:not(:disabled)::before{opacity:1;animation:tornasol 3.5s linear infinite}
+.cart-checkout:disabled{background-image:none;animation:none}
 .cart-panel-error{
   margin:10px 0 0;font-size:12px;line-height:1.45;color:var(--red);font-weight:700;text-align:center;
 }
@@ -1110,4 +1102,52 @@ nav.scrolled .nav-logo{height:55px}
 @media(prefers-reduced-motion:reduce){
   .pd-backdrop,.pd-card{animation:none}
   .pd-size:hover{transform:none}
+}
+
+/* ---- Tornasol hover on capsule buttons ----------------------------------
+   Implemented with background-image rather than a ::before layer. These
+   buttons have their own red background-color, so a pseudo-element at
+   z-index:-1 would sit *behind* that red and never show, while a positive
+   z-index would cover the label. A background-image paints above the colour
+   and below the text, which is exactly what's needed. */
+.cta-btn,
+.merch-foot-cta a{
+  background-color:var(--red);
+  background-image:none;
+  background-size:300% 100%;
+  background-position:0 0;
+  transition:transform .2s ease,box-shadow .2s ease,background-image .35s ease;
+}
+.cta-btn:hover,.cta-btn:focus-visible,
+.merch-foot-cta a:hover,.merch-foot-cta a:focus-visible{
+  background-image:linear-gradient(100deg,#f5b74a,#e04e1f 22%,#c2418f 45%,#4a72c4 65%,#3fae7c 84%,#f5b74a);
+  animation:tornasol 3.5s linear infinite;
+}
+
+/* ---- Tornasol on the contact dock — Summon me page only ----------------
+   Scoped to .page-contact on purpose: on Home and About the dock should stay
+   quiet cream, and on Merch the corner belongs to the cart. */
+.page-contact .fab-dock-bg{
+  position:absolute;inset:0;border-radius:37px;
+  background:var(--cream);
+  overflow:hidden;
+}
+.page-contact .fab-dock-bg::after{
+  content:"";
+  position:absolute;inset:0;
+  opacity:0;
+  background:linear-gradient(100deg,#f5b74a,#e04e1f 22%,#c2418f 45%,#4a72c4 65%,#3fae7c 84%,#f5b74a);
+  background-size:300% 100%;
+  transition:opacity .4s ease;
+}
+@media (hover:hover) and (pointer:fine){
+  .page-contact .fab-dock:hover .fab-dock-bg::after,
+  .page-contact .fab-dock:focus-within .fab-dock-bg::after{
+    opacity:1;
+    animation:tornasol 4.5s linear infinite;
+  }
+}
+@media(prefers-reduced-motion:reduce){
+  .cta-btn,.merch-foot-cta a,
+  .page-contact .fab-dock-bg::after{animation:none}
 }
