@@ -56,7 +56,7 @@ const ITEMS: MerchItem[] = [
     id: "tee",
     cat: "shirts",
     tag: "Apparel",
-    title: "Tech Wizard Tee",
+    title: "J-800 Tee",
     price: 28,
     kind: "tee",
     blurb: "Heavyweight cotton, printed the way the site looks: aged halftone, hard ink, no gloss. The dragon rides the chest; the studio mark sits on the back collar.",
@@ -89,7 +89,7 @@ const ITEMS: MerchItem[] = [
     id: "hoodie",
     cat: "hoodies",
     tag: "Apparel",
-    title: "Steampunk Dragon Hoodie",
+    title: "J-800 Hoodie",
     price: 40,
     kind: "hoodie",
     blurb: "The studio dragon rebuilt as a chrome-plated steampunk beast — goggles, gears, wings and all — patched onto heavyweight fleece. Green only.",
@@ -128,7 +128,7 @@ function Thumb({ kind, tee }: { kind: MerchItem["kind"]; tee: TeeColor }) {
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={TEE[tee]}
-          alt="Tech Wizard Tee"
+          alt="J-800 Tee"
           style={{
             width: "100%",
             height: "100%",
@@ -226,7 +226,7 @@ function Thumb({ kind, tee }: { kind: MerchItem["kind"]; tee: TeeColor }) {
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={DRAGON_HOODIE}
-          alt="Steampunk Dragon Hoodie"
+          alt="J-800 Hoodie"
           style={{
             width: "100%",
             height: "100%",

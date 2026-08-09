@@ -1160,6 +1160,13 @@ nav.scrolled .nav-logo{height:55px}
   background:#EFE3C4;align-self:start;
 }
 .pd-art .merch-thumb{aspect-ratio:1;height:auto}
+.pd-art img,.pd-art svg{
+  transition:transform .35s ease;cursor:zoom-in;
+}
+.pd-art:hover img,.pd-art:hover svg{transform:scale(1.18)}
+@media(prefers-reduced-motion:reduce){
+  .pd-art img,.pd-art svg{transition:none}
+}
 
 .pd-info{display:flex;flex-direction:column;gap:14px;padding-right:38px}
 .pd-title{

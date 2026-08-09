@@ -24,7 +24,7 @@ export const POSTER_SIZES = ['12x18"', '18x24"', '24x36"'] as const;
 export const PRODUCTS: Record<string, Product> = {
   tee: {
     id: "tee",
-    title: "Tech Wizard Tee",
+    title: "J-800 Tee",
     unitAmount: 2800,
     currency: "usd",
     image: "/images/merch-tee-black.jpg",
@@ -57,7 +57,7 @@ export const PRODUCTS: Record<string, Product> = {
   },
   hoodie: {
     id: "hoodie",
-    title: "Steampunk Dragon Hoodie",
+    title: "J-800 Hoodie",
     unitAmount: 4000,
     currency: "usd",
     image: "/images/merch/hoodie-dragon-green-v1.webp",
