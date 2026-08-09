@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 
 type WindowId =
@@ -184,9 +184,148 @@ function MailIcon() {
   );
 }
 
+function SoundOnIcon() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path
+        d="M4 9v6h4l5 4V5L8 9H4Z"
+        fill="currentColor"
+      />
+      <path
+        d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
+function SoundOffIcon() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path
+        d="M4 9v6h4l5 4V5L8 9H4Z"
+        fill="currentColor"
+      />
+      <path
+        d="M16.5 9.5 21 14M21 9.5l-4.5 4.5"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
+/** Soft ambient "space" pad, synthesized on the fly — no audio file needed. */
+function useAmbientSpaceSound() {
+  const [soundOn, setSoundOn] = useState(false);
+  const ctxRef = useRef<AudioContext | null>(null);
+  const masterRef = useRef<GainNode | null>(null);
+  const nodesRef = useRef<
+    { osc: OscillatorNode; noise: AudioBufferSourceNode } | null
+  >(null);
+
+  const stop = () => {
+    const ctx = ctxRef.current;
+    const master = masterRef.current;
+    if (!ctx || !master) return;
+    const now = ctx.currentTime;
+    master.gain.cancelScheduledValues(now);
+    master.gain.setValueAtTime(master.gain.value, now);
+    master.gain.linearRampToValueAtTime(0, now + 1.2);
+    window.setTimeout(() => {
+      nodesRef.current?.osc.stop();
+      nodesRef.current?.noise.stop();
+      ctx.close();
+      ctxRef.current = null;
+      masterRef.current = null;
+      nodesRef.current = null;
+    }, 1300);
+  };
+
+  const start = () => {
+    const AudioCtx =
+      window.AudioContext ||
+      (window as unknown as { webkitAudioContext: typeof AudioContext })
+        .webkitAudioContext;
+    const ctx = new AudioCtx();
+    ctxRef.current = ctx;
+
+    const master = ctx.createGain();
+    master.gain.value = 0;
+    master.connect(ctx.destination);
+    masterRef.current = master;
+
+    // Two detuned drones, slowly drifting
+    const droneGain = ctx.createGain();
+    droneGain.gain.value = 0.5;
+    droneGain.connect(master);
+
+    const osc1 = ctx.createOscillator();
+    osc1.type = "sine";
+    osc1.frequency.value = 110;
+    const osc2 = ctx.createOscillator();
+    osc2.type = "sine";
+    osc2.frequency.value = 164.8;
+    const droneFilter = ctx.createBiquadFilter();
+    droneFilter.type = "lowpass";
+    droneFilter.frequency.value = 500;
+    osc1.connect(droneFilter);
+    osc2.connect(droneFilter);
+    droneFilter.connect(droneGain);
+
+    const lfo = ctx.createOscillator();
+    lfo.frequency.value = 0.05;
+    const lfoGain = ctx.createGain();
+    lfoGain.gain.value = 40;
+    lfo.connect(lfoGain);
+    lfoGain.connect(droneFilter.frequency);
+
+    // Airy filtered noise, like distant stellar hiss
+    const noiseBuffer = ctx.createBuffer(1, ctx.sampleRate * 2, ctx.sampleRate);
+    const data = noiseBuffer.getChannelData(0);
+    for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
+    const noise = ctx.createBufferSource();
+    noise.buffer = noiseBuffer;
+    noise.loop = true;
+    const noiseFilter = ctx.createBiquadFilter();
+    noiseFilter.type = "bandpass";
+    noiseFilter.frequency.value = 900;
+    noiseFilter.Q.value = 0.7;
+    const noiseGain = ctx.createGain();
+    noiseGain.gain.value = 0.06;
+    noise.connect(noiseFilter);
+    noiseFilter.connect(noiseGain);
+    noiseGain.connect(master);
+
+    osc1.start();
+    osc2.start();
+    lfo.start();
+    noise.start();
+    nodesRef.current = { osc: osc1, noise };
+
+    const now = ctx.currentTime;
+    master.gain.linearRampToValueAtTime(0.22, now + 1.5);
+  };
+
+  useEffect(() => {
+    if (soundOn) start();
+    else if (ctxRef.current) stop();
+    return () => {
+      if (ctxRef.current) stop();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [soundOn]);
+
+  return { soundOn, toggle: () => setSoundOn((v) => !v) };
+}
+
 export function MinasHouseCaseStudy() {
   const [open, setOpen] = useState<WindowId | null>(null);
   const clock = useClock();
+  const { soundOn, toggle: toggleSound } = useAmbientSpaceSound();
 
   useEffect(() => {
     if (!open) return;
@@ -205,9 +344,21 @@ export function MinasHouseCaseStudy() {
 
   return (
     <div className="mh-page">
-      <Link href="/#work" className="mh-back">
-        <span aria-hidden="true">&#8249;</span> Back to Studio
-      </Link>
+      <div className="mh-back-cluster">
+        <button
+          type="button"
+          className="mh-sound-toggle"
+          onClick={toggleSound}
+          aria-pressed={soundOn}
+          aria-label={soundOn ? "Turn ambient sound off" : "Turn ambient sound on"}
+          title={soundOn ? "Sound on" : "Sound off"}
+        >
+          {soundOn ? <SoundOnIcon /> : <SoundOffIcon />}
+        </button>
+        <Link href="/#work" className="mh-back">
+          <span aria-hidden="true">&#8249;</span> Back to Studio
+        </Link>
+      </div>
       <div className="mh-menubar">
         <span className="mh-menu-item mh-menu-brand">House OS</span>
         <span className="mh-menu-item">File</span>
