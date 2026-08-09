@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Reveal } from "@/components/Reveal";
 import { startCheckout, type CartLine } from "@/lib/checkout";
 
-type Filter = "all" | "shirts" | "posters" | "stickers" | "mugs";
+type Filter = "all" | "shirts" | "hoodies" | "posters" | "stickers";
 type TeeColor = "white" | "black";
 type Category = Exclude<Filter, "all">;
 
@@ -14,7 +14,7 @@ type MerchItem = {
   tag: string;
   title: string;
   price: number;
-  kind: "tee" | "female-fly-tee" | "devsaurus-tee" | "poster" | "dragon-sticker" | "burst-sticker" | "brew-mug" | "seal-mug";
+  kind: "tee" | "female-fly-tee" | "devsaurus-tee" | "hoodie" | "poster" | "dragon-sticker";
   /** Shown in the product detail view. */
   blurb: string;
   details: string[];
@@ -41,13 +41,14 @@ const DEVSAURUS_TEE = {
 } as const;
 
 const DEVSAURUS_POSTER = "/images/merch/poster-devsaurus-v1.webp";
+const DRAGON_HOODIE = "/images/merch/hoodie-dragon-green-v1.webp";
 
 const FILTERS: { id: Filter; label: string }[] = [
   { id: "all", label: "All" },
   { id: "shirts", label: "Shirts" },
+  { id: "hoodies", label: "Hoodies" },
   { id: "posters", label: "Posters" },
   { id: "stickers", label: "Stickers" },
-  { id: "mugs", label: "Mugs" },
 ];
 
 const ITEMS: MerchItem[] = [
@@ -85,6 +86,17 @@ const ITEMS: MerchItem[] = [
     sizes: APPAREL_SIZES
   },
   {
+    id: "hoodie",
+    cat: "hoodies",
+    tag: "Apparel",
+    title: "Steampunk Dragon Hoodie",
+    price: 40,
+    kind: "hoodie",
+    blurb: "The studio dragon rebuilt as a chrome-plated steampunk beast — goggles, gears, wings and all — patched onto heavyweight fleece. Green only.",
+    details: ["Heavyweight fleece, brushed interior","Kangaroo pocket, drawstring hood","Runs true to size — size up for a boxy fit","Green only"],
+    sizes: APPAREL_SIZES
+  },
+  {
     id: "devsaurus-poster",
     cat: "posters",
     tag: "Print · Limited",
@@ -104,36 +116,6 @@ const ITEMS: MerchItem[] = [
     kind: "dragon-sticker",
     blurb: "Five die-cut seals of the studio dragon, laminated so they survive laptops, bottles and weather.",
     details: ["5 stickers, 7–9 cm each","Matte laminate, UV resistant","Weatherproof — outdoor safe"]
-  },
-  {
-    id: "burst",
-    cat: "stickers",
-    tag: "Sticker Pack",
-    title: "Studio Burst Pack ×5",
-    price: 9,
-    kind: "burst-sticker",
-    blurb: "The starburst marks from the hero, cut loose as five stickers. Same aged print, same fire.",
-    details: ["5 stickers, 7–9 cm each","Matte laminate, UV resistant","Weatherproof — outdoor safe"]
-  },
-  {
-    id: "brew",
-    cat: "mugs",
-    tag: "Drinkware",
-    title: "Wizard Brew Mug",
-    price: 18,
-    kind: "brew-mug",
-    blurb: "A mug built for the third coffee of the afternoon. Glazed inside and out, print wraps the full body.",
-    details: ["325 ml stoneware","Dishwasher and microwave safe","Print wraps both sides"]
-  },
-  {
-    id: "seal",
-    cat: "mugs",
-    tag: "Drinkware",
-    title: "Midnight Seal Mug",
-    price: 18,
-    kind: "seal-mug",
-    blurb: "The midnight variant: ink-dark glaze with the seal in cream. Same body, opposite mood.",
-    details: ["325 ml stoneware","Dishwasher and microwave safe","Print wraps both sides"]
   },
 ];
 
@@ -238,6 +220,24 @@ function Thumb({ kind, tee }: { kind: MerchItem["kind"]; tee: TeeColor }) {
     );
   }
 
+  if (kind === "hoodie") {
+    return (
+      <div className="merch-thumb" style={{ padding: 0 }}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={DRAGON_HOODIE}
+          alt="Steampunk Dragon Hoodie"
+          style={{
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+            display: "block",
+          }}
+        />
+      </div>
+    );
+  }
+
   if (kind === "poster") {
     return (
       <div className="merch-thumb" style={{ padding: 12 }}>
@@ -284,101 +284,6 @@ function Thumb({ kind, tee }: { kind: MerchItem["kind"]; tee: TeeColor }) {
               transform="translate(0,-2) scale(.62) translate(30,25)"
             />
           </g>
-        </svg>
-      </div>
-    );
-  }
-
-  if (kind === "burst-sticker") {
-    return (
-      <div className="merch-thumb">
-        <svg viewBox="0 0 100 100" aria-hidden="true">
-          <g transform="rotate(5 50 50)">
-            <polygon
-              points="50,4 62,20 80,12 78,32 96,40 80,50 88,68 68,64 62,84 50,68 38,84 32,64 12,68 20,50 4,40 22,32 20,12 38,20"
-              fill="#F3E9CE"
-              stroke="#171009"
-              strokeWidth="4"
-              strokeLinejoin="round"
-            />
-            <text
-              x="50"
-              y="46"
-              textAnchor="middle"
-              fontFamily="Archivo Black, sans-serif"
-              fontSize="15"
-              fill="#171009"
-            >
-              WEB
-            </text>
-            <text
-              x="50"
-              y="63"
-              textAnchor="middle"
-              fontFamily="Archivo Black, sans-serif"
-              fontSize="15"
-              fill="#E04E1F"
-            >
-              AI
-            </text>
-          </g>
-        </svg>
-      </div>
-    );
-  }
-
-  if (kind === "brew-mug") {
-    return (
-      <div className="merch-thumb">
-        <svg viewBox="0 0 100 100" aria-hidden="true">
-          <path
-            d="M28 22 L28 78 C28 84 34 88 44 88 L60 88 C70 88 76 84 76 78 L76 22 Z"
-            fill="#F3E9CE"
-            stroke="#171009"
-            strokeWidth="4"
-            strokeLinejoin="round"
-          />
-          <rect x="28" y="22" width="48" height="10" fill="#171009" opacity=".08" />
-          <path
-            d="M76 34 C88 34 90 56 76 60"
-            fill="none"
-            stroke="#171009"
-            strokeWidth="5"
-            strokeLinecap="round"
-          />
-          <path
-            d="M32 50 L72 50 L68 68 L36 68 Z"
-            fill="#E04E1F"
-            stroke="#171009"
-            strokeWidth="3"
-            strokeLinejoin="round"
-          />
-          <text
-            x="52"
-            y="63"
-            textAnchor="middle"
-            fontFamily="Yellowtail, cursive"
-            fontSize="15"
-            fill="#F3E9CE"
-          >
-            Studio
-          </text>
-          <path
-            d="M40 16 Q36 10 40 4"
-            fill="none"
-            stroke="#171009"
-            strokeWidth="3"
-            strokeLinecap="round"
-            opacity=".5"
-          />
-          <path
-            d="M52 16 Q48 8 52 2"
-            fill="none"
-            stroke="#171009"
-            strokeWidth="3"
-            strokeLinecap="round"
-            opacity=".5"
-          />
         </svg>
       </div>
     );
@@ -470,6 +375,19 @@ function Swatches({
     );
   }
 
+  if (kind === "hoodie") {
+    return (
+      <div className="merch-swatches" aria-label="Colors">
+        <button
+          type="button"
+          className="swatch active"
+          style={{ background: "#2FBF3A" }}
+          aria-label="Green"
+        />
+      </div>
+    );
+  }
+
   if (kind === "poster") {
     return null;
   }
@@ -487,37 +405,7 @@ function Swatches({
     );
   }
 
-  if (kind === "burst-sticker" || kind === "brew-mug") {
-    return (
-      <div className="merch-swatches" aria-label="Colors">
-        <button
-          type="button"
-          className="swatch active"
-          style={{ background: "#F3E9CE" }}
-          aria-label="Cream"
-        />
-        {kind === "brew-mug" && (
-          <button
-            type="button"
-            className="swatch"
-            style={{ background: "#171009" }}
-            aria-label="Ink black"
-          />
-        )}
-      </div>
-    );
-  }
-
-  return (
-    <div className="merch-swatches" aria-label="Colors">
-      <button
-        type="button"
-        className="swatch active"
-        style={{ background: "#171009" }}
-        aria-label="Ink black"
-      />
-    </div>
-  );
+  return null;
 }
 
 export function MerchShop() {

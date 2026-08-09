@@ -57,10 +57,11 @@ export const PRODUCTS: Record<string, Product> = {
   },
   hoodie: {
     id: "hoodie",
-    title: "Spellbook Hoodie",
-    unitAmount: 5200,
+    title: "Steampunk Dragon Hoodie",
+    unitAmount: 4000,
     currency: "usd",
-    image: "/images/merch-tee-white.jpg",
+    image: "/images/merch/hoodie-dragon-green-v1.webp",
+    sizes: APPAREL_SIZES,
   },
   dragon: {
     id: "dragon",
@@ -68,27 +69,6 @@ export const PRODUCTS: Record<string, Product> = {
     unitAmount: 900,
     currency: "usd",
     image: "/images/star-2.png",
-  },
-  burst: {
-    id: "burst",
-    title: "Studio Burst Pack ×5",
-    unitAmount: 900,
-    currency: "usd",
-    image: "/images/star-1.png",
-  },
-  brew: {
-    id: "brew",
-    title: "Wizard Brew Mug",
-    unitAmount: 1800,
-    currency: "usd",
-    image: "/images/brand-logo.png",
-  },
-  seal: {
-    id: "seal",
-    title: "Midnight Seal Mug",
-    unitAmount: 1800,
-    currency: "usd",
-    image: "/images/brand-logo.png",
   },
 };
 
