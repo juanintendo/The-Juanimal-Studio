@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Reveal } from "@/components/Reveal";
 import { startCheckout, type CartLine } from "@/lib/checkout";
 
-type Filter = "all" | "shirts" | "stickers" | "mugs";
+type Filter = "all" | "shirts" | "posters" | "stickers" | "mugs";
 type TeeColor = "white" | "black";
 type Category = Exclude<Filter, "all">;
 
@@ -14,7 +14,7 @@ type MerchItem = {
   tag: string;
   title: string;
   price: number;
-  kind: "tee" | "female-fly-tee" | "dragon-sticker" | "burst-sticker" | "brew-mug" | "seal-mug";
+  kind: "tee" | "female-fly-tee" | "devsaurus-tee" | "poster" | "dragon-sticker" | "burst-sticker" | "brew-mug" | "seal-mug";
   /** Shown in the product detail view. */
   blurb: string;
   details: string[];
@@ -23,6 +23,7 @@ type MerchItem = {
 };
 
 const APPAREL_SIZES = ["S", "M", "L", "XL", "XXL"] as const;
+const POSTER_SIZES = ['12x18"', '18x24"', '24x36"'] as const;
 
 const TEE = {
   white: "/images/merch-tee-white.jpg",
@@ -34,9 +35,17 @@ const FEMALE_FLY = {
   back: "/images/merch/tee-female-fly-back-v1.webp",
 } as const;
 
+const DEVSAURUS_TEE = {
+  front: "/images/merch/tee-devsaurus-front-v1.webp",
+  back: "/images/merch/tee-devsaurus-back-v1.webp",
+} as const;
+
+const DEVSAURUS_POSTER = "/images/merch/poster-devsaurus-v1.webp";
+
 const FILTERS: { id: Filter; label: string }[] = [
   { id: "all", label: "All" },
   { id: "shirts", label: "Shirts" },
+  { id: "posters", label: "Posters" },
   { id: "stickers", label: "Stickers" },
   { id: "mugs", label: "Mugs" },
 ];
@@ -57,12 +66,34 @@ const ITEMS: MerchItem[] = [
     id: "female-fly",
     cat: "shirts",
     tag: "Apparel",
-    title: "Female Fly Tee",
+    title: "Devra Tee",
     price: 28,
     kind: "female-fly-tee",
     blurb: "The studio dragon in leather-jacket rockabilly mode, front and back — bandana, glasses, wings spread clear across the shoulder blades. Black only.",
     details: ["240 gsm ringspun cotton","Water-based print, softens with every wash","Runs true to size — size up for a boxy fit","Black only — full front & back print"],
     sizes: APPAREL_SIZES
+  },
+  {
+    id: "devsaurus",
+    cat: "shirts",
+    tag: "Apparel · Limited",
+    title: "DevSaurus Limited Edition",
+    price: 28,
+    kind: "devsaurus-tee",
+    blurb: "A punk-coded dragon soldering away at a CRT, breadboard and all — with the DevSaurus definition printed underneath. Studio mark on the back collar. White, limited run.",
+    details: ["240 gsm ringspun cotton","Water-based print, softens with every wash","Runs true to size — size up for a boxy fit","White only — limited edition, while stocks last"],
+    sizes: APPAREL_SIZES
+  },
+  {
+    id: "devsaurus-poster",
+    cat: "posters",
+    tag: "Print · Limited",
+    title: "DevSaurus Poster Limited Edition",
+    price: 22,
+    kind: "poster",
+    blurb: "The full DevSaurus illustration and definition, printed as a poster. Same aged-halftone linework, straight off the desk and onto your wall.",
+    details: ["Archival matte print","Ships rolled in a rigid mailer","Limited edition, while stocks last"],
+    sizes: POSTER_SIZES
   },
   {
     id: "dragon",
@@ -151,6 +182,52 @@ function Thumb({ kind, tee }: { kind: MerchItem["kind"]; tee: TeeColor }) {
         >
           {side === "front" ? "View back" : "View front"}
         </button>
+      </div>
+    );
+  }
+
+  if (kind === "devsaurus-tee") {
+    return (
+      <div className="merch-thumb" style={{ padding: 0, position: "relative" }}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={DEVSAURUS_TEE[side]}
+          alt={`DevSaurus Limited Edition Tee — ${side === "front" ? "front" : "back"}`}
+          style={{
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+            display: "block",
+          }}
+        />
+        <button
+          type="button"
+          className="merch-side-toggle"
+          onClick={(e) => {
+            e.stopPropagation();
+            setSide((s) => (s === "front" ? "back" : "front"));
+          }}
+        >
+          {side === "front" ? "View back" : "View front"}
+        </button>
+      </div>
+    );
+  }
+
+  if (kind === "poster") {
+    return (
+      <div className="merch-thumb" style={{ padding: 12 }}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={DEVSAURUS_POSTER}
+          alt="DevSaurus Poster Limited Edition"
+          style={{
+            width: "100%",
+            height: "100%",
+            objectFit: "contain",
+            display: "block",
+          }}
+        />
       </div>
     );
   }
@@ -354,6 +431,23 @@ function Swatches({
         />
       </div>
     );
+  }
+
+  if (kind === "devsaurus-tee") {
+    return (
+      <div className="merch-swatches" aria-label="Colors">
+        <button
+          type="button"
+          className="swatch active"
+          style={{ background: "#FFFFFF" }}
+          aria-label="White"
+        />
+      </div>
+    );
+  }
+
+  if (kind === "poster") {
+    return null;
   }
 
   if (kind === "dragon-sticker") {

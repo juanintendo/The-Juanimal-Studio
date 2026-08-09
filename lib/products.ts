@@ -19,6 +19,7 @@ export type Product = {
 };
 
 export const APPAREL_SIZES = ["S", "M", "L", "XL", "XXL"] as const;
+export const POSTER_SIZES = ['12x18"', '18x24"', '24x36"'] as const;
 
 export const PRODUCTS: Record<string, Product> = {
   tee: {
@@ -32,11 +33,27 @@ export const PRODUCTS: Record<string, Product> = {
   },
   "female-fly": {
     id: "female-fly",
-    title: "Female Fly Tee",
+    title: "Devra Tee",
     unitAmount: 2800,
     currency: "usd",
     image: "/images/merch/tee-female-fly-front-v1.webp",
     sizes: APPAREL_SIZES,
+  },
+  devsaurus: {
+    id: "devsaurus",
+    title: "DevSaurus Limited Edition",
+    unitAmount: 2800,
+    currency: "usd",
+    image: "/images/merch/tee-devsaurus-front-v1.webp",
+    sizes: APPAREL_SIZES,
+  },
+  "devsaurus-poster": {
+    id: "devsaurus-poster",
+    title: "DevSaurus Poster Limited Edition",
+    unitAmount: 2200,
+    currency: "usd",
+    image: "/images/merch/poster-devsaurus-v1.webp",
+    sizes: POSTER_SIZES,
   },
   hoodie: {
     id: "hoodie",
