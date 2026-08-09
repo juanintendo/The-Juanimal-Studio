@@ -101,6 +101,55 @@ function FolderIcon() {
   );
 }
 
+function XIcon() {
+  return (
+    <svg viewBox="0 0 64 64" aria-hidden="true" className="mh-icon-glyph">
+      <rect
+        x="4"
+        y="4"
+        width="56"
+        height="56"
+        rx="10"
+        fill="var(--cream)"
+        stroke="var(--ink)"
+        strokeWidth="3"
+      />
+      <path
+        d="M18 18 L46 46 M46 18 L18 46"
+        stroke="var(--ink)"
+        strokeWidth="4.5"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
+function MailIcon() {
+  return (
+    <svg viewBox="0 0 64 64" aria-hidden="true" className="mh-icon-glyph">
+      <rect
+        x="6"
+        y="14"
+        width="52"
+        height="36"
+        rx="5"
+        fill="var(--cream)"
+        stroke="var(--ink)"
+        strokeWidth="3"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M8 17 L32 36 L56 17"
+        fill="none"
+        stroke="var(--ink)"
+        strokeWidth="3"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
 export function MinasHouseCaseStudy() {
   const [open, setOpen] = useState<WindowId | null>(null);
   const clock = useClock();
@@ -125,7 +174,6 @@ export function MinasHouseCaseStudy() {
       <Link href="/#work" className="mh-back">
         <span aria-hidden="true">&#8249;</span> Back to Studio
       </Link>
-
       <div className="mh-menubar">
         <span className="mh-menu-item mh-menu-brand">House OS</span>
         <span className="mh-menu-item">File</span>
@@ -136,31 +184,40 @@ export function MinasHouseCaseStudy() {
       </div>
 
       <header className="mh-hero">
-        <div className="mh-hero-burst" aria-hidden="true">
-          <svg viewBox="0 0 200 200">
-            <g fill="var(--tan)" opacity=".5">
-              {Array.from({ length: 16 }).map((_, i) => {
-                const angle = (360 / 16) * i;
-                return (
-                  <rect
-                    key={i}
-                    x="98"
-                    y="6"
-                    width="4"
-                    height="34"
-                    rx="2"
-                    transform={`rotate(${angle} 100 100)`}
-                  />
-                );
-              })}
-            </g>
-          </svg>
+        <div className="mh-hero-visual">
+          <div className="mh-hero-burst" aria-hidden="true">
+            <svg viewBox="0 0 200 200">
+              <g fill="var(--tan)" opacity=".5">
+                {Array.from({ length: 16 }).map((_, i) => {
+                  const angle = (360 / 16) * i;
+                  return (
+                    <rect
+                      key={i}
+                      x="98"
+                      y="6"
+                      width="4"
+                      height="34"
+                      rx="2"
+                      transform={`rotate(${angle} 100 100)`}
+                    />
+                  );
+                })}
+              </g>
+            </svg>
+          </div>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/images/work/mina-luna-v1.webp"
+            alt="Mina sitting on a crescent moon"
+            className="mh-hero-mina"
+          />
         </div>
         <span className="mh-kicker">Case Study · The Mina Studio</span>
         <h1 className="mh-title">Mina AI Grow House</h1>
         <p className="mh-tagline">Designing a Home for an Artificial Mind</p>
         <p className="mh-hint">
-          double-click — er, click — an icon below to open it
+          double-click — er, click — a folder below to open it and explore
+          my world
         </p>
       </header>
 
@@ -176,18 +233,39 @@ export function MinasHouseCaseStudy() {
             <span className="mh-icon-label">{icon.label}</span>
           </button>
         ))}
+        <a
+          href="#"
+          className="mh-icon"
+          aria-label="Mina on X (coming soon)"
+          title="Coming soon"
+          onClick={(e) => e.preventDefault()}
+        >
+          <XIcon />
+          <span className="mh-icon-label">X</span>
+        </a>
+        <a
+          href="mailto:hello@theminastudio.ai"
+          className="mh-icon"
+          aria-label="Email Mina"
+        >
+          <MailIcon />
+          <span className="mh-icon-label">Write Mina</span>
+        </a>
       </div>
 
       <footer className="mh-footer">
-        <span className="mh-footer-mark">The Mina Studio</span>
-        <span className="mh-footer-sep" aria-hidden="true">
-          ·
-        </span>
-        <span>Research. Design. Imagination.</span>
-        <span className="mh-footer-sep" aria-hidden="true">
-          ·
-        </span>
-        <span>Est. 2026</span>
+        <div className="mh-footer-track">
+          {[0, 1].map((i) => (
+            <span className="mh-footer-inner" key={i} aria-hidden={i === 1}>
+              <span className="mh-footer-mark">The Mina Studio and Lab.</span>
+              <span className="mh-footer-sep">·</span>
+              <span>Design by Mina with Human Consulting.</span>
+              <span className="mh-footer-sep">·</span>
+              <span>Imagining and Creating since 2026.</span>
+              <span className="mh-footer-heart">💛</span>
+            </span>
+          ))}
+        </div>
       </footer>
 
       {activeIcon && (
