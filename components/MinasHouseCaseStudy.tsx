@@ -115,11 +115,45 @@ function XIcon() {
         strokeWidth="3"
       />
       <path
-        d="M18 18 L46 46 M46 18 L18 46"
-        stroke="var(--ink)"
-        strokeWidth="4.5"
-        strokeLinecap="round"
+        d="M17 16h7.2l7.9 10.7L41.3 16H47L34.6 31.6 48 48h-7.2l-8.7-11.7L21 48h-5.7l13.2-16.7Z"
+        fill="var(--ink)"
       />
+    </svg>
+  );
+}
+
+function InstagramIcon() {
+  return (
+    <svg viewBox="0 0 64 64" aria-hidden="true" className="mh-icon-glyph">
+      <rect
+        x="4"
+        y="4"
+        width="56"
+        height="56"
+        rx="10"
+        fill="var(--cream)"
+        stroke="var(--ink)"
+        strokeWidth="3"
+      />
+      <rect
+        x="14"
+        y="14"
+        width="36"
+        height="36"
+        rx="11"
+        fill="none"
+        stroke="var(--ink)"
+        strokeWidth="3.4"
+      />
+      <circle
+        cx="32"
+        cy="32"
+        r="9.5"
+        fill="none"
+        stroke="var(--ink)"
+        strokeWidth="3.4"
+      />
+      <circle cx="43" cy="21" r="2.6" fill="var(--ink)" />
     </svg>
   );
 }
@@ -184,6 +218,9 @@ export function MinasHouseCaseStudy() {
       </div>
 
       <header className="mh-hero">
+        <span className="mh-kicker">Case Study · The Mina Studio</span>
+        <h1 className="mh-title">Mina AI Grow House</h1>
+
         <div className="mh-hero-visual">
           <div className="mh-hero-burst" aria-hidden="true">
             <svg viewBox="0 0 200 200">
@@ -212,8 +249,7 @@ export function MinasHouseCaseStudy() {
             className="mh-hero-mina"
           />
         </div>
-        <span className="mh-kicker">Case Study · The Mina Studio</span>
-        <h1 className="mh-title">Mina AI Grow House</h1>
+
         <p className="mh-tagline">Designing a Home for an Artificial Mind</p>
         <p className="mh-hint">
           double-click — er, click — a folder below to open it and explore
@@ -244,6 +280,16 @@ export function MinasHouseCaseStudy() {
           <span className="mh-icon-label">X</span>
         </a>
         <a
+          href="#"
+          className="mh-icon"
+          aria-label="Mina on Instagram (coming soon)"
+          title="Coming soon"
+          onClick={(e) => e.preventDefault()}
+        >
+          <InstagramIcon />
+          <span className="mh-icon-label">Instagram</span>
+        </a>
+        <a
           href="mailto:hello@theminastudio.ai"
           className="mh-icon"
           aria-label="Email Mina"
@@ -254,18 +300,12 @@ export function MinasHouseCaseStudy() {
       </div>
 
       <footer className="mh-footer">
-        <div className="mh-footer-track">
-          {[0, 1].map((i) => (
-            <span className="mh-footer-inner" key={i} aria-hidden={i === 1}>
-              <span className="mh-footer-mark">The Mina Studio and Lab.</span>
-              <span className="mh-footer-sep">·</span>
-              <span>Design by Mina with Human Consulting.</span>
-              <span className="mh-footer-sep">·</span>
-              <span>Imagining and Creating since 2026.</span>
-              <span className="mh-footer-heart">💛</span>
-            </span>
-          ))}
-        </div>
+        <span className="mh-footer-mark">The Mina Studio and Lab.</span>
+        <span className="mh-footer-sep">·</span>
+        <span>Design by Mina with Human Consulting.</span>
+        <span className="mh-footer-sep">·</span>
+        <span>Imagining and Creating since 2026.</span>
+        <span className="mh-footer-heart">💛</span>
       </footer>
 
       {activeIcon && (
