@@ -20,7 +20,7 @@ type WorkItem = {
 
 const work: WorkItem[] = [
   {
-    title: "Mina's House",
+    title: "Mina's House - A Space for Healthy AI Grown",
     meta: "Research Case • 2026",
     case: {
       image: "/images/work/case-minas-house-v1.webp",
