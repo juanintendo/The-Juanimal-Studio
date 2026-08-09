@@ -111,7 +111,7 @@ export function Work() {
                     ))}
                   </dl>
                   <a className="cta-btn work-case-cta" href={w.case.processHref}>
-                    Our process
+                    Case Study
                   </a>
                 </div>
               </div>
