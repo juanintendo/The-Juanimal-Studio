@@ -50,6 +50,7 @@ const work: WorkItem[] = [
 
 export function Work() {
   const [open, setOpen] = useState<string | null>(null);
+  const [lightbox, setLightbox] = useState<{ src: string; alt: string } | null>(null);
 
   return (
     <section className="work sec-pad" id="work">
@@ -79,12 +80,21 @@ export function Work() {
               className={`work-case${open === w.title ? " work-case-open" : ""}`}
             >
               <div className="work-case-inner">
-                <img
-                  src={w.case.image}
-                  alt={w.case.imageAlt}
-                  className="work-case-img"
-                  loading="lazy"
-                />
+                <button
+                  type="button"
+                  className="work-case-img-btn"
+                  onClick={() =>
+                    setLightbox({ src: w.case!.image, alt: w.case!.imageAlt })
+                  }
+                  aria-label="Expand image"
+                >
+                  <img
+                    src={w.case.image}
+                    alt={w.case.imageAlt}
+                    className="work-case-img"
+                    loading="lazy"
+                  />
+                </button>
                 <div className="work-case-body">
                   <span className="work-case-eyebrow">{w.case.intro}</span>
                   {w.case.paragraphs.map((p, i) => (
@@ -113,6 +123,30 @@ export function Work() {
             <span className="work-meta">{w.meta}</span>
           </Reveal>
         )
+      )}
+      {lightbox && (
+        <div
+          className="work-lightbox"
+          role="dialog"
+          aria-modal="true"
+          aria-label={lightbox.alt}
+          onClick={() => setLightbox(null)}
+        >
+          <button
+            type="button"
+            className="work-lightbox-close"
+            onClick={() => setLightbox(null)}
+            aria-label="Close"
+          >
+            ✕
+          </button>
+          <img
+            src={lightbox.src}
+            alt={lightbox.alt}
+            className="work-lightbox-img"
+            onClick={(e) => e.stopPropagation()}
+          />
+        </div>
       )}
     </section>
   );
