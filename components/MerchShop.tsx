@@ -164,7 +164,7 @@ function Thumb({ kind, tee }: { kind: MerchItem["kind"]; tee: TeeColor }) {
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={FEMALE_FLY[side]}
-          alt={`Female Fly Tee — ${side === "front" ? "front" : "back"}`}
+          alt={`Devra Tee — ${side === "front" ? "front" : "back"}`}
           style={{
             width: "100%",
             height: "100%",
@@ -174,13 +174,25 @@ function Thumb({ kind, tee }: { kind: MerchItem["kind"]; tee: TeeColor }) {
         />
         <button
           type="button"
-          className="merch-side-toggle"
+          className="merch-side-arrow left"
+          aria-label="Show front"
           onClick={(e) => {
             e.stopPropagation();
-            setSide((s) => (s === "front" ? "back" : "front"));
+            setSide("front");
           }}
         >
-          {side === "front" ? "View back" : "View front"}
+          &#8249;
+        </button>
+        <button
+          type="button"
+          className="merch-side-arrow right"
+          aria-label="Show back"
+          onClick={(e) => {
+            e.stopPropagation();
+            setSide("back");
+          }}
+        >
+          &#8250;
         </button>
       </div>
     );
@@ -202,13 +214,25 @@ function Thumb({ kind, tee }: { kind: MerchItem["kind"]; tee: TeeColor }) {
         />
         <button
           type="button"
-          className="merch-side-toggle"
+          className="merch-side-arrow left"
+          aria-label="Show front"
           onClick={(e) => {
             e.stopPropagation();
-            setSide((s) => (s === "front" ? "back" : "front"));
+            setSide("front");
           }}
         >
-          {side === "front" ? "View back" : "View front"}
+          &#8249;
+        </button>
+        <button
+          type="button"
+          className="merch-side-arrow right"
+          aria-label="Show back"
+          onClick={(e) => {
+            e.stopPropagation();
+            setSide("back");
+          }}
+        >
+          &#8250;
         </button>
       </div>
     );
