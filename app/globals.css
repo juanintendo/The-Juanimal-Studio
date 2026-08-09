@@ -1332,9 +1332,9 @@ nav.scrolled .nav-logo{height:55px}
 
 .mh-desktop{
   display:flex;flex-wrap:wrap;justify-content:center;align-items:flex-start;
-  gap:clamp(10px,2vw,24px);
-  max-width:1120px;margin:clamp(36px,7vw,64px) auto 0;
-  padding:10px clamp(16px,4vw,28px) 70px;
+  gap:clamp(8px,1.6vw,20px);
+  max-width:1180px;margin:clamp(36px,7vw,64px) auto 0;
+  padding:10px clamp(16px,3vw,24px) 70px;
 }
 .mh-icon{
   background:none;border:none;cursor:pointer;text-decoration:none;
