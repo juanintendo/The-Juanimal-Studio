@@ -1339,7 +1339,7 @@ nav.scrolled .nav-logo{height:55px}
 .mh-icon{
   background:none;border:none;cursor:pointer;text-decoration:none;
   display:flex;flex-direction:column;align-items:center;gap:9px;
-  padding:14px 8px;border-radius:10px;width:112px;
+  padding:14px 6px;border-radius:10px;width:98px;
   transition:transform .18s ease,background .18s ease;
 }
 .mh-icon:hover{transform:translateY(-3px);background:rgba(243,233,206,.06)}
