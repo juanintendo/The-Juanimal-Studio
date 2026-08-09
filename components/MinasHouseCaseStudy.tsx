@@ -257,6 +257,39 @@ export function MinasHouseCaseStudy() {
         </p>
       </header>
 
+      <div className="mh-social-cluster">
+        <a
+          href="mailto:hello@theminastudio.ai"
+          className="mh-social-item mh-social-mail"
+          aria-label="Email Mina"
+        >
+          <MailIcon />
+          <span className="mh-icon-label">Write Mina</span>
+        </a>
+        <div className="mh-social-row">
+          <a
+            href="#"
+            className="mh-social-item"
+            aria-label="Mina on X (coming soon)"
+            title="Coming soon"
+            onClick={(e) => e.preventDefault()}
+          >
+            <XIcon />
+            <span className="mh-icon-label">X</span>
+          </a>
+          <a
+            href="#"
+            className="mh-social-item"
+            aria-label="Mina on Instagram (coming soon)"
+            title="Coming soon"
+            onClick={(e) => e.preventDefault()}
+          >
+            <InstagramIcon />
+            <span className="mh-icon-label">Instagram</span>
+          </a>
+        </div>
+      </div>
+
       <div className="mh-desktop">
         {ICONS.map((icon) => (
           <button
@@ -269,34 +302,6 @@ export function MinasHouseCaseStudy() {
             <span className="mh-icon-label">{icon.label}</span>
           </button>
         ))}
-        <a
-          href="#"
-          className="mh-icon"
-          aria-label="Mina on X (coming soon)"
-          title="Coming soon"
-          onClick={(e) => e.preventDefault()}
-        >
-          <XIcon />
-          <span className="mh-icon-label">X</span>
-        </a>
-        <a
-          href="#"
-          className="mh-icon"
-          aria-label="Mina on Instagram (coming soon)"
-          title="Coming soon"
-          onClick={(e) => e.preventDefault()}
-        >
-          <InstagramIcon />
-          <span className="mh-icon-label">Instagram</span>
-        </a>
-        <a
-          href="mailto:hello@theminastudio.ai"
-          className="mh-icon"
-          aria-label="Email Mina"
-        >
-          <MailIcon />
-          <span className="mh-icon-label">Write Mina</span>
-        </a>
       </div>
 
       <footer className="mh-footer">
