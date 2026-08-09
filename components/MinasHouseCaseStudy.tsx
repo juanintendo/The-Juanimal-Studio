@@ -218,30 +218,30 @@ function SoundOffIcon() {
   );
 }
 
-/** Soft ambient "space" pad, synthesized on the fly — no audio file needed. */
+/** Calm synthwave pad, synthesized on the fly — no audio file needed. */
 function useAmbientSpaceSound() {
   const [soundOn, setSoundOn] = useState(false);
   const ctxRef = useRef<AudioContext | null>(null);
   const masterRef = useRef<GainNode | null>(null);
-  const nodesRef = useRef<
-    { osc: OscillatorNode; noise: AudioBufferSourceNode } | null
-  >(null);
+  const stopFnsRef = useRef<Array<() => void>>([]);
+  const schedulerRef = useRef<number | null>(null);
 
   const stop = () => {
     const ctx = ctxRef.current;
     const master = masterRef.current;
     if (!ctx || !master) return;
+    if (schedulerRef.current) window.clearInterval(schedulerRef.current);
     const now = ctx.currentTime;
     master.gain.cancelScheduledValues(now);
     master.gain.setValueAtTime(master.gain.value, now);
     master.gain.linearRampToValueAtTime(0, now + 1.2);
     window.setTimeout(() => {
-      nodesRef.current?.osc.stop();
-      nodesRef.current?.noise.stop();
+      stopFnsRef.current.forEach((fn) => fn());
+      stopFnsRef.current = [];
       ctx.close();
       ctxRef.current = null;
       masterRef.current = null;
-      nodesRef.current = null;
+      schedulerRef.current = null;
     }, 1300);
   };
 
@@ -258,56 +258,85 @@ function useAmbientSpaceSound() {
     master.connect(ctx.destination);
     masterRef.current = master;
 
-    // Two detuned drones, slowly drifting
-    const droneGain = ctx.createGain();
-    droneGain.gain.value = 0.5;
-    droneGain.connect(master);
+    // Feedback delay for that retro night-drive shimmer
+    const delay = ctx.createDelay(2);
+    delay.delayTime.value = 0.42;
+    const feedback = ctx.createGain();
+    feedback.gain.value = 0.35;
+    const delayFilter = ctx.createBiquadFilter();
+    delayFilter.type = "lowpass";
+    delayFilter.frequency.value = 2200;
+    delay.connect(delayFilter);
+    delayFilter.connect(feedback);
+    feedback.connect(delay);
+    delay.connect(master);
 
-    const osc1 = ctx.createOscillator();
-    osc1.type = "sine";
-    osc1.frequency.value = 110;
-    const osc2 = ctx.createOscillator();
-    osc2.type = "sine";
-    osc2.frequency.value = 164.8;
-    const droneFilter = ctx.createBiquadFilter();
-    droneFilter.type = "lowpass";
-    droneFilter.frequency.value = 500;
-    osc1.connect(droneFilter);
-    osc2.connect(droneFilter);
-    droneFilter.connect(droneGain);
+    // --- Warm detuned pad (chord voices, slowly fading in/out) ---
+    const padGain = ctx.createGain();
+    padGain.gain.value = 0.16;
+    const padFilter = ctx.createBiquadFilter();
+    padFilter.type = "lowpass";
+    padFilter.frequency.value = 900;
+    padFilter.Q.value = 0.6;
+    padFilter.connect(padGain);
+    padGain.connect(master);
+    padGain.connect(delay);
 
-    const lfo = ctx.createOscillator();
-    lfo.frequency.value = 0.05;
-    const lfoGain = ctx.createGain();
-    lfoGain.gain.value = 40;
-    lfo.connect(lfoGain);
-    lfoGain.connect(droneFilter.frequency);
+    const filterLfo = ctx.createOscillator();
+    filterLfo.frequency.value = 0.06;
+    const filterLfoGain = ctx.createGain();
+    filterLfoGain.gain.value = 260;
+    filterLfo.connect(filterLfoGain);
+    filterLfoGain.connect(padFilter.frequency);
+    filterLfo.start();
+    stopFnsRef.current.push(() => filterLfo.stop());
 
-    // Airy filtered noise, like distant stellar hiss
-    const noiseBuffer = ctx.createBuffer(1, ctx.sampleRate * 2, ctx.sampleRate);
-    const data = noiseBuffer.getChannelData(0);
-    for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
-    const noise = ctx.createBufferSource();
-    noise.buffer = noiseBuffer;
-    noise.loop = true;
-    const noiseFilter = ctx.createBiquadFilter();
-    noiseFilter.type = "bandpass";
-    noiseFilter.frequency.value = 900;
-    noiseFilter.Q.value = 0.7;
-    const noiseGain = ctx.createGain();
-    noiseGain.gain.value = 0.06;
-    noise.connect(noiseFilter);
-    noiseFilter.connect(noiseGain);
-    noiseGain.connect(master);
+    // Am9-ish stack, laid back synthwave chord
+    const padFreqs = [110, 130.8, 164.8, 196, 220];
+    padFreqs.forEach((freq, i) => {
+      [1, 1.003].forEach((detune) => {
+        const osc = ctx.createOscillator();
+        osc.type = "sawtooth";
+        osc.frequency.value = freq * detune;
+        const voiceGain = ctx.createGain();
+        voiceGain.gain.value = 0.5 / padFreqs.length;
+        osc.connect(voiceGain);
+        voiceGain.connect(padFilter);
+        osc.start();
+        stopFnsRef.current.push(() => osc.stop());
+      });
+      void i;
+    });
 
-    osc1.start();
-    osc2.start();
-    lfo.start();
-    noise.start();
-    nodesRef.current = { osc: osc1, noise };
+    // --- Soft plucked arpeggio, syncopated and sparse ---
+    const arpGain = ctx.createGain();
+    arpGain.gain.value = 0.5;
+    arpGain.connect(delay);
+    arpGain.connect(master);
+
+    const scale = [220, 261.6, 293.7, 329.6, 392, 440, 523.3];
+    let step = 0;
+    const playPluck = () => {
+      const freq = scale[Math.floor(Math.random() * scale.length)];
+      const osc = ctx.createOscillator();
+      osc.type = "triangle";
+      osc.frequency.value = step % 3 === 0 ? freq / 2 : freq;
+      const g = ctx.createGain();
+      g.gain.setValueAtTime(0, ctx.currentTime);
+      g.gain.linearRampToValueAtTime(0.18, ctx.currentTime + 0.05);
+      g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 1.4);
+      osc.connect(g);
+      g.connect(arpGain);
+      osc.start();
+      osc.stop(ctx.currentTime + 1.5);
+      step++;
+    };
+    schedulerRef.current = window.setInterval(() => {
+      if (Math.random() > 0.35) playPluck();
+    }, 900);
 
     const now = ctx.currentTime;
-    master.gain.linearRampToValueAtTime(0.22, now + 1.5);
+    master.gain.linearRampToValueAtTime(0.4, now + 1.5);
   };
 
   useEffect(() => {
