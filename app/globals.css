@@ -470,6 +470,57 @@ section{position:relative}
   flex:0 1 auto;
 }
 
+.work-item{border-bottom:4px solid var(--ink)}
+.work-item .work-row{border-bottom:none;padding-bottom:clamp(22px,4vw,44px)}
+.work-item:first-of-type .work-row{border-top:4px solid var(--ink)}
+.work-row-btn{
+  width:100%;background:none;border:none;padding-top:clamp(22px,4vw,44px);
+  cursor:pointer;font:inherit;text-align:left;
+}
+.work-row-btn::after{
+  content:"+";font-family:var(--disp);font-size:clamp(20px,4vw,32px);
+  line-height:1;margin-left:12px;transition:transform .3s ease;
+}
+.work-row-btn[aria-expanded="true"]::after{transform:rotate(45deg)}
+
+.work-case{
+  max-height:0;overflow:hidden;
+  transition:max-height .5s ease;
+}
+.work-case-open{max-height:2400px}
+.work-case-inner{
+  display:flex;gap:clamp(20px,4vw,48px);flex-wrap:wrap;
+  padding:0 0 clamp(28px,5vw,48px);
+}
+.work-case-img{
+  flex:1 1 340px;max-width:480px;width:100%;height:auto;
+  border:4px solid var(--ink);box-shadow:8px 8px 0 var(--ink);
+  background:var(--cream);
+}
+.work-case-body{flex:1 1 320px;min-width:0;color:var(--cream)}
+.work-case-eyebrow{
+  display:block;font-family:var(--script);font-size:clamp(22px,4vw,32px);
+  color:var(--tan);margin-bottom:14px;line-height:1.1;
+}
+.work-case-p{
+  font-family:var(--body);font-size:clamp(14px,1.8vw,16px);line-height:1.6;
+  color:var(--cream);opacity:.92;margin:0 0 16px;
+}
+.work-case-facts{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));
+  gap:14px 20px;margin:20px 0 8px;padding:18px 0 0;border-top:2px solid rgba(243,233,206,.35);
+}
+.work-case-fact dt{
+  font-family:var(--logo);font-weight:800;font-size:9px;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--tan);margin-bottom:4px;
+}
+.work-case-fact dd{
+  font-family:var(--body);font-size:14px;color:var(--cream);margin:0;
+}
+.work-case-cta{
+  background:var(--cream);color:var(--ink);margin-top:22px;
+}
+
 /* ---------- AGED FOOTER ---------- */
 .aged{
   background:linear-gradient(160deg,#8a4a17 0%,#6E3410 40%,#4c2109 100%);
