@@ -30,6 +30,14 @@ export const PRODUCTS: Record<string, Product> = {
     variants: ["black", "white"],
     sizes: APPAREL_SIZES,
   },
+  "female-fly": {
+    id: "female-fly",
+    title: "Female Fly Tee",
+    unitAmount: 2800,
+    currency: "usd",
+    image: "/images/merch/tee-female-fly-front-v1.webp",
+    sizes: APPAREL_SIZES,
+  },
   hoodie: {
     id: "hoodie",
     title: "Spellbook Hoodie",

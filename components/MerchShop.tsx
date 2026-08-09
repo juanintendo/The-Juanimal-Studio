@@ -14,7 +14,7 @@ type MerchItem = {
   tag: string;
   title: string;
   price: number;
-  kind: "tee" | "dragon-sticker" | "burst-sticker" | "brew-mug" | "seal-mug";
+  kind: "tee" | "female-fly-tee" | "dragon-sticker" | "burst-sticker" | "brew-mug" | "seal-mug";
   /** Shown in the product detail view. */
   blurb: string;
   details: string[];
@@ -27,6 +27,11 @@ const APPAREL_SIZES = ["S", "M", "L", "XL", "XXL"] as const;
 const TEE = {
   white: "/images/merch-tee-white.jpg",
   black: "/images/merch-tee-black.jpg",
+} as const;
+
+const FEMALE_FLY = {
+  front: "/images/merch/tee-female-fly-front-v1.webp",
+  back: "/images/merch/tee-female-fly-back-v1.webp",
 } as const;
 
 const FILTERS: { id: Filter; label: string }[] = [
@@ -46,6 +51,17 @@ const ITEMS: MerchItem[] = [
     kind: "tee",
     blurb: "Heavyweight cotton, printed the way the site looks: aged halftone, hard ink, no gloss. The dragon rides the chest; the studio mark sits on the back collar.",
     details: ["240 gsm ringspun cotton","Water-based print, softens with every wash","Runs true to size — size up for a boxy fit"],
+    sizes: APPAREL_SIZES
+  },
+  {
+    id: "female-fly",
+    cat: "shirts",
+    tag: "Apparel",
+    title: "Female Fly Tee",
+    price: 28,
+    kind: "female-fly-tee",
+    blurb: "The studio dragon in leather-jacket rockabilly mode, front and back — bandana, glasses, wings spread clear across the shoulder blades. Black only.",
+    details: ["240 gsm ringspun cotton","Water-based print, softens with every wash","Runs true to size — size up for a boxy fit","Black only — full front & back print"],
     sizes: APPAREL_SIZES
   },
   {
@@ -91,6 +107,8 @@ const ITEMS: MerchItem[] = [
 ];
 
 function Thumb({ kind, tee }: { kind: MerchItem["kind"]; tee: TeeColor }) {
+  const [side, setSide] = useState<"front" | "back">("front");
+
   if (kind === "tee") {
     return (
       <div className="merch-thumb" style={{ padding: 0 }}>
@@ -105,6 +123,34 @@ function Thumb({ kind, tee }: { kind: MerchItem["kind"]; tee: TeeColor }) {
             display: "block",
           }}
         />
+      </div>
+    );
+  }
+
+  if (kind === "female-fly-tee") {
+    return (
+      <div className="merch-thumb" style={{ padding: 0, position: "relative" }}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={FEMALE_FLY[side]}
+          alt={`Female Fly Tee — ${side === "front" ? "front" : "back"}`}
+          style={{
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+            display: "block",
+          }}
+        />
+        <button
+          type="button"
+          className="merch-side-toggle"
+          onClick={(e) => {
+            e.stopPropagation();
+            setSide((s) => (s === "front" ? "back" : "front"));
+          }}
+        >
+          {side === "front" ? "View back" : "View front"}
+        </button>
       </div>
     );
   }
@@ -292,6 +338,19 @@ function Swatches({
           style={{ background: "#171009" }}
           aria-label="Black"
           onClick={() => onTee("black")}
+        />
+      </div>
+    );
+  }
+
+  if (kind === "female-fly-tee") {
+    return (
+      <div className="merch-swatches" aria-label="Colors">
+        <button
+          type="button"
+          className="swatch active"
+          style={{ background: "#171009" }}
+          aria-label="Black"
         />
       </div>
     );
@@ -493,14 +552,21 @@ export function MerchShop() {
             className="merch-card"
             data-cat={item.cat}
           >
-            <button
-              type="button"
+            <div
+              role="button"
+              tabIndex={0}
               className="merch-card-open"
               onClick={() => openDetail(item)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  openDetail(item);
+                }
+              }}
               aria-label={`View ${item.title}`}
             >
               <Thumb kind={item.kind} tee={tee} />
-            </button>
+            </div>
             <div className="merch-body">
               <span className="merch-tag">{item.tag}</span>
               <h3>
