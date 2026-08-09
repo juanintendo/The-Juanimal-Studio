@@ -645,7 +645,7 @@ nav.scrolled .nav-logo{height:55px}
 .mf-btn.active,.mf-btn:hover{background:var(--ink);color:var(--cream)}
 .merch-grid{
   display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr));
+  grid-template-columns:repeat(auto-fill,minmax(min(100%,250px),1fr));
   gap:clamp(20px,3vw,32px);
 }
 .merch-card{
