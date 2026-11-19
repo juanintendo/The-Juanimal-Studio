@@ -293,16 +293,16 @@ export const COPY = {
       ],
     },
     stats: [
-      { count: 7, label: "Live case studies across SaaS, film & games" },
+      { count: 8, label: "Live case studies across SaaS, film & games" },
       { count: 12, label: "Classical animation principles checked per frame" },
       { count: 11, label: "Proprietary agent production skills in our pipeline" },
       { count: 2, label: "Native launch languages (English & Spanish)" },
     ],
     work: {
-      eyebrow: "Selected Work (7 Shipped & Framed Uncropped)",
+      eyebrow: "Selected Work (8 Shipped & Framed Uncropped)",
       title: "Motion, code & launched systems",
       filters: [
-        { id: "all", label: "All (7)" },
+        { id: "all", label: "All (8)" },
         { id: "launch", label: "Launch Kits & SaaS" },
         { id: "code", label: "Code Motion & Web" },
         { id: "animation", label: "Animation & Games" },
@@ -312,6 +312,27 @@ export const COPY = {
       watchFilm: "Watch Full Film",
       closeModal: "Close",
       items: [
+        {
+          id: "vectra-twin",
+          category: "code",
+          title: "Vectra Twin // AI",
+          meta: "Portfolio Web Concept #01 • Scroll Typography & 3D Canvas • 2026",
+          intro: "Wembi-caliber spatial AI portal—available for B2B clients.",
+          paragraphs: [
+            "An autonomous digital-twin flagship site built in Key-Lime & Carbon Obsidian. Features scroll-scrubbed word illumination, morphing system-state badges, and a live 3D Canvas turbine twin.",
+            "Includes our signature WHAT / HOW / WHY / WHERE chapter bar that hides during active scroll and returns at rest, paired with a 60fps cursor trail and instant RECAP executive drawer.",
+          ],
+          facts: [
+            { label: "Stack", value: "Next.js + Canvas 3D + Scroll Scrub" },
+            { label: "Navigation", value: "Idle-reveal WHAT/HOW/WHY/WHERE + RECAP" },
+            { label: "Visuals", value: "Custom Key-Lime Core Plate + Trail" },
+            { label: "Status", value: "Live Interactive Prototype (EN/ES)" },
+          ],
+          primaryHref: "/work/vectra-twin",
+          primaryLabel: "Open Live Website →",
+          secondaryHref: "/contact",
+          secondaryLabel: "Commission Similar Site →",
+        },
         {
           id: "frame-by-agents",
           category: "launch",
@@ -904,16 +925,16 @@ export const COPY = {
       ],
     },
     stats: [
-      { count: 7, label: "Casos reales en SaaS, cine y videojuegos" },
+      { count: 8, label: "Casos reales en SaaS, cine y videojuegos" },
       { count: 12, label: "Principios clásicos revisados en cada frame" },
       { count: 11, label: "Skills propietarios de producción en nuestro pipeline" },
       { count: 2, label: "Idiomas nativos de lanzamiento (Inglés y Español)" },
     ],
     work: {
-      eyebrow: "Trabajo Seleccionado (7 Reales · Cero Rostros Recortados)",
+      eyebrow: "Trabajo Seleccionado (8 Reales · Cero Rostros Recortados)",
       title: "Motion, código y sistemas publicados",
       filters: [
-        { id: "all", label: "Todos (7)" },
+        { id: "all", label: "Todos (8)" },
         { id: "launch", label: "Launch Kits & SaaS" },
         { id: "code", label: "Code Motion & Web" },
         { id: "animation", label: "Animación & Juegos" },
@@ -923,6 +944,27 @@ export const COPY = {
       watchFilm: "Ver Corto Completo",
       closeModal: "Cerrar",
       items: [
+        {
+          id: "vectra-twin",
+          category: "code",
+          title: "Vectra Twin // AI",
+          meta: "Portafolio Web #01 • Tipografía Scroll & Canvas 3D • 2026",
+          intro: "Portal de gemelos digitales con IA—servicio disponible para clientes B2B.",
+          paragraphs: [
+            "Primera web de nuestra nueva cartera de portafolio en Key-Lime Eléctrico sobre Carbón. Integra iluminación palabra por palabra al scrollear, swaps dinámicos de estado y un núcleo 3D en Canvas.",
+            "Incluye la barra posicional WHAT / HOW / WHY / WHERE que desaparece al hacer scroll y vuelve al detenerte, un rastro key-lime de 60fps en el cursor y un panel ejecutivo RECAP.",
+          ],
+          facts: [
+            { label: "Stack", value: "Next.js + Canvas 3D + Scroll Scrub" },
+            { label: "Navegación", value: "Dock inteligente + RECAP Ejecutivo" },
+            { label: "Visuales", value: "Core Key-Lime custom + Cursor Trail" },
+            { label: "Estado", value: "Prototipo interactivo vivo (EN/ES)" },
+          ],
+          primaryHref: "/work/vectra-twin",
+          primaryLabel: "Abrir Web en Vivo →",
+          secondaryHref: "/contact",
+          secondaryLabel: "Cotizar Web Similar →",
+        },
         {
           id: "frame-by-agents",
           category: "launch",

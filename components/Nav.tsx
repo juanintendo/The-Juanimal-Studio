@@ -189,7 +189,6 @@ export function Nav({ active = null }: NavProps) {
           alt="The Juanimal Studio"
           className="nav-logo"
         />
-        <span className="brand-wordmark">JUANIMAL</span>
       </Link>
 
       <div className="nav-right-controls">

@@ -254,6 +254,17 @@ export function WorkShowcaseV2() {
 
               {/* Media Stage obeying Framing Contract: 100% object-fit: contain inside .cel-frame */}
               <div ref={isIoa ? reelRef : undefined} className="wsv2-media">
+                {item.id === "vectra-twin" && (
+                  <div className="cel-frame cel-video-16x9">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src="/images/v3/vectra-twin-core.png"
+                      alt="Vectra Twin key-lime isometric digital twin core and orbital telemetry"
+                      loading="lazy"
+                    />
+                  </div>
+                )}
+
                 {item.id === "frame-by-agents" && (
                   <div className="wsv2-fba-grid">
                     <div className="cel-frame">
