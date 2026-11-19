@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import { KineticHeading } from "@/components/KineticHeading";
 import { useLanguage } from "@/components/LanguageProvider";
 import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 import { useScrollInflate } from "@/hooks/useScrollInflate";
@@ -62,7 +63,7 @@ export function WorkShowcaseV2() {
     return () => io.disconnect();
   }, [filter, reduced]);
 
-  // Scroll-driven bouncing physics ball for Keys to My Heart (ported from fuelorfool/site.js)
+  // Scroll-driven bouncing physics ball for Keys to My Heart
   useEffect(() => {
     const ioa = ioaRowRef.current;
     const ball = ballRef.current;
@@ -83,7 +84,7 @@ export function WorkShowcaseV2() {
       const r = ioa.getBoundingClientRect();
       if (r.bottom < -100 || r.top > h + 100) return;
       const progress = clamp((h - r.top) / (h + r.height * 0.25), 0, 1);
-      const size = ball.offsetWidth || 34;
+      const size = ball.offsetWidth || 30;
       const reelRect = reel.getBoundingClientRect();
       const beside = reelRect.left > r.left + r.width * 0.3;
       const wall = beside
@@ -149,10 +150,20 @@ export function WorkShowcaseV2() {
       <div className="wsv2-head">
         <div>
           <span className="eyebrow">{t.work.eyebrow}</span>
-          <h2 className="sec-h2">{t.work.title}</h2>
+          <KineticHeading
+            as="h2"
+            text={t.work.title}
+            maxFontPx={72}
+            minFontPx={28}
+            className="wsv2-section-title"
+          />
         </div>
 
-        <div className="wsv2-filters" role="group" aria-label="Filter case studies">
+        <div
+          className="wsv2-filters"
+          role="group"
+          aria-label="Filter case studies"
+        >
           {t.work.filters.map((f) => (
             <button
               key={f.id}
@@ -241,104 +252,146 @@ export function WorkShowcaseV2() {
                 </div>
               </div>
 
-              {/* Media Stage tailored to each project */}
-              <div
-                ref={isIoa ? reelRef : undefined}
-                className="wsv2-media"
-              >
+              {/* Media Stage obeying Framing Contract: 100% object-fit: contain inside .cel-frame */}
+              <div ref={isIoa ? reelRef : undefined} className="wsv2-media">
                 {item.id === "frame-by-agents" && (
                   <div className="wsv2-fba-grid">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src="/images/fba/02c-1930s-ink.webp"
-                      alt="1930s ink model sheet"
-                      loading="lazy"
-                    />
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src="/images/fba/board.webp"
-                      alt="Storyboard panels"
-                      loading="lazy"
-                    />
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src="/images/fba/lab-guide-strip.png"
-                      alt="4-pose mannequin strip"
-                      loading="lazy"
-                    />
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src="/images/fba/lab-walk-onion.jpg"
-                      alt="Onion skin registration overlay"
-                      loading="lazy"
-                    />
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src="/media/fof/page-fba.webp"
-                      alt="Frame by Agents scroll-driven sales page"
-                      loading="lazy"
-                    />
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src="/images/fba/lab-walk-c.gif"
-                      alt="8-drawing walk cycle"
-                      loading="lazy"
-                    />
+                    <div className="cel-frame">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src="/images/fba/02c-1930s-ink.webp"
+                        alt="1930s ink model sheet"
+                        loading="lazy"
+                      />
+                    </div>
+                    <div className="cel-frame">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src="/images/fba/board.webp"
+                        alt="Storyboard panels"
+                        loading="lazy"
+                      />
+                    </div>
+                    <div className="cel-frame">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src="/images/fba/lab-guide-strip.png"
+                        alt="4-pose mannequin strip"
+                        loading="lazy"
+                      />
+                    </div>
+                    <div className="cel-frame">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src="/images/fba/lab-walk-onion.jpg"
+                        alt="Onion skin registration overlay"
+                        loading="lazy"
+                      />
+                    </div>
+                    <div className="cel-frame">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src="/media/fof/page-fba.webp"
+                        alt="Frame by Agents scroll-driven sales page"
+                        loading="lazy"
+                      />
+                    </div>
+                    <div className="cel-frame">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src="/images/fba/lab-walk-c.gif"
+                        alt="8-drawing walk cycle"
+                        loading="lazy"
+                      />
+                    </div>
                   </div>
                 )}
 
                 {item.id === "fuelorfool" && (
                   <div className="wsv2-duo-video">
-                    <video
-                      data-clip
-                      src="/media/fof/clip-pump.mp4"
-                      poster="/media/fof/snake-poster.webp"
-                      muted
-                      loop
-                      playsInline
-                      preload="none"
-                      aria-label="fuelorfool.ing mascot python with brass nozzle"
-                    />
-                    <video
-                      data-clip
-                      src="/media/fof/clip-eye.mp4"
-                      poster="/media/fof/eye.webp"
-                      muted
-                      loop
-                      playsInline
-                      preload="none"
-                      aria-label="Serpent slit-pupil zoom clip"
-                    />
+                    <div className="cel-frame cel-video-16x9">
+                      <video
+                        data-clip
+                        src="/media/fof/clip-pump.mp4"
+                        poster="/media/fof/snake-poster.webp"
+                        muted
+                        loop
+                        playsInline
+                        preload="none"
+                        aria-label="fuelorfool.ing mascot python with brass nozzle"
+                      />
+                    </div>
+                    <div className="cel-frame cel-video-16x9">
+                      <video
+                        data-clip
+                        src="/media/fof/clip-eye.mp4"
+                        poster="/media/fof/eye.webp"
+                        muted
+                        loop
+                        playsInline
+                        preload="none"
+                        aria-label="Serpent slit-pupil zoom clip"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {item.id === "gta6-saulbass" && (
+                  <div className="wsv2-saulbass-stage">
+                    <div className="cel-frame cel-video-9x16">
+                      <video
+                        data-clip
+                        src="/media/saulbass/gta6-saulbass.mp4"
+                        poster="/media/saulbass/gta6-poster.png"
+                        muted
+                        loop
+                        playsInline
+                        preload="none"
+                        aria-label="GTA VI Saul Bass 9:16 vertical launch film"
+                      />
+                    </div>
+                    <div className="cel-frame">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src="/media/saulbass/gta6-contact-sheet.jpg"
+                        alt="9-scene contact sheet from GTA VI Saul Bass HyperFrames build"
+                        loading="lazy"
+                      />
+                    </div>
                   </div>
                 )}
 
                 {item.id === "club-of-the-dead" && (
                   <div className="wsv2-duo-video">
-                    <video
-                      data-clip
-                      src="/media/fof/cine-moon.mp4"
-                      poster="/media/fof/cine-moon.webp"
-                      muted
-                      loop
-                      playsInline
-                      preload="none"
-                      aria-label="Synthia: Club of the Dead moon leap cinematic test"
-                    />
-                    <video
-                      data-clip
-                      src="/media/fof/combat.mp4"
-                      poster="/media/fof/combat-poster.webp"
-                      muted
-                      loop
-                      playsInline
-                      preload="none"
-                      aria-label="Synthia: Club of the Dead beat-locked combat test"
-                    />
+                    <div className="cel-frame cel-video-16x9">
+                      <video
+                        data-clip
+                        src="/media/fof/cine-moon.mp4"
+                        poster="/media/fof/cine-moon.webp"
+                        muted
+                        loop
+                        playsInline
+                        preload="none"
+                        aria-label="Synthia: Club of the Dead moon leap cinematic test"
+                      />
+                    </div>
+                    <div className="cel-frame cel-video-16x9">
+                      <video
+                        data-clip
+                        src="/media/fof/combat.mp4"
+                        poster="/media/fof/combat-poster.webp"
+                        muted
+                        loop
+                        playsInline
+                        preload="none"
+                        aria-label="Synthia: Club of the Dead beat-locked combat test"
+                      />
+                    </div>
                   </div>
                 )}
 
                 {item.id === "keys-to-my-heart" && (
-                  <div className="wsv2-single-video">
+                  <div className="cel-frame cel-video-16x9">
                     <video
                       data-clip
                       src="/media/fof/keys-reel.mp4"
@@ -354,7 +407,7 @@ export function WorkShowcaseV2() {
                 )}
 
                 {item.id === "molotov-love" && (
-                  <div className="wsv2-single-video">
+                  <div className="cel-frame cel-video-16x9 wsv2-single-video">
                     <video
                       ref={molotovRef}
                       data-clip
@@ -378,7 +431,7 @@ export function WorkShowcaseV2() {
                 )}
 
                 {item.id === "minas-house" && (
-                  <div className="wsv2-single-img">
+                  <div className="cel-frame wsv2-single-img">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src="/images/work/case-minas-house-v1.webp"

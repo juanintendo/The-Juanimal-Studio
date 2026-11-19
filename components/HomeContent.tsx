@@ -1,6 +1,6 @@
 import { Contact } from "@/components/Contact";
 import { CraftBandsV2 } from "@/components/CraftBandsV2";
-import { HeroDirectorFilm } from "@/components/HeroDirectorFilm";
+import { HeroSignatureStage } from "@/components/HeroSignatureStage";
 import { LaunchKitShowcase } from "@/components/LaunchKitShowcase";
 import { Nav } from "@/components/Nav";
 import { PageShell } from "@/components/PageShell";
@@ -27,13 +27,13 @@ export function HomeContent() {
             patternUnits="userSpaceOnUse"
             patternTransform="rotate(25)"
           >
-            <circle cx="3.75" cy="3.75" r="1.9" fill="#171009" />
+            <circle cx="3.75" cy="3.75" r="1.9" fill="#09090C" />
           </pattern>
         </defs>
       </svg>
 
       <Nav />
-      <HeroDirectorFilm />
+      <HeroSignatureStage />
       <Tape />
       <CraftBandsV2 />
       <LaunchKitShowcase />

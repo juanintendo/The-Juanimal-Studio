@@ -160,8 +160,8 @@ export function MascotStateSpec() {
 
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src="/images/hero-logo.png"
-              alt="Juanimal Robo-Dragon Mascot interactive state preview"
+              src="/images/v3/ag-director-emblem.png"
+              alt="Juanimal Robo-Dragon Director Mascot interactive state preview"
               className="mspec-mascot-img"
               style={{
                 transformOrigin: "50% 100%",

@@ -3,9 +3,10 @@ export type Locale = "en" | "es";
 export const COPY = {
   en: {
     meta: {
-      title: "The Juanimal Studio — Launch Films, Product Motion & Cinematic Web",
+      title:
+        "The Juanimal Studio — X-Sheet Motion Studio & SaaS Launch Films",
       description:
-        "Launch kits, UI-centric product demos, interactive motion systems and scroll-driven web for SaaS and AI teams. Human direction, agent-scale production, EN & ES.",
+        "Launch kits, Saul Bass-inspired code films, interactive Rive product motion and scroll-driven web for SaaS & AI teams. Human keys, agent-scale production, EN & ES.",
     },
     nav: {
       work: "Work",
@@ -19,39 +20,79 @@ export const COPY = {
       langLabel: "Switch language to Spanish",
     },
     hero: {
-      eyebrow: "THE JUANIMAL STUDIO • LAUNCH FILMS & PRODUCT MOTION",
-      h1: "Launch films and product motion for software teams.",
+      eyebrow: "THE JUANIMAL STUDIO × FUELORFOOL LAB · EN / ES",
+      h1: "LAUNCH FILMS, PRODUCT MOTION & CODE-DRIVEN WEB.",
       subhead:
-        "Human direction sets the keys. Our agent pipeline scales the code, frames, and cutdowns. Every frame checked against the 12 principles of animation.",
-      ctaPrimary: "Watch Launch Kit #001 ↓",
-      ctaSecondary: "Explore 6 Case Studies ↓",
+        "Directed like a classical animation department. Scaled by coding agents. Every frame checked against the 12 principles.",
+      ctaPrimary: "▶ Launch Kit #001 ↓",
+      ctaSecondary: "7 Shipped Works ↓",
       ctaTertiary: "Book a Launch Call →",
       scrollCue: "Scroll ↓",
-      acts: {
-        act1: "01 Drift vs Key",
-        act2: "02 Human Keys",
-        act3: "03 Agent Scale",
-        act4: "04 Studio Hero",
-      },
+      sceneTabs: [
+        { id: "s1", time: 0.05, label: "S1 BASS SLICE" },
+        { id: "s2", time: 3.9, label: "S2 HUMAN KEYS" },
+        { id: "s3", time: 7.9, label: "S3 3D CODE" },
+        { id: "s4", time: 12.3, label: "S4 WITH vs WITHOUT" },
+        { id: "s5", time: 15.8, label: "S5 CONSOLE" },
+      ],
+      channels: [
+        {
+          id: "ch1",
+          tab: "CH01 · SAAS LAUNCH KIT (16:9)",
+          title: "Exploded SaaS Stage + X-Sheet Timing",
+          caption:
+            "2.5D UI breakdowns and 75s product launch films built in deterministic code.",
+          href: "#launch-kit",
+          cta: "Inspect 75s Launch Kit ↓",
+        },
+        {
+          id: "ch2",
+          tab: "CH02 · 9:16 SAUL BASS SHORT",
+          title: "GTA VI Launch Countdown (HyperFrames + GSAP)",
+          caption:
+            "34-second vertical 1080×1920 cut-paper title film stepped on twos at 24fps.",
+          href: "#work",
+          cta: "Inspect Full X-Sheet ↓",
+        },
+        {
+          id: "ch3",
+          tab: "CH03 · FUELORFOOL CODE LAB",
+          title: "Zero-MP4 Code Openings & Live Physics",
+          caption:
+            "38 KB deterministic JS draw(t) films from our open R&D studio at fuelorfool.ing.",
+          href: "/work/fuelorfool",
+          cta: "Open Code-Motion Case →",
+        },
+        {
+          id: "ch4",
+          tab: "CH04 · DIRECTOR EMBLEM",
+          title: "Human Keys vs. Agent In-Betweens",
+          caption:
+            "Custom mid-century registration artwork & full-silhouette keyframe discipline.",
+          href: "#process",
+          cta: "Inspect Method & Rive Spec ↓",
+        },
+      ],
       hud: {
         play: "Play",
         pause: "Pause",
         replay: "Replay",
-        skip: "Skip Intro →",
+        console: "Console View ⚡",
+        film: "Replay Film ↺",
       },
       workflowStrip: [
         "01 HUMAN KEYS",
-        "02 AGENT PIPELINE (REMOTION / RIVE / CODEX)",
+        "02 AGENT PIPELINE (REMOTION / HYPERFRAMES / RIVE)",
         "03 12-PRINCIPLE QA",
         "04 EN + ES DELIVERY",
       ],
     },
     tape: [
-      "SaaS Launch Films",
-      "Code-Driven Motion (Remotion)",
-      "2.5D UI Breakdowns",
+      "X-Sheet Motion Direction",
+      "SaaS Launch Films (Remotion)",
+      "HyperFrames Vertical Shorts (9:16)",
       "Interactive Product Motion (Rive)",
-      "Cinematic Launch Pages",
+      "12-Principle Frame Check",
       "Bilingual EN / ES Delivery",
     ],
     craftBands: [
@@ -76,7 +117,7 @@ export const COPY = {
       {
         num: "04",
         title: "AGENT PIPELINES",
-        desc: "Human-directed keyframes scaled in Remotion and Codex so UI updates re-render cleanly.",
+        desc: "Human-directed keyframes scaled in Remotion, HyperFrames and Codex so UI updates re-render cleanly.",
         variant: "cobalt",
       },
       {
@@ -252,16 +293,16 @@ export const COPY = {
       ],
     },
     stats: [
-      { count: 6, label: "Live case studies across SaaS, film & games" },
+      { count: 7, label: "Live case studies across SaaS, film & games" },
       { count: 12, label: "Classical animation principles checked per frame" },
       { count: 11, label: "Proprietary agent production skills in our pipeline" },
       { count: 2, label: "Native launch languages (English & Spanish)" },
     ],
     work: {
-      eyebrow: "Selected Work (6 Shipped & Live)",
+      eyebrow: "Selected Work (7 Shipped & Framed Uncropped)",
       title: "Motion, code & launched systems",
       filters: [
-        { id: "all", label: "All (6)" },
+        { id: "all", label: "All (7)" },
         { id: "launch", label: "Launch Kits & SaaS" },
         { id: "code", label: "Code Motion & Web" },
         { id: "animation", label: "Animation & Games" },
@@ -312,6 +353,25 @@ export const COPY = {
           primaryLabel: "Read Code-Motion Case →",
           secondaryHref: "https://fuelorfool.ing/",
           secondaryLabel: "Visit fuelorfool.ing ↗",
+        },
+        {
+          id: "gta6-saulbass",
+          category: "code",
+          title: "GTA VI: Saul Bass Countdown",
+          meta: "9:16 HyperFrames + GSAP Code Film • 34s @ 24fps • 2026",
+          intro: "1960s cut-paper title sequence meets time-zone heist.",
+          paragraphs: [
+            "A 34-second vertical 1080×1920 launch film crafted in HyperFrames and GSAP: flat color planes, stepped 12fps stamped silhouettes, Archivo stretched to wdth 125, and hard-edged 7-step wipes.",
+            "Zero fades, zero blurs — every cut lands on a clock count and steps between time zones from New Zealand to Spain and Mexico.",
+          ],
+          facts: [
+            { label: "Format", value: "1080×1920 (9:16) · 34s" },
+            { label: "Engine", value: "HyperFrames + GSAP + kit.js" },
+            { label: "Cadence", value: "Stepped on twos (12 draw/s)" },
+            { label: "Scenes", value: "9 hard-wipe color worlds" },
+          ],
+          primaryHref: "/contact",
+          primaryLabel: "Commission a 9:16 Launch Short →",
         },
         {
           id: "club-of-the-dead",
@@ -555,9 +615,9 @@ export const COPY = {
   es: {
     meta: {
       title:
-        "The Juanimal Studio — Films de Lanzamiento, Product Motion y Web Cinematográfica",
+        "The Juanimal Studio — Estudio X-Sheet de Motion y Films de Lanzamiento",
       description:
-        "Launch kits, demos de producto centrados en UI, sistemas de motion interactivo y web scrollytelling para equipos SaaS e IA. Dirección humana, producción con agentes, EN y ES.",
+        "Launch kits, films en código estilo Saul Bass, product motion en Rive y web scrollytelling para equipos SaaS e IA. Keys humanos, pipeline de agentes, EN y ES.",
     },
     nav: {
       work: "Trabajo",
@@ -571,39 +631,79 @@ export const COPY = {
       langLabel: "Cambiar idioma a Inglés",
     },
     hero: {
-      eyebrow: "THE JUANIMAL STUDIO • FILMS DE LANZAMIENTO Y PRODUCT MOTION",
-      h1: "Films de lanzamiento y motion de producto para equipos de software.",
+      eyebrow: "THE JUANIMAL STUDIO × FUELORFOOL LAB · EN / ES",
+      h1: "FILMS DE LANZAMIENTO, PRODUCT MOTION Y WEB EN CÓDIGO.",
       subhead:
-        "La dirección humana fija los keys. Nuestro pipeline con agentes escala el código, los frames y los cortes. Cada frame revisado contra los 12 principios de animación.",
-      ctaPrimary: "Ver Launch Kit #001 ↓",
-      ctaSecondary: "Ver 6 Casos Reales ↓",
+        "Dirigido como un departamento de animación clásico. Escalado por agentes de código. Cada frame revisado contra los 12 principios.",
+      ctaPrimary: "▶ Launch Kit #001 ↓",
+      ctaSecondary: "Ver 7 Trabajos ↓",
       ctaTertiary: "Agendar Llamada →",
       scrollCue: "Scroll ↓",
-      acts: {
-        act1: "01 Deriva vs Key",
-        act2: "02 Keys Humanos",
-        act3: "03 Escala Agentes",
-        act4: "04 Studio Hero",
-      },
+      sceneTabs: [
+        { id: "s1", time: 0.05, label: "S1 CORTE BASS" },
+        { id: "s2", time: 3.9, label: "S2 KEYS HUMANOS" },
+        { id: "s3", time: 7.9, label: "S3 CÓDIGO 3D" },
+        { id: "s4", time: 12.3, label: "S4 CON vs SIN" },
+        { id: "s5", time: 15.8, label: "S5 CONSOLA" },
+      ],
+      channels: [
+        {
+          id: "ch1",
+          tab: "CH01 · LAUNCH KIT SAAS (16:9)",
+          title: "Escenario SaaS 2.5D + Hoja X-Sheet",
+          caption:
+            "Despieces UI en 2.5D y films de lanzamiento de 75s programados de forma determinista.",
+          href: "#launch-kit",
+          cta: "Ver Launch Kit 75s ↓",
+        },
+        {
+          id: "ch2",
+          tab: "CH02 · CORTO 9:16 SAUL BASS",
+          title: "GTA VI Cuenta Regresiva (HyperFrames + GSAP)",
+          caption:
+            "Film vertical 1080×1920 de 34s en papel recortado, pasos on twos a 24fps.",
+          href: "#work",
+          cta: "Inspeccionar Caso ↓",
+        },
+        {
+          id: "ch3",
+          tab: "CH03 · FUELORFOOL CODE LAB",
+          title: "Aperturas en Código Puro y Física Viva",
+          caption:
+            "Films de 38 KB JS (`draw(t)`) desde nuestro lab abierto fuelorfool.ing.",
+          href: "/work/fuelorfool",
+          cta: "Ver Caso Code-Motion →",
+        },
+        {
+          id: "ch4",
+          tab: "CH04 · EMBLEMA DEL DIRECTOR",
+          title: "Keys Humanos vs. In-Betweens Agénticos",
+          caption:
+            "Arte original de registro y disciplina completa de silueta sin recortes.",
+          href: "#process",
+          cta: "Ver Método y Spec Rive ↓",
+        },
+      ],
       hud: {
         play: "Reproducir",
         pause: "Pausar",
         replay: "Repetir",
-        skip: "Saltar Intro →",
+        console: "Vista Consola ⚡",
+        film: "Repetir Film ↺",
       },
       workflowStrip: [
         "01 KEYS HUMANOS",
-        "02 PIPELINE AGENTES (REMOTION / RIVE / CODEX)",
+        "02 PIPELINE AGENTES (REMOTION / HYPERFRAMES / RIVE)",
         "03 QA 12 PRINCIPIOS",
         "04 ENTREGA EN + ES",
       ],
     },
     tape: [
-      "Launch Films para SaaS",
-      "Motion en Código (Remotion)",
-      "Despiece UI en 2.5D",
+      "Dirección X-Sheet",
+      "Launch Films SaaS (Remotion)",
+      "Cortos Verticales HyperFrames (9:16)",
       "Product Motion Interactivo (Rive)",
-      "Landings Cinematográficas",
+      "QA 12 Principios por Frame",
       "Entrega Bilingüe EN / ES",
     ],
     craftBands: [
@@ -628,7 +728,7 @@ export const COPY = {
       {
         num: "04",
         title: "PIPELINES AGÉNTICOS",
-        desc: "Keyframes dirigidos por humanos y escalados en Remotion/Codex para re-renderizar cambios UI.",
+        desc: "Keyframes dirigidos por humanos y escalados en Remotion, HyperFrames y Codex para re-renderizar cambios UI.",
         variant: "cobalt",
       },
       {
@@ -804,16 +904,16 @@ export const COPY = {
       ],
     },
     stats: [
-      { count: 6, label: "Casos reales en SaaS, cine y videojuegos" },
+      { count: 7, label: "Casos reales en SaaS, cine y videojuegos" },
       { count: 12, label: "Principios clásicos revisados en cada frame" },
       { count: 11, label: "Skills propietarios de producción en nuestro pipeline" },
       { count: 2, label: "Idiomas nativos de lanzamiento (Inglés y Español)" },
     ],
     work: {
-      eyebrow: "Trabajo Seleccionado (6 Reales y en Vivo)",
+      eyebrow: "Trabajo Seleccionado (7 Reales · Cero Rostros Recortados)",
       title: "Motion, código y sistemas publicados",
       filters: [
-        { id: "all", label: "Todos (6)" },
+        { id: "all", label: "Todos (7)" },
         { id: "launch", label: "Launch Kits & SaaS" },
         { id: "code", label: "Code Motion & Web" },
         { id: "animation", label: "Animación & Juegos" },
@@ -864,6 +964,25 @@ export const COPY = {
           primaryLabel: "Ver Caso Code-Motion →",
           secondaryHref: "https://fuelorfool.ing/",
           secondaryLabel: "Visitar fuelorfool.ing ↗",
+        },
+        {
+          id: "gta6-saulbass",
+          category: "code",
+          title: "GTA VI: Cuenta Regresiva Saul Bass",
+          meta: "Film Vertical 9:16 HyperFrames + GSAP • 34s @ 24fps • 2026",
+          intro: "Secuencia de títulos estilo 1960s para un golpe entre husos horarios.",
+          paragraphs: [
+            "Corto vertical de 34 segundos en 1080×1920 producido en HyperFrames y GSAP: planos de color sin gradientes, siluetas selladas a 12fps, Archivo en wdth 125 y cortinillas duras en 7 pasos.",
+            "Cero fades y cero blurs: cada corte cae en un conteo de reloj de Nueva Zelanda a España y México.",
+          ],
+          facts: [
+            { label: "Formato", value: "1080×1920 (9:16) · 34s" },
+            { label: "Motor", value: "HyperFrames + GSAP + kit.js" },
+            { label: "Cadencia", value: "On twos (12 dibujos/s)" },
+            { label: "Escenas", value: "9 mundos de color en wipe" },
+          ],
+          primaryHref: "/contact",
+          primaryLabel: "Encargar Corto 9:16 →",
         },
         {
           id: "club-of-the-dead",
