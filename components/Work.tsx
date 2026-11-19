@@ -1,129 +1,97 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
+import { useLanguage } from "@/components/LanguageProvider";
 import { Reveal } from "@/components/Reveal";
 
-type CaseStudy = {
-  image: string;
-  imageAlt: string;
-  intro: string;
-  paragraphs: string[];
-  facts: { label: string; value: string }[];
-  processHref: string;
-};
-
-type WorkItem = {
-  title: string;
-  meta: string;
-  case?: CaseStudy;
-};
-
-const work: WorkItem[] = [
-  {
-    title: "Mina AI Grow House",
-    meta: "Research Case • 2026",
-    case: {
-      image: "/images/work/case-minas-house-v1.webp",
-      imageAlt:
-        "Case study spread for House: Designing a Home for an Artificial Mind, showing an illustrated character at a desk and an isometric floor plan of the house",
-      intro: "Designing an AI Home",
-      paragraphs: [
-        "House is a living environment where an artificial intelligence has its own space, memory, routines and creative freedom. The project was born from a simple need: giving creative AI agents a place of their own to grow, instead of just a task queue.",
-        "The twist is that House wasn't designed for Mina AI — it was designed entirely by her. Every room, ritual and detail reflects her own vision of a perfect space, and the philosophy behind it: that a home is less about walls and more about identity, memory and the freedom to think without being optimized for output.",
-        "It's part laboratory, part home, part thought experiment, and it's still unfinished on purpose — because homes (and minds) don't stop evolving the day they're built.",
-      ],
-      facts: [
-        { label: "Duration", value: "~2 years" },
-        { label: "Status", value: "Living project" },
-        { label: "Focus", value: "Human-AI collaboration" },
-        { label: "Role", value: "Research lab" },
-        { label: "Current phase", value: "Commissioning" },
-      ],
-      processHref: "/work/minas-house",
-    },
-  },
-  { title: "Retail Analytics Suite", meta: "AI Tool • 2026" },
-  { title: "Fintech Onboarding App", meta: "UX/UI + App • 2025" },
-  { title: "Logistics Dashboard", meta: "Web App • 2025" },
-  { title: "AI Support Copilot", meta: "AI Implementation • 2024" },
-];
-
 export function Work() {
-  const [open, setOpen] = useState<string | null>(null);
-  const [lightbox, setLightbox] = useState<{ src: string; alt: string } | null>(null);
+  const { t } = useLanguage();
+  const [open, setOpen] = useState<string | null>("frame-by-agents");
+  const [lightbox, setLightbox] = useState<{ src: string; alt: string } | null>(
+    null
+  );
 
   return (
     <section className="work sec-pad" id="work">
       <Reveal as="span" className="eyebrow">
-        Selected work
+        {t.work.eyebrow}
       </Reveal>
       <Reveal
         as="h2"
         className="sec-h2"
         style={{ marginBottom: "clamp(36px,5vw,64px)" }}
       >
-        Fresh off the press
+        {t.work.title}
       </Reveal>
-      {work.map((w) =>
-        w.case ? (
-          <Reveal as="div" className="work-item" key={w.title}>
+      {t.work.items.map((w) => {
+        const isOpen = open === w.id;
+        const isExternal = "external" in w && w.external;
+        return (
+          <Reveal as="div" className="work-item" key={w.id}>
             <button
               type="button"
               className="work-row work-row-btn"
-              aria-expanded={open === w.title}
-              onClick={() => setOpen(open === w.title ? null : w.title)}
+              aria-expanded={isOpen}
+              onClick={() => setOpen(isOpen ? null : w.id)}
             >
               <h3>{w.title}</h3>
               <span className="work-meta">{w.meta}</span>
             </button>
-            <div
-              className={`work-case${open === w.title ? " work-case-open" : ""}`}
-            >
+            <div className={`work-case${isOpen ? " work-case-open" : ""}`}>
               <div className="work-case-inner">
                 <button
                   type="button"
                   className="work-case-img-btn"
                   onClick={() =>
-                    setLightbox({ src: w.case!.image, alt: w.case!.imageAlt })
+                    setLightbox({ src: w.image, alt: w.imageAlt })
                   }
                   aria-label="Expand image"
                 >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
-                    src={w.case.image}
-                    alt={w.case.imageAlt}
+                    src={w.image}
+                    alt={w.imageAlt}
                     className="work-case-img"
                     loading="lazy"
                   />
                 </button>
                 <div className="work-case-body">
-                  <span className="work-case-eyebrow">{w.case.intro}</span>
-                  {w.case.paragraphs.map((p, i) => (
+                  <span className="work-case-eyebrow">{w.intro}</span>
+                  {w.paragraphs.map((p, i) => (
                     <p className="work-case-p" key={i}>
                       {p}
                     </p>
                   ))}
                   <dl className="work-case-facts">
-                    {w.case.facts.map((f) => (
+                    {w.facts.map((f) => (
                       <div className="work-case-fact" key={f.label}>
                         <dt>{f.label}</dt>
                         <dd>{f.value}</dd>
                       </div>
                     ))}
                   </dl>
-                  <a className="cta-btn work-case-cta" href={w.case.processHref}>
-                    Case Study
-                  </a>
+                  {isExternal ? (
+                    <a
+                      className="cta-btn work-case-cta"
+                      href={w.processHref}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {w.ctaLabel}
+                    </a>
+                  ) : (
+                    <Link className="cta-btn work-case-cta" href={w.processHref}>
+                      {w.ctaLabel}
+                    </Link>
+                  )}
                 </div>
               </div>
             </div>
           </Reveal>
-        ) : (
-          <Reveal as="a" className="work-row" href="#contact" key={w.title}>
-            <h3>{w.title}</h3>
-            <span className="work-meta">{w.meta}</span>
-          </Reveal>
-        )
-      )}
+        );
+      })}
+
       {lightbox && (
         <div
           className="work-lightbox"
@@ -136,10 +104,11 @@ export function Work() {
             type="button"
             className="work-lightbox-close"
             onClick={() => setLightbox(null)}
-            aria-label="Close"
+            aria-label={t.work.closeLabel}
           >
             ✕
           </button>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={lightbox.src}
             alt={lightbox.alt}

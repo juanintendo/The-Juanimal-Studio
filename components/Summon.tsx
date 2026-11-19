@@ -2,37 +2,50 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { useLanguage } from "@/components/LanguageProvider";
 import { Reveal } from "@/components/Reveal";
 
+const MAILTO = "hello@juanimal.studio";
+
 export function SummonHero() {
+  const { t } = useLanguage();
+
   return (
     <header className="merch-hero" id="top">
       <Reveal as="span" className="eyebrow">
-        The Juanimal Studio
+        {t.contact.heroEyebrow}
       </Reveal>
-      <Reveal as="h1">Summon Me</Reveal>
-      <Reveal as="p">
-        Drop a line, mail a spell, or just say hi. One dragon reads every
-        message personally — no chatbot familiars involved.
-      </Reveal>
+      <Reveal as="h1">{t.contact.heroTitle}</Reveal>
+      <Reveal as="p">{t.contact.heroLede}</Reveal>
     </header>
   );
 }
 
-const MAILTO = "hello@juanimal.studio";
-
 export function Postcard() {
+  const { t } = useLanguage();
+  const f = t.contact.fields;
+
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [productUrl, setProductUrl] = useState("");
+  const [goal, setGoal] = useState<string>(f.goals[0]);
   const [message, setMessage] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const subject = encodeURIComponent(
-      `New spell from ${name || "a stranger"}`
+      `Launch Brief (${goal.split(" — ")[0]}): ${name || "New Inquiry"}`
     );
     const body = encodeURIComponent(
-      `${message}\n\n— ${name || "Anonymous wizard"}${email ? ` (${email})` : ""}`
+      [
+        `Name: ${name}`,
+        `Work Email: ${email}`,
+        `Product / Company URL: ${productUrl || "N/A"}`,
+        `Package / Focus: ${goal}`,
+        "",
+        "Brief & Target Launch Date:",
+        message,
+      ].join("\n")
     );
     window.location.href = `mailto:${MAILTO}?subject=${subject}&body=${body}`;
   };
@@ -43,44 +56,68 @@ export function Postcard() {
         <div className="postcard-fold" aria-hidden="true" />
 
         <div className="postcard-left">
-          <span className="postcard-kicker">Par Avion &bull; Air Mail</span>
-          <h2 className="postcard-title">Send a spell</h2>
+          <span className="postcard-kicker">{t.contact.postcardKicker}</span>
+          <h2 className="postcard-title">{t.contact.postcardTitle}</h2>
           <form className="postcard-form" onSubmit={handleSubmit}>
             <label className="pf-field">
-              <span>Your name</span>
+              <span>{f.name}</span>
               <input
                 type="text"
                 name="name"
                 required
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="Merlin, probably"
+                placeholder={f.namePh}
               />
             </label>
             <label className="pf-field">
-              <span>Your email</span>
+              <span>{f.email}</span>
               <input
                 type="email"
                 name="email"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="you@somewhere.fiery"
+                placeholder={f.emailPh}
               />
             </label>
             <label className="pf-field">
-              <span>The message</span>
+              <span>{f.url}</span>
+              <input
+                type="url"
+                name="productUrl"
+                value={productUrl}
+                onChange={(e) => setProductUrl(e.target.value)}
+                placeholder={f.urlPh}
+              />
+            </label>
+            <label className="pf-field">
+              <span>{f.goal}</span>
+              <select
+                name="goal"
+                value={goal}
+                onChange={(e) => setGoal(e.target.value)}
+              >
+                {f.goals.map((opt) => (
+                  <option key={opt} value={opt}>
+                    {opt}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="pf-field">
+              <span>{f.message}</span>
               <textarea
                 name="message"
                 required
                 rows={4}
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
-                placeholder="Tell me about the project you're brewing…"
+                placeholder={f.messagePh}
               />
             </label>
             <button type="submit" className="cta-btn postcard-submit">
-              Send it off
+              {f.submit}
             </button>
           </form>
         </div>
@@ -90,7 +127,7 @@ export function Postcard() {
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/images/postal-stamp.png"
-              alt="The Juanimal Studio postage stamp"
+              alt="The Juanimal Studio stamp"
             />
           </div>
           <div className="postcard-postmark" aria-hidden="true">
@@ -101,18 +138,18 @@ export function Postcard() {
                 JUANIMAL STUDIO
               </text>
               <text x="60" y="94" textAnchor="middle">
-                &bull; FIERY MAIL &bull;
+                LAUNCH DESK
               </text>
             </svg>
           </div>
           <div className="postcard-address">
-            <span className="postcard-address-label">To:</span>
+            <span className="postcard-address-label">Direct:</span>
             <p>
               The Juanimal Studio
               <br />
-              Somewhere Fiery
+              hello@juanimal.studio
               <br />
-              Planet Earth
+              fuelorfool.ing
             </p>
           </div>
         </div>
@@ -132,7 +169,7 @@ const SOCIALS: Social[] = [
   {
     key: "whatsapp",
     label: "WhatsApp",
-    href: "https://wa.me/34649120294?text=Hi!%20I'd%20like%20to%20talk%20about%20a%20project%20with%20The%20Juanimal%20Studio.",
+    href: "https://wa.me/34649120294?text=Hi!%20I'd%20like%20to%20talk%20about%20a%20Launch%20Kit%20with%20The%20Juanimal%20Studio.",
     icon: (
       <svg viewBox="0 0 24 24" aria-hidden="true">
         <path
@@ -143,9 +180,22 @@ const SOCIALS: Social[] = [
     ),
   },
   {
+    key: "linkedin",
+    label: "LinkedIn",
+    href: "https://www.linkedin.com/in/juanbcolombodesigns/",
+    icon: (
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path
+          fill="currentColor"
+          d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM3 9h4v12H3V9zm7 0h3.8v1.7h.05c.53-1 1.83-2.05 3.77-2.05 4.03 0 4.78 2.65 4.78 6.1V21h-4v-5.6c0-1.34-.02-3.06-1.87-3.06-1.87 0-2.16 1.46-2.16 2.96V21h-4V9z"
+        />
+      </svg>
+    ),
+  },
+  {
     key: "instagram",
     label: "Instagram",
-    href: "https://instagram.com/juanimalstudio",
+    href: "https://www.instagram.com/juanintendo/",
     icon: (
       <svg viewBox="0 0 24 24" aria-hidden="true">
         <rect
@@ -171,27 +221,16 @@ const SOCIALS: Social[] = [
     ),
   },
   {
-    key: "x",
-    label: "X",
-    href: "https://x.com/juanimalstudio",
+    key: "lab",
+    label: "fuelorfool.ing",
+    href: "https://fuelorfool.ing",
     icon: (
       <svg viewBox="0 0 24 24" aria-hidden="true">
         <path
-          fill="currentColor"
-          d="M13.6 10.6 20.4 3h-2l-5.5 6.4L8.4 3H3l7 9.9L3.2 21H5.2l5.8-6.7L15.6 21H21l-7.4-10.4z"
-        />
-      </svg>
-    ),
-  },
-  {
-    key: "linkedin",
-    label: "LinkedIn",
-    href: "https://linkedin.com/company/juanimalstudio",
-    icon: (
-      <svg viewBox="0 0 24 24" aria-hidden="true">
-        <path
-          fill="currentColor"
-          d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM3 9h4v12H3V9zm7 0h3.8v1.7h.05c.53-1 1.83-2.05 3.77-2.05 4.03 0 4.78 2.65 4.78 6.1V21h-4v-5.6c0-1.34-.02-3.06-1.87-3.06-1.87 0-2.16 1.46-2.16 2.96V21h-4V9z"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          d="M9 3h6M10 3v5l-4.5 9.5A2 2 0 0 0 7.3 20h9.4a2 2 0 0 0 1.8-2.5L14 8V3"
         />
       </svg>
     ),
@@ -212,19 +251,25 @@ const SOCIALS: Social[] = [
 ];
 
 export function SocialsDashboard() {
+  const { t } = useLanguage();
+
   return (
     <section className="socials sec-pad" id="socials">
       <Reveal as="span" className="eyebrow">
-        Or find me elsewhere
+        {t.contact.socialsEyebrow}
       </Reveal>
       <Reveal as="h2" className="sec-h2">
-        Summon me
+        {t.contact.socialsTitle1}
         <br />
-        <span className="accent">on socials</span>
+        <span className="accent">{t.contact.socialsTitleAccent}</span>
       </Reveal>
       <div className="socials-grid">
         {SOCIALS.map((s) => (
-          <Reveal as="a" className="social-fab" key={s.key} href={s.href}
+          <Reveal
+            as="a"
+            className="social-fab"
+            key={s.key}
+            href={s.href}
             target="_blank"
             rel="noopener noreferrer"
             aria-label={s.label}
@@ -239,10 +284,12 @@ export function SocialsDashboard() {
 }
 
 export function SummonFooter() {
+  const { t } = useLanguage();
+
   return (
     <section className="merch-foot-cta">
-      <p>&ldquo;Every good wizard answers their mail&hellip;&rdquo;</p>
-      <Link href="/about">About a Wizard</Link>
+      <p>{t.contact.footerLine}</p>
+      <Link href="/about">{t.contact.footerLink}</Link>
     </section>
   );
 }

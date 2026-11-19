@@ -11,9 +11,9 @@ import { PageShell } from "@/components/PageShell";
 import { Stats } from "@/components/Stats";
 
 export const metadata: Metadata = {
-  title: "About a Wizard — The Juanimal Studio",
+  title: "Studio & Director — The Juanimal Studio",
   description:
-    "The person behind The Juanimal Studio — UX/UI, web & app development, AI implementation and business tools, one dragon, no committee.",
+    "Juan Colombo: graphic design, UX/UI, marketing, and code-driven motion. Human direction, agent-scale production, and our open R&D lab fuelorfool.ing.",
 };
 
 export default function AboutPage() {

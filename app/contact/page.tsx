@@ -9,9 +9,9 @@ import {
 } from "@/components/Summon";
 
 export const metadata: Metadata = {
-  title: "Summon Me — The Juanimal Studio",
+  title: "Book a Call & Launch Brief — The Juanimal Studio",
   description:
-    "Get in touch with The Juanimal Studio — send a message, mail a spell, or find the studio on socials.",
+    "Send your SaaS launch brief or product motion inquiry to The Juanimal Studio. One director reads every brief and replies within one business day.",
 };
 
 export default function ContactPage() {

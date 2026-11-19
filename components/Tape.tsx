@@ -1,18 +1,11 @@
 "use client";
 
 import { Fragment } from "react";
-
-const ITEMS = [
-  "UX/UI Design",
-  "Web Development",
-  "App Development",
-  "AI Implementation",
-  "Business Tools",
-  "Branding & Graphic Design",
-] as const;
+import { useLanguage } from "@/components/LanguageProvider";
 
 export function Tape() {
-  const loop = [...ITEMS, ...ITEMS];
+  const { t } = useLanguage();
+  const loop = [...t.tape, ...t.tape];
 
   return (
     <div className="tape" aria-hidden="true">

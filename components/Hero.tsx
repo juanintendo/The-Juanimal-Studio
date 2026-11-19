@@ -1,6 +1,8 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useLanguage } from "@/components/LanguageProvider";
 import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 
 function rayPath(i: number): { d: string; opacity: number } {
@@ -26,6 +28,7 @@ const STAR_STYLE: React.CSSProperties = {
 const STARS = ["star-1", "star-2", "star-3", "star-4"] as const;
 
 export function Hero() {
+  const { t } = useLanguage();
   const reduced = usePrefersReducedMotion();
   const rays = useMemo(
     () => Array.from({ length: 24 }, (_, i) => rayPath(i)),
@@ -56,12 +59,12 @@ export function Hero() {
         my += (ty - my) * 0.08;
         easeRef.current = { mx, my };
 
-        const rotX = Math.min(38, y * 0.045) + my * -6;
+        const rotX = Math.min(28, y * 0.04) + my * -6;
         const rotY = Math.sin(y * 0.0022) * 7 + mx * 9;
-        const sc = Math.max(0.78, 1 - y / 2600);
+        const sc = Math.max(0.82, 1 - y / 2800);
 
         setLogoTransform(
-          `translateY(${y * 0.05}px) scale(${sc}) rotateX(${rotX}deg) rotateY(${rotY}deg) translateZ(40px)`
+          `translateY(${y * 0.04}px) scale(${sc}) rotateX(${rotX}deg) rotateY(${rotY}deg) translateZ(40px)`
         );
         setBurstTransform(
           `translate(-50%,-50%) translateZ(-110px) rotate(${y * 0.12}deg)`
@@ -99,57 +102,64 @@ export function Hero() {
   }, [reduced]);
 
   return (
-    <header className="hero" id="top">
-      <h1 className="sr-only">
-        The Juanimal Studio — Tech Wizard. UX/UI, web &amp; app development, AI
-        implementation and business tools.
-      </h1>
-      <p className="hero-script">
-        &ldquo;Fiery digital solutions for Hot business!&rdquo;
-      </p>
+    <header className="hero hero-editorial" id="top">
+      <div className="hero-grid">
+        <div className="hero-copy">
+          <span className="hero-eyebrow">{t.hero.eyebrow}</span>
+          <h1 className="hero-h1">{t.hero.h1}</h1>
+          <p className="hero-subhead">{t.hero.subhead}</p>
+          <div className="hero-actions">
+            <a className="cta-btn hero-cta-primary" href="#launch-kit">
+              {t.hero.ctaPrimary}
+            </a>
+            <Link className="hero-cta-secondary" href="/contact">
+              {t.hero.ctaSecondary}
+            </Link>
+          </div>
+        </div>
 
-      <div className="center-wrap">
-        <div className="depth-ring" aria-hidden="true" />
-        <svg
-          className="sunburst"
-          viewBox="0 0 200 200"
-          aria-hidden="true"
-          style={{ transform: burstTransform }}
-        >
-          <g fill="#F3E9CE" opacity=".85">
-            {rays.map((ray, i) => (
-              <path key={i} d={ray.d} opacity={ray.opacity} />
-            ))}
-          </g>
-        </svg>
-
-        <div className="logo-stage">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            className="hero-logo"
-            src="/images/hero-logo.png"
-            alt=""
+        <div className="center-wrap hero-emblem-wrap">
+          <div className="depth-ring" aria-hidden="true" />
+          <svg
+            className="sunburst"
+            viewBox="0 0 200 200"
             aria-hidden="true"
-            style={{ transform: logoTransform }}
-          />
+            style={{ transform: burstTransform }}
+          >
+            <g fill="#F3E9CE" opacity=".85">
+              {rays.map((ray, i) => (
+                <path key={i} d={ray.d} opacity={ray.opacity} />
+              ))}
+            </g>
+          </svg>
 
-          {STARS.map((name, i) => (
-            <div key={name} className={`star-anchor sa${i + 1}`} aria-hidden="true">
-              <div className={`star st${i + 1} star-img`}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={`/images/${name}.png`} alt="" style={STAR_STYLE} />
+          <div className="logo-stage">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              className="hero-logo"
+              src="/images/hero-logo.png"
+              alt="The Juanimal Studio emblem"
+              style={{ transform: logoTransform }}
+            />
+
+            {STARS.map((name, i) => (
+              <div
+                key={name}
+                className={`star-anchor sa${i + 1}`}
+                aria-hidden="true"
+              >
+                <div className={`star st${i + 1} star-img`}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={`/images/${name}.png`} alt="" style={STAR_STYLE} />
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
 
-      <p className="hero-tag">
-        UX/UI &bull; Web &amp; App Development &bull; AI Implementation &bull; Tools
-        for Business
-      </p>
       <div className="scroll-cue" aria-hidden="true">
-        Scroll &darr;
+        {t.hero.scrollCue}
       </div>
     </header>
   );

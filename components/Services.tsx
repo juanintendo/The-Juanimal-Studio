@@ -1,65 +1,52 @@
 "use client";
 
+import { useLanguage } from "@/components/LanguageProvider";
 import { Reveal } from "@/components/Reveal";
 
-const services = [
-  {
-    num: "A",
-    icon: "/images/service-ux-hd.png",
-    iconHeight: 64,
-    title: "UX/UI & Web Development",
-    body: "Interfaces people actually enjoy using. We design and build fast, accessible websites and web apps — from first wireframe to shipped product, with every pixel pulling its weight.",
-  },
-  {
-    num: "B",
-    icon: "/images/service-web.png",
-    iconHeight: 76,
-    title: "App Development",
-    body: "Native-feeling mobile and desktop apps, engineered light. Clear flows, snappy performance and a design system your team can grow with long after launch day.",
-  },
-  {
-    num: "C",
-    icon: "/images/service-apps-hd.png",
-    iconHeight: 69,
-    title: "AI Implementation & Business Tools",
-    body: "We wire AI into real workflows — then package it. We build and sell specialized tools that save businesses hours every week, not slideware about the future.",
-  },
-  {
-    num: "D",
-    icon: "/images/service-branding-v2.png",
-    iconHeight: 86,
-    title: "Branding & Graphic Design",
-    body: "Logos, color systems and visual identities with a point of view. We give your brand a face people remember — then keep it consistent across every touchpoint.",
-  },
-] as const;
-
 export function Services() {
+  const { t } = useLanguage();
+  const pkg = t.packages;
+
   return (
-    <section className="services sec-pad" id="services">
+    <section className="services sec-pad" id="packages">
       <Reveal as="span" className="eyebrow">
-        What we do
+        {pkg.eyebrow}
       </Reveal>
       <Reveal as="h2" className="sec-h2">
-        A great idea deserves
+        {pkg.titleLine1}
         <br />
-        <span className="accent">an outside the box plan</span>
+        <span className="accent">{pkg.titleAccent}</span>
       </Reveal>
-      <div className="svc-grid">
-        {services.map((s) => (
-          <Reveal as="article" className="svc-card" key={s.num}>
-            <span className="svc-num">{s.num}</span>
-            <div className="svc-icon" aria-hidden="true">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={s.icon}
-                alt=""
-                style={{ height: s.iconHeight, width: "auto", display: "block" }}
-              />
-            </div>
-            <h3>{s.title}</h3>
-            <p>{s.body}</p>
-          </Reveal>
-        ))}
+      <Reveal as="p" className="about-lede">
+        {pkg.lede}
+      </Reveal>
+
+      <div className="svc-grid pkg-grid">
+        {pkg.cards.map((s) => {
+          const isPopular = s.num === "A";
+          return (
+            <Reveal
+              as="article"
+              className={`svc-card pkg-card${isPopular ? " pkg-card-popular" : ""}`}
+              key={s.num}
+            >
+              <span className="svc-num">{s.num}</span>
+              <div className="pkg-top-row">
+                <span className={`pkg-badge${isPopular ? " is-popular" : ""}`}>
+                  {s.badge}
+                </span>
+                <span className="pkg-price">{s.price}</span>
+              </div>
+              <h3>{s.title}</h3>
+              <p>{s.body}</p>
+              <ul className="pkg-list">
+                {s.deliverables.map((d) => (
+                  <li key={d}>{d}</li>
+                ))}
+              </ul>
+            </Reveal>
+          );
+        })}
       </div>
     </section>
   );

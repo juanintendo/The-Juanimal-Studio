@@ -5,6 +5,7 @@ import {
   Montserrat,
   Yellowtail,
 } from "next/font/google";
+import { LanguageProvider } from "@/components/LanguageProvider";
 import "./globals.css";
 
 export const viewport: Viewport = {
@@ -42,9 +43,10 @@ const libreFranklin = Libre_Franklin({
 });
 
 export const metadata: Metadata = {
-  title: "The Juanimal Studio — Tech Wizard · UX/UI, AI & Business Tools",
+  title:
+    "The Juanimal Studio — Launch Films, Product Motion & Cinematic Web",
   description:
-    "UX/UI, web & app development, AI implementation and business tools. Fiery digital solutions for hot business.",
+    "Launch kits, UI-centric product demos, interactive motion systems and scroll-driven web for SaaS and AI teams. Human direction, agent-scale production, EN & ES.",
   icons: {
     icon: [
       { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
@@ -67,7 +69,9 @@ export default function RootLayout({
       lang="en"
       className={`${archivoBlack.variable} ${montserrat.variable} ${yellowtail.variable} ${libreFranklin.variable}`}
     >
-      <body>{children}</body>
+      <body>
+        <LanguageProvider>{children}</LanguageProvider>
+      </body>
     </html>
   );
 }

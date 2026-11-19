@@ -1,19 +1,14 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useLanguage } from "@/components/LanguageProvider";
 import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
-
-const STATS = [
-  { count: 7, label: "Current projects" },
-  { count: 48, label: "Shipped projects" },
-  { count: 12, label: "Tools sold to business" },
-  { count: 6, label: "Years in print" },
-] as const;
 
 function StatItem({ count, label }: { count: number; label: string }) {
   const ref = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
-  const [value, setValue] = useState(0);
+  // Initialize to `count` so SSR HTML and initial paint never show 0.
+  const [value, setValue] = useState(count);
   const reduced = usePrefersReducedMotion();
 
   useEffect(() => {
@@ -26,7 +21,7 @@ function StatItem({ count, label }: { count: number; label: string }) {
           io.disconnect();
         }
       },
-      { threshold: 0.6 }
+      { threshold: 0.4 }
     );
     io.observe(el);
     return () => io.disconnect();
@@ -41,7 +36,7 @@ function StatItem({ count, label }: { count: number; label: string }) {
 
     let raf = 0;
     const t0 = performance.now();
-    const dur = 1400;
+    const dur = 1200;
 
     const tick = (t: number) => {
       const p = Math.min(1, (t - t0) / dur);
@@ -56,17 +51,19 @@ function StatItem({ count, label }: { count: number; label: string }) {
 
   return (
     <div ref={ref} className={visible ? "reveal in" : "reveal"}>
-      <div className="stat-num">{value}</div>
+      <div className="stat-num lfp-tabular">{value}</div>
       <div className="stat-lbl">{label}</div>
     </div>
   );
 }
 
 export function Stats() {
+  const { t } = useLanguage();
+
   return (
     <section className="stats" id="stats" aria-label="Studio numbers">
       <div className="stats-grid">
-        {STATS.map((s) => (
+        {t.stats.map((s) => (
           <StatItem key={s.label} count={s.count} label={s.label} />
         ))}
       </div>

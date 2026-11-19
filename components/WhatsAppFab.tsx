@@ -2,7 +2,7 @@
 const WHATSAPP_NUMBER = "34649120294";
 
 const WHATSAPP_PREFILL = encodeURIComponent(
-  "Hi! I'd like to talk about a project with The Juanimal Studio."
+  "Hi! I'd like to discuss a Launch Kit or Product Motion project with The Juanimal Studio."
 );
 
 const WHATSAPP_HREF = `https://wa.me/${WHATSAPP_NUMBER}?text=${WHATSAPP_PREFILL}`;
@@ -15,11 +15,6 @@ type DockLink = {
   icon: React.ReactNode;
 };
 
-/**
- * Order matters: the dock is laid out right-to-left, so WhatsApp sits at
- * right:0 (the collapsed circle) and the rest fan out behind it. Their
- * offsets are set in globals.css via :nth-child.
- */
 const DOCK_LINKS: DockLink[] = [
   {
     key: "whatsapp",
@@ -38,7 +33,7 @@ const DOCK_LINKS: DockLink[] = [
   {
     key: "email",
     label: "Email",
-    href: "mailto:colombojuanb@gmail.com",
+    href: "mailto:hello@juanimal.studio",
     icon: (
       <svg viewBox="0 0 24 24" aria-hidden="true">
         <path
@@ -63,20 +58,18 @@ const DOCK_LINKS: DockLink[] = [
     ),
   },
   {
-    key: "chat",
-    label: "Chat with the studio AI",
-    href: "#ai-chat",
+    key: "lab",
+    label: "Our Lab: fuelorfool.ing",
+    href: "https://fuelorfool.ing",
+    external: true,
     icon: (
       <svg viewBox="0 0 24 24" aria-hidden="true">
         <path
           fill="none"
           stroke="currentColor"
           strokeWidth="2"
-          d="M4 5h16a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H10l-5 4v-4H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z"
+          d="M9 3h6M10 3v5l-4.5 9.5A2 2 0 0 0 7.3 20h9.4a2 2 0 0 0 1.8-2.5L14 8V3"
         />
-        <circle cx="8.5" cy="11" r="1.15" fill="currentColor" />
-        <circle cx="12" cy="11" r="1.15" fill="currentColor" />
-        <circle cx="15.5" cy="11" r="1.15" fill="currentColor" />
       </svg>
     ),
   },
@@ -111,23 +104,8 @@ const DOCK_LINKS: DockLink[] = [
   },
 ];
 
-/**
- * Collapsed it is a plain circle with the WhatsApp mark; on hover it widens
- * into a pill and reveals the rest.
- *
- * The three-layer split is deliberate. An earlier version put the border, the
- * background and the icon clipping on one element, but `overflow:hidden` plus
- * a 4px border centres icons inside the *content* box, which is 8px narrower
- * than the visual circle. That is what kept knocking every icon off-centre and
- * showing seams mid-animation. Separating the layers keeps each icon centred
- * in a true 74px square regardless of the border.
- */
 export function WhatsAppFab() {
   return (
-    // A <div>, not a <nav>: globals.css styles the site navbar with a bare
-    // `nav {}` selector (display:flex, padding, gap...), which also landed on
-    // this element and inflated the circle into a padded capsule with the
-    // icon pushed off-centre. role="navigation" keeps the semantics.
     <div role="navigation" className="fab-dock" aria-label="Contact options">
       <span className="fab-dock-bg" aria-hidden="true" />
       <span className="fab-dock-items">

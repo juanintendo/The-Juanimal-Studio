@@ -1,13 +1,16 @@
 "use client";
 
 import Link from "next/link";
+import { useLanguage } from "@/components/LanguageProvider";
 import { Reveal } from "@/components/Reveal";
 
 export function AboutHero() {
+  const { t } = useLanguage();
+
   return (
     <header className="merch-hero about-hero" id="top">
       <Reveal as="span" className="eyebrow about-hero-eyebrow">
-        About a Wizard
+        {t.about.eyebrow}
       </Reveal>
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
@@ -16,78 +19,53 @@ export function AboutHero() {
         alt="The Juanimal Studio"
       />
       <Reveal as="p" className="about-hero-lede">
-        Part designer, part developer, full-time tinkerer. One studio, One
-        Wizard and All Magic! — every project gets treated like a spell worth
-        getting right. This is the right Studio for the most daring projects.
+        {t.about.lede}
       </Reveal>
     </header>
   );
 }
 
-const APPROACH = [
-  {
-    num: "A",
-    title: "Discover",
-    body: "Ask the annoying questions early — who's actually using this, what breaks if we ship it wrong, what does \u201cdone\u201d even mean here.",
-  },
-  {
-    num: "B",
-    title: "Design",
-    body: "Wireframes fast, prototypes faster. Real feedback loops instead of guessing behind a locked Figma file for three weeks.",
-  },
-  {
-    num: "C",
-    title: "Build",
-    body: "Ship in small, testable pieces. Clean code, sensible defaults, nothing held together with duct tape and good intentions.",
-  },
-  {
-    num: "D",
-    title: "Support",
-    body: "Stick around after launch day. Bugs get fixed, questions get answered, the spell keeps working long after the ink dries.",
-  },
-] as const;
-
 export function AboutStory() {
+  const { t } = useLanguage();
+
   return (
     <section className="services sec-pad" id="about-story">
       <Reveal as="span" className="eyebrow">
-        The origin story
+        {t.about.storyEyebrow}
       </Reveal>
       <Reveal as="h2" className="sec-h2">
-        Half circuit board,
+        {t.about.storyTitle1}
         <br />
-        <span className="accent">half sketchbook</span>
+        <span className="accent">{t.about.storyTitleAccent}</span>
       </Reveal>
       <Reveal as="p" className="about-lede">
-        The Juanimal Studio started the same way most good tools do — out of
-        frustration with the bad ones. Years of shipping interfaces, wiring
-        up AI where it actually helps (not where it looks good in a deck),
-        and building the odd tool that saves a team real hours every week,
-        turned into a studio built around one idea: fewer slides, more
-        shipped work.
+        {t.about.p1}
       </Reveal>
       <Reveal as="p" className="about-lede">
-        No account managers, no six-person status meetings — just a direct
-        line to the person actually doing the work. Fiery when it needs to
-        be, careful where it counts.
+        {t.about.p2}
+      </Reveal>
+      <Reveal as="p" className="about-lede">
+        {t.about.p3}
       </Reveal>
     </section>
   );
 }
 
 export function AboutApproach() {
+  const { t } = useLanguage();
+
   return (
     <section className="services sec-pad about-approach" id="approach">
       <Reveal as="span" className="eyebrow">
-        How it works
+        {t.about.approachEyebrow}
       </Reveal>
       <Reveal as="h2" className="sec-h2">
-        A process that survives
+        {t.about.approachTitle1}
         <br />
-        <span className="accent">contact with reality</span>
+        <span className="accent">{t.about.approachTitleAccent}</span>
       </Reveal>
       <div className="svc-grid">
-        {APPROACH.map((step) => (
+        {t.about.approachCards.map((step) => (
           <Reveal as="article" className="svc-card" key={step.num}>
             <span className="svc-num">{step.num}</span>
             <h3>{step.title}</h3>
@@ -100,34 +78,46 @@ export function AboutApproach() {
 }
 
 export function AboutCTA() {
+  const { t } = useLanguage();
+
   return (
     <section className="aged sec-pad" id="about-cta">
       <div className="inner">
         <Reveal as="span" className="script">
-          Got a project brewing&hellip;?
+          {t.about.ctaScript}
         </Reveal>
         <Reveal as="h2">
-          Let&rsquo;s cast
+          {t.about.ctaTitle1}
           <br />
-          something together
+          {t.about.ctaTitleAccent}
         </Reveal>
-        <Reveal as="a" className="cta-btn" href="/#contact">
-          Summon me
+        <Reveal as="div">
+          <Link className="cta-btn" href="/contact">
+            {t.about.ctaBtn}
+          </Link>
         </Reveal>
-        <p className="foot-note">
-          &copy; The Juanimal Studio &mdash; Tech Wizard &bull; UX/UI &bull; AI
-          &bull; Tools for Business
-        </p>
+        <p className="foot-note">{t.contact.footNote}</p>
       </div>
     </section>
   );
 }
 
 export function AboutFooter() {
+  const { t } = useLanguage();
+
   return (
     <section className="merch-foot-cta">
-      <p>&ldquo;Every good spell needs a wizard behind it&hellip;&rdquo;</p>
-      <Link href="/merch">See the merch</Link>
+      <p>{t.about.footCtaLine}</p>
+      <div className="about-foot-links">
+        <a
+          href="https://fuelorfool.ing"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          {t.about.footCtaLab}
+        </a>
+        <Link href="/merch">{t.about.footCtaMerch}</Link>
+      </div>
     </section>
   );
 }
