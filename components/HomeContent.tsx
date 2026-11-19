@@ -1,5 +1,6 @@
 import { Contact } from "@/components/Contact";
-import { Hero } from "@/components/Hero";
+import { CraftBandsV2 } from "@/components/CraftBandsV2";
+import { HeroDirectorFilm } from "@/components/HeroDirectorFilm";
 import { LaunchKitShowcase } from "@/components/LaunchKitShowcase";
 import { Nav } from "@/components/Nav";
 import { PageShell } from "@/components/PageShell";
@@ -7,7 +8,7 @@ import { ProcessSection } from "@/components/ProcessSection";
 import { Services } from "@/components/Services";
 import { Stats } from "@/components/Stats";
 import { Tape } from "@/components/Tape";
-import { Work } from "@/components/Work";
+import { WorkShowcaseV2 } from "@/components/WorkShowcaseV2";
 
 export function HomeContent() {
   return (
@@ -32,12 +33,13 @@ export function HomeContent() {
       </svg>
 
       <Nav />
-      <Hero />
+      <HeroDirectorFilm />
       <Tape />
+      <CraftBandsV2 />
       <LaunchKitShowcase />
+      <WorkShowcaseV2 />
       <Services />
       <Stats />
-      <Work />
       <ProcessSection />
       <Contact />
     </PageShell>
