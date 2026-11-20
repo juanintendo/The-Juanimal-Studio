@@ -4,7 +4,8 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useLanguage } from "@/components/LanguageProvider";
 import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
-import { HeroTapeCanvas, StickyNoteWebGL } from "@/components/nosku/NoSkuHero3D";
+import { HeroTapeCanvas } from "@/components/nosku/NoSkuHero3D";
+import { NoSkuPostItStack } from "@/components/nosku/NoSkuPostItStack";
 import {
   FooterCopy,
   NoSkuPhysicsFooter,
@@ -56,13 +57,17 @@ interface LocalizedCopy {
   heroStampIdle: string;
   heroStampPressed: string;
   heroLines: [string, string];
-  stickyNoteLines: string[];
   handNoteLeft: string;
   crateCaptionLeft: string;
   crateCaptionRightPending: string;
   crateCaptionRightSealed: string;
   ledgerTitle: string;
   ledgerRows: Array<[string, string]>;
+  waybillTag: string;
+  waybillDest: string;
+  waybillWeight: string;
+  waybillStamp: string;
+  swatchesTitle: string;
   waveHead: string;
   waveTail: string;
   waveBadges: [string, string, string];
@@ -139,12 +144,6 @@ const COPY_NS: Record<"en" | "es", LocalizedCopy> = {
     heroStampIdle: "PEELING CORNER • PRESS",
     heroStampPressed: "STUCK FLAT • NICE",
     heroLines: ["THERE IS NO PRODUCT YET.", "WATCH WHAT WE CAN DO."],
-    stickyNoteLines: [
-      "note to self:",
-      "still no SKU.",
-      "just watch what",
-      "this site does.",
-    ],
     handNoteLeft:
       "we built an entire launch flagship for an empty cardboard box.",
     crateCaptionLeft: "BOX #000 // ARCHIVAL KRAFT",
@@ -158,6 +157,11 @@ const COPY_NS: Record<"en" | "es", LocalizedCopy> = {
       ["Interaction", "Free Orbit + 2D Physics"],
       ["Mission", "Let the product find us"],
     ],
+    waybillTag: "PRIORITY PROOF // BOX #000",
+    waybillDest: "NEXT LAUNCH • FOUNDER DESK",
+    waybillWeight: "0.00 KG • 100% CRAFT",
+    waybillStamp: "VOID • NO INVENTORY",
+    swatchesTitle: "TAPE COLORWAY // SYNC 3D ROLL",
     waveHead: "THERE IS NO PRODUCT YET",
     waveTail: "ONLY PURE SHOWOFF ENGINEERING",
     waveBadges: ["SKU #000", "NO CHASE", "IT FINDS US"],
@@ -398,12 +402,6 @@ const COPY_NS: Record<"en" | "es", LocalizedCopy> = {
     heroStampIdle: "ESQUINA DESPEGADA • TOCA",
     heroStampPressed: "BIEN PEGADA • LISTO",
     heroLines: ["AÚN NO HAY PRODUCTO.", "MIRA LO QUE HACEMOS."],
-    stickyNoteLines: [
-      "nota mental:",
-      "cero producto aún.",
-      "solo mira lo que",
-      "hace esta web.",
-    ],
     handNoteLeft:
       "construimos una web insignia entera para una caja de cartón vacía.",
     crateCaptionLeft: "CAJA #000 // KRAFT DE ARCHIVO",
@@ -417,6 +415,11 @@ const COPY_NS: Record<"en" | "es", LocalizedCopy> = {
       ["Interacción", "Órbita Libre + Física 2D"],
       ["Regla", "El producto nos encuentra"],
     ],
+    waybillTag: "ENVÍO PRUEBA // CAJA #000",
+    waybillDest: "PRÓXIMO LAUNCH • TU EQUIPO",
+    waybillWeight: "0.00 KG • 100% OFICIO",
+    waybillStamp: "VACÍO • SIN STOCK",
+    swatchesTitle: "COLOR DE CINTA // SINCRONIZA ROLLO 3D",
     waveHead: "AÚN NO EXISTE NINGÚN PRODUCTO",
     waveTail: "SOLO PURO SHOWOFF EN CÓDIGO",
     waveBadges: ["SKU #000", "NO CHASE", "NOS ENCUENTRA"],
@@ -1356,21 +1359,64 @@ export function NoSkuShowcase() {
         </div>
       </div>
 
-      {/* 2. Physical PULL ME Menu */}
+      {/* 2. High-Contrast Top Utility Bar + Physical PULL ME Menu */}
+      <header
+        className="ns-topbar"
+        data-menu-open={menuOpen ? "true" : "false"}
+      >
+        <div className="ns-topbar-left">
+          <Link href="/" className="ns-topbar-brand">
+            ← JUANIMAL STUDIO
+          </Link>
+          <Link href="/work/vectra-twin" className="ns-topbar-link">
+            VECTRA TWIN #01
+          </Link>
+        </div>
+
+        <div className="ns-topbar-center">
+          <button
+            type="button"
+            className="ns-menu-tab"
+            aria-expanded={menuOpen}
+            onClick={() => setMenuOpen((o) => !o)}
+          >
+            <span className="ns-menu-tab-dot" aria-hidden="true" />
+            <span>{menuOpen ? copy.menuTabClose : copy.menuTabOpen}</span>
+          </button>
+        </div>
+
+        <div className="ns-topbar-right">
+          <div className="ns-topbar-langs" role="group" aria-label="Language">
+            <button
+              type="button"
+              className={`ns-lang-btn ${lang === "en" ? "is-active" : ""}`}
+              onClick={() => setLang("en")}
+            >
+              EN
+            </button>
+            <button
+              type="button"
+              className={`ns-lang-btn ${lang === "es" ? "is-active" : ""}`}
+              onClick={() => setLang("es")}
+            >
+              ES
+            </button>
+          </div>
+          <button
+            type="button"
+            className="ns-topbar-cta"
+            onClick={() => setClaimOpen(true)}
+          >
+            {copy.footer.claimBox}
+          </button>
+        </div>
+      </header>
+
       <nav
         className="ns-menu"
         data-open={menuOpen ? "true" : "false"}
         aria-label="NO SKU navigation"
       >
-        <button
-          type="button"
-          className="ns-menu-tab"
-          onClick={() => setMenuOpen((o) => !o)}
-        >
-          <span className="ns-menu-tab-dot" aria-hidden="true" />
-          <span>{menuOpen ? copy.menuTabClose : copy.menuTabOpen}</span>
-        </button>
-
         <div className="ns-menu-panel" aria-hidden={!menuOpen}>
           <div className="ns-menu-sheet">
             <div className="ns-menu-topmeta">
@@ -1556,13 +1602,10 @@ export function NoSkuShowcase() {
               onSealProgress={handleSealProgress}
             />
 
-            {/* Lower Kraft Corridor: 3D Curling Sticky Note + Reversible Folding Crate + Ledger */}
+            {/* Lower Kraft Corridor: Multicolor Peelable Post-it Pad + Folding Crate + Workbench Stack */}
             <div className="ns-hero-bottom">
               <div className="ns-note-column">
-                <StickyNoteWebGL
-                  reduced={reduced}
-                  noteLines={copy.stickyNoteLines}
-                />
+                <NoSkuPostItStack lang={lang} reduced={reduced} />
                 <p className="ns-hand-note">{copy.handNoteLeft}</p>
               </div>
 
@@ -1596,17 +1639,68 @@ export function NoSkuShowcase() {
                 </div>
               </div>
 
-              <aside className="ns-spec-ledger">
-                <h3>{copy.ledgerTitle}</h3>
-                <dl>
-                  {copy.ledgerRows.map(([k, v]) => (
-                    <div key={k}>
-                      <dt>{k}</dt>
-                      <dd>{v}</dd>
-                    </div>
-                  ))}
-                </dl>
-              </aside>
+              <div className="ns-right-column">
+                <div
+                  className="ns-waybill-card"
+                  style={
+                    { "--active-tape-bg": nextBgColor } as React.CSSProperties
+                  }
+                >
+                  <div className="ns-waybill-tape" aria-hidden="true" />
+                  <div className="ns-waybill-top">
+                    <span>{copy.waybillTag}</span>
+                    <span className="ns-waybill-stamp">{copy.waybillStamp}</span>
+                  </div>
+                  <div className="ns-waybill-dest">{copy.waybillDest}</div>
+                  <div className="ns-waybill-barcode-row">
+                    <svg
+                      viewBox="0 0 180 34"
+                      className="ns-waybill-barcode"
+                      aria-hidden="true"
+                    >
+                      <path
+                        d="M2 2h3v30H2zm6 0h1v30H8zm4 0h4v30h-4zm7 0h2v30h-2zm5 0h5v30h-5zm8 0h1v30h-1zm4 0h3v30h-3zm6 0h2v30h-2zm5 0h4v30h-4zm7 0h1v30h-1zm3 0h3v30h-3zm6 0h5v30h-5zm8 0h2v30h-2zm5 0h3v30h-3zm6 0h1v30h-1zm4 0h4v30h-4zm7 0h2v30h-2zm5 0h5v30h-5zm8 0h2v30h-2zm5 0h3v30h-3zm6 0h4v30h-4zm7 0h1v30h-1zm4 0h3v30h-3zm6 0h5v30h-5zm8 0h2v30h-2zm4 0h4v30h-4zm7 0h2v30h-2z"
+                        fill="currentColor"
+                      />
+                    </svg>
+                    <span className="ns-waybill-wt">{copy.waybillWeight}</span>
+                  </div>
+                </div>
+
+                <aside className="ns-spec-ledger">
+                  <h3>{copy.ledgerTitle}</h3>
+                  <dl>
+                    {copy.ledgerRows.map(([k, v]) => (
+                      <div key={k}>
+                        <dt>{k}</dt>
+                        <dd>{v}</dd>
+                      </div>
+                    ))}
+                  </dl>
+                </aside>
+
+                <div className="ns-hero-swatches">
+                  <span className="ns-swatches-label">{copy.swatchesTitle}</span>
+                  <div className="ns-swatches-row">
+                    {copy.slides.map((s, idx) => (
+                      <button
+                        key={s.id}
+                        type="button"
+                        className={`ns-swatch-btn ${
+                          bgNextIdx === idx ? "is-active" : ""
+                        }`}
+                        style={{ "--sw-bg": s.bg } as React.CSSProperties}
+                        onClick={() => triggerSlideChange(idx)}
+                        title={`${s.word} (${s.code})`}
+                        aria-label={`${s.word} tape color`}
+                      >
+                        <span className="ns-swatch-dot" />
+                        <span className="ns-swatch-name">{s.word}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </section>

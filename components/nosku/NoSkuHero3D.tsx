@@ -456,16 +456,16 @@ export function HeroTapeCanvas({
             1
           );
 
-          if (dragging && e.pointerId === dragPointerId && smoothProg <= 0.08) {
+          if (dragging && e.pointerId === dragPointerId) {
             const dx = e.clientX - lastDragX;
             const dy = e.clientY - lastDragY;
             lastDragX = e.clientX;
             lastDragY = e.clientY;
-            dragVelY = clamp(dx * 0.012, -0.35, 0.35);
-            dragVelX = clamp(dy * 0.012, -0.35, 0.35);
+            dragVelY = clamp(dx * 0.013, -0.4, 0.4);
+            dragVelX = clamp(dy * 0.013, -0.4, 0.4);
             dragRotY += dragVelY;
-            dragRotX = clamp(dragRotX + dragVelX, -1.1, 1.1);
-            userSpinBonus += dy * 0.01;
+            dragRotX = clamp(dragRotX + dragVelX, -1.25, 1.25);
+            userSpinBonus += dy * 0.012;
           }
         };
 
@@ -477,7 +477,6 @@ export function HeroTapeCanvas({
         };
 
         const onHitDown = (e: PointerEvent) => {
-          if (smoothProg > 0.08) return;
           e.preventDefault();
           dragging = true;
           dragPointerId = e.pointerId;
@@ -537,22 +536,26 @@ export function HeroTapeCanvas({
             return;
           }
 
-          // Continuous reversible scroll tracking toward the crate
+          // True scroll-anchored progression: at scrollY <= 24 the roll rests freely at 32deg with no ribbon stub
+          const sy = window.scrollY;
           let rawProg = 0;
-          if (crateRef.current) {
-            const cRect = crateRef.current.getBoundingClientRect();
-            const vh = window.innerHeight || 900;
-            const startBottom = vh * 1.12;
-            const endTop = vh * 0.22;
-            rawProg = clamp(
-              (startBottom - cRect.top) / Math.max(240, startBottom - endTop),
-              0,
-              1
-            );
-          } else {
-            const stageTop = stage.getBoundingClientRect().top + window.scrollY;
-            const localScroll = Math.max(0, window.scrollY - stageTop + 160);
-            rawProg = clamp(localScroll / Math.max(360, stageH * 0.45), 0, 1);
+          if (sy > 24) {
+            if (crateRef.current) {
+              const cRect = crateRef.current.getBoundingClientRect();
+              const vh = window.innerHeight || 900;
+              const crateDocTop = cRect.top + sy;
+              const startSy = 24;
+              const endSy = Math.max(startSy + 280, crateDocTop - vh * 0.22);
+              rawProg = clamp(
+                (sy - startSy) / Math.max(240, endSy - startSy),
+                0,
+                1
+              );
+            } else {
+              const stageTop = stage.getBoundingClientRect().top + sy;
+              const localScroll = Math.max(0, sy - stageTop + 160);
+              rawProg = clamp(localScroll / Math.max(360, stageH * 0.45), 0, 1);
+            }
           }
 
           smoothProg += (rawProg - smoothProg) * clamp(1 - Math.exp(-10 * dt), 0, 1);
@@ -564,23 +567,24 @@ export function HeroTapeCanvas({
           const baseRotZ = -0.1 * (1 - frontT);
           const baseRotX = 0.22 * (1 - frontT) + 0.1 * frontT;
 
-          // Interactive mouse hover + free drag orbit inertia (damped tightly once scroll-sealing starts)
-          const hoverScale = 1 - 0.55 * smoothStep(0.04, 0.25, smoothProg);
+          // Interactive mouse hover + free drag orbit inertia (always interactive!)
+          const hoverScale = 1 - 0.45 * smoothStep(0.04, 0.25, smoothProg);
           const hoverTargetX = pointerActive ? pointerNormY * 0.12 * hoverScale : 0;
           const hoverTargetY = pointerActive ? pointerNormX * 0.14 * hoverScale : 0;
           const hDamp = 1 - Math.exp(-4.5 * dt);
           smoothHoverTiltX += (hoverTargetX - smoothHoverTiltX) * hDamp;
           smoothHoverTiltY += (hoverTargetY - smoothHoverTiltY) * hDamp;
 
-          if (!dragging || smoothProg > 0.08) {
+          if (!dragging) {
             dragRotY += dragVelY;
-            dragRotX = clamp(dragRotX + dragVelX, -1.1, 1.1);
-            const inertiaDecay = Math.exp(-(smoothProg > 0.08 ? 10 : 5) * dt);
+            dragRotX = clamp(dragRotX + dragVelX, -1.25, 1.25);
+            const isSealing = smoothProg > 0.08;
+            const inertiaDecay = Math.exp(-(isSealing ? 8 : 3.8) * dt);
             dragVelX *= inertiaDecay;
             dragVelY *= inertiaDecay;
 
-            // Gentle spring return when resting; fast alignment during active scroll-sealing
-            const relax = Math.exp(-(smoothProg > 0.08 ? 9 : 1.8) * dt);
+            // Gentle float-back at rest; brisk alignment over vertical tape while scrolled
+            const relax = Math.exp(-(isSealing ? 5.5 : 0.95) * dt);
             dragRotX *= relax;
             dragRotY *= relax;
             userSpinBonus *= relax;
@@ -701,272 +705,6 @@ export function HeroTapeCanvas({
             opacity="0.9"
           />
         </svg>
-      )}
-    </div>
-  );
-}
-
-interface StickyNoteWebGLProps {
-  reduced: boolean;
-  noteLines: string[];
-}
-
-export function StickyNoteWebGL({ reduced, noteLines }: StickyNoteWebGLProps) {
-  const hostRef = useRef<HTMLDivElement | null>(null);
-  const [fallback, setFallback] = useState(false);
-
-  useEffect(() => {
-    const host = hostRef.current;
-    if (!host) return;
-
-    let disposed = false;
-    let raf = 0;
-    const cleanupFns: Array<() => void> = [];
-
-    const setup = async () => {
-      try {
-        const THREE = await import("three");
-        if (disposed || !hostRef.current) return;
-
-        const renderer = new THREE.WebGLRenderer({
-          alpha: true,
-          antialias: true,
-        });
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
-        renderer.outputColorSpace = THREE.SRGBColorSpace;
-        renderer.domElement.style.width = "100%";
-        renderer.domElement.style.height = "100%";
-        renderer.domElement.style.display = "block";
-        host.appendChild(renderer.domElement);
-
-        const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(28, 1, 0.1, 30);
-        camera.position.set(0, 0, 5.2);
-
-        const hemi = new THREE.HemisphereLight(0xfffef8, 0x73623e, 1.35);
-        scene.add(hemi);
-        const dir = new THREE.DirectionalLight(0xffffff, 1.15);
-        dir.position.set(2.8, 3.6, 4.5);
-        scene.add(dir);
-
-        const canvas = document.createElement("canvas");
-        canvas.width = 768;
-        canvas.height = 768;
-
-        const paintStickyCanvas = () => {
-          const ctx = canvas.getContext("2d");
-          if (!ctx) return;
-          ctx.clearRect(0, 0, 768, 768);
-
-          const grad = ctx.createLinearGradient(0, 0, 0, 768);
-          grad.addColorStop(0, "#FFF299");
-          grad.addColorStop(1, "#F7DF68");
-          ctx.fillStyle = grad;
-          ctx.fillRect(0, 0, 768, 768);
-
-          ctx.strokeStyle = "rgba(24, 17, 14, 0.065)";
-          ctx.lineWidth = 1.5;
-          for (let g = 48; g < 768; g += 48) {
-            ctx.beginPath();
-            ctx.moveTo(0, g);
-            ctx.lineTo(768, g);
-            ctx.stroke();
-            ctx.beginPath();
-            ctx.moveTo(g, 0);
-            ctx.lineTo(g, 768);
-            ctx.stroke();
-          }
-
-          ctx.save();
-          ctx.translate(384, 38);
-          ctx.rotate(-0.025);
-          ctx.fillStyle = "rgba(255, 77, 41, 0.84)";
-          ctx.fillRect(-165, -26, 330, 52);
-          ctx.strokeStyle = "rgba(255,255,255,0.35)";
-          ctx.strokeRect(-165, -26, 330, 52);
-          ctx.restore();
-
-          ctx.fillStyle = "#18110E";
-          ctx.font = "400 58px 'Caveat Brush', cursive";
-          ctx.textBaseline = "top";
-          noteLines.forEach((line, idx) => {
-            ctx.save();
-            ctx.translate(72, 142 + idx * 124);
-            ctx.rotate((idx % 2 === 0 ? -1 : 1) * 0.012);
-            ctx.fillText(line, 0, 0);
-            ctx.restore();
-          });
-
-          ctx.fillStyle = "rgba(24,17,14,0.48)";
-          ctx.font = "700 22px monospace";
-          ctx.fillText("REF // EMPTY-000", 72, 686);
-        };
-
-        paintStickyCanvas();
-
-        const tex = new THREE.CanvasTexture(canvas);
-        tex.colorSpace = THREE.SRGBColorSpace;
-
-        if (typeof document !== "undefined" && document.fonts?.ready) {
-          document.fonts.ready.then(() => {
-            if (!disposed) {
-              paintStickyCanvas();
-              tex.needsUpdate = true;
-            }
-          });
-        }
-
-        const geo = new THREE.PlaneGeometry(2.15, 2.02, 24, 24);
-        const basePos = Float32Array.from(geo.attributes.position.array);
-        const mat = new THREE.MeshStandardMaterial({
-          map: tex,
-          roughness: 0.72,
-          metalness: 0.02,
-          side: THREE.DoubleSide,
-        });
-        const mesh = new THREE.Mesh(geo, mat);
-        scene.add(mesh);
-
-        const resize = () => {
-          const r = host.getBoundingClientRect();
-          const w = Math.max(120, r.width);
-          const h = Math.max(120, r.height);
-          renderer.setSize(w, h, false);
-          camera.aspect = w / h;
-          camera.updateProjectionMatrix();
-        };
-        resize();
-
-        let isVisible = true;
-        let lastScrollY = window.scrollY;
-        let pointerX = NaN;
-        let pointerY = NaN;
-        let curlAmount = 0.24;
-        let flutter = 0;
-
-        const applyCurl = (curl: number, flt: number) => {
-          const pos = geo.attributes.position;
-          const halfW = 1.075;
-          const halfH = 1.01;
-
-          for (let i = 0; i < pos.count; i++) {
-            const bx = basePos[i * 3];
-            const by = basePos[i * 3 + 1];
-
-            const u = (bx + halfW) / (halfW * 2);
-            const v = (halfH - by) / (halfH * 2);
-
-            const weight = Math.pow(v, 1.55) * (0.28 + 0.72 * Math.pow(u, 1.3));
-            const bend = curl * weight;
-            const z = Math.sin(bend * Math.PI * 0.5) * 0.78 + flt * v * u * 0.14;
-            const xShift = -bend * 0.14 * u;
-            const yShift = bend * 0.16 * v;
-
-            pos.setXYZ(i, bx + xShift, by + yShift, z);
-          }
-          pos.needsUpdate = true;
-          geo.computeVertexNormals();
-        };
-
-        const ro = new ResizeObserver(resize);
-        ro.observe(host);
-
-        const io = new IntersectionObserver(
-          ([entry]) => {
-            isVisible = entry.isIntersecting;
-          },
-          { rootMargin: "25% 0px" }
-        );
-        io.observe(host);
-
-        const onPointerMove = (e: PointerEvent) => {
-          pointerX = e.clientX;
-          pointerY = e.clientY;
-        };
-        window.addEventListener("pointermove", onPointerMove, { passive: true });
-
-        let lastTs = performance.now();
-
-        const tick = (now: number) => {
-          if (disposed) return;
-          raf = requestAnimationFrame(tick);
-          if (!isVisible) return;
-
-          const dt = clamp((now - lastTs) / 1000, 0.001, 0.05);
-          lastTs = now;
-
-          if (reduced) {
-            applyCurl(0.18, 0);
-            renderer.render(scene, camera);
-            return;
-          }
-
-          const sy = window.scrollY;
-          const sVel = sy - lastScrollY;
-          lastScrollY = sy;
-
-          let prox = 0;
-          if (!Number.isNaN(pointerX)) {
-            const rect = host.getBoundingClientRect();
-            const cx = rect.left + rect.width * 0.5;
-            const cy = rect.top + rect.height * 0.5;
-            const dist = Math.hypot(pointerX - cx, pointerY - cy);
-            const maxR = Math.max(rect.width, 220) * 1.15;
-            prox = Math.max(0, 1 - dist / maxR);
-          }
-
-          const targetCurl = clamp(
-            0.22 + prox * 0.42 + clamp(Math.abs(sVel) * 0.012, 0, 0.32),
-            0.16,
-            0.92
-          );
-          const targetFlutter = Math.sin(now * 0.0032) * (0.25 + prox * 0.45);
-          const d = 1 - Math.exp(-6.5 * dt);
-          curlAmount += (targetCurl - curlAmount) * d;
-          flutter += (targetFlutter - flutter) * d;
-
-          applyCurl(curlAmount, flutter);
-          renderer.render(scene, camera);
-        };
-
-        raf = requestAnimationFrame(tick);
-
-        cleanupFns.push(
-          () => window.removeEventListener("pointermove", onPointerMove),
-          () => ro.disconnect(),
-          () => io.disconnect(),
-          () => {
-            geo.dispose();
-            mat.dispose();
-            tex.dispose();
-            renderer.dispose();
-            if (renderer.domElement.parentNode === host) {
-              host.removeChild(renderer.domElement);
-            }
-          }
-        );
-      } catch {
-        if (!disposed) setFallback(true);
-      }
-    };
-
-    setup();
-
-    return () => {
-      disposed = true;
-      if (raf) cancelAnimationFrame(raf);
-      cleanupFns.forEach((fn) => fn());
-    };
-  }, [noteLines, reduced]);
-
-  return (
-    <div ref={hostRef} className="ns-sticky-note" aria-hidden="true">
-      {fallback && (
-        <div className="ns-sticky-fallback">
-          {noteLines.map((l) => (
-            <span key={l}>{l}</span>
-          ))}
-        </div>
       )}
     </div>
   );
