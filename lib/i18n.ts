@@ -319,12 +319,12 @@ export const COPY = {
           meta: "Portfolio Web Concept #02 • Three.js Unspooling Roll & 2D Camera • 2026",
           intro: "There is no product yet. Just watch what we can do.",
           paragraphs: [
-            "An absurdly over-engineered tactile showcase for a product that doesn't exist yet: real Three.js unspooling ribbon physics over an empty crate, 3D paper-curl sticky notes, procedural Web Audio foley, and elastic letter poking.",
+            "An absurdly over-engineered tactile showcase for a product that doesn't exist yet: a Three.js tape roll that turns frontal and unspools 1:1 down onto an empty crate, paired with a 3D curling sticky note and elastic letter poking.",
             "Built in Industrial Vermilion (#FF4D29), Archival Bone (#F4EFE6), Espresso Ink (#18110E), and 6 orbital SVG arc-cut paint sweeps — ending with throwable 2D physics sticker balls.",
           ],
           facts: [
-            { label: "3D & Physics", value: "Three.js Roll + 2D Drag/Throw Balls" },
-            { label: "Audio", value: "100% Procedural Web Audio Foley" },
+            { label: "3D & Physics", value: "Frontal Three.js Roll + 2D Throw Balls" },
+            { label: "Motion", value: "1:1 Synced Ribbons & Arc-Length Camera" },
             { label: "Navigation", value: "PULL ME Drawer + 2D Bezier Camera" },
             { label: "Status", value: "Live Prototype (/work/no-sku, EN/ES)" },
           ],
@@ -972,12 +972,12 @@ export const COPY = {
           meta: "Portafolio Web #02 • Cinta 3D Three.js & Cámara 2D • 2026",
           intro: "Aún no existe ningún producto. Solo mira lo que podemos hacer.",
           paragraphs: [
-            "Segunda web insignia de nuestra cartera diseñada para una caja vacía sin inventario: rollo 3D en Three.js que se desenrolla con el scroll, nota adherible con curl en tiempo real, foley Web Audio y letras elásticas reactivas al cursor.",
+            "Segunda web insignia de nuestra cartera diseñada para una caja vacía sin inventario: rollo 3D en Three.js que gira de frente y se desenrolla 1:1 con el scroll, nota adherible con curl en tiempo real y letras elásticas reactivas al cursor.",
             "Construida en Rojo Señal Vermilion (#FF4D29), Hueso Archivo (#F4EFE6), Tinta Espresso (#18110E) y 6 barridos de pintura curvos orbitales — cerrando con bolas físicas lanzables en el footer.",
           ],
           facts: [
-            { label: "3D & Física", value: "Rollo Three.js + Bolas 2D Lanzables" },
-            { label: "Audio", value: "100% Foley Sintetizado en Web Audio" },
+            { label: "3D & Física", value: "Rollo Frontal Three.js + Bolas 2D" },
+            { label: "Motion", value: "Cintas 1:1 & Cámara Bézier 2D" },
             { label: "Cámara", value: "Panel PULL ME + Ruta 2D Bézier" },
             { label: "Estado", value: "Prototipo Vivo (/work/no-sku, EN/ES)" },
           ],

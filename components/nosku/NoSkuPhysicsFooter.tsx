@@ -2,7 +2,6 @@
 
 import React, { useEffect, useRef } from "react";
 import Link from "next/link";
-import { playOnce } from "@/lib/nosku-sound";
 
 export interface FooterCopy {
   headline: string;
@@ -10,16 +9,12 @@ export interface FooterCopy {
   dropAgain: string;
   replayPeel: string;
   claimBox: string;
-  soundOn: string;
-  soundOff: string;
   links: Array<{ label: string; href: string }>;
   copyright: string;
 }
 
 interface NoSkuPhysicsFooterProps {
   copy: FooterCopy;
-  soundOn: boolean;
-  onToggleSound: () => void;
   onReplayPeel: () => void;
   onClaimBox: () => void;
   bindPoke?: (el: HTMLElement | null) => void;
@@ -159,8 +154,6 @@ function clamp(v: number, min: number, max: number): number {
 
 export function NoSkuPhysicsFooter({
   copy,
-  soundOn,
-  onToggleSound,
   onReplayPeel,
   onClaimBox,
   bindPoke,
@@ -185,9 +178,7 @@ export function NoSkuPhysicsFooter({
     let simElapsed = 0;
     let active = false;
     let hasLaunched = false;
-    let lastSoundAt = 0;
 
-    // Active drag tracking
     let dragIndex = -1;
     let dragPointerId = -1;
     let pointerX = 0;
@@ -231,7 +222,11 @@ export function NoSkuPhysicsFooter({
 
         const fromLeft = idx % 2 === 0;
         const startX = fromLeft ? -r - 24 : width + r + 24;
-        const startY = clamp(height * (0.14 + (idx % 4) * 0.11), r + 10, height * 0.65);
+        const startY = clamp(
+          height * (0.14 + (idx % 4) * 0.11),
+          r + 10,
+          height * 0.65
+        );
         const speedX = (360 + (idx % 3) * 140) * (fromLeft ? 1 : -1);
         const speedY = -120 - (idx % 3) * 75;
 
@@ -263,14 +258,6 @@ export function NoSkuPhysicsFooter({
           b.y - b.r
         ).toFixed(2)}px, 0) rotate(${b.angle.toFixed(2)}deg)`;
       }
-    };
-
-    const maybeBeep = (speed: number) => {
-      if (speed < 120) return;
-      const now = performance.now();
-      if (now - lastSoundAt < 85) return;
-      lastSoundAt = now;
-      playOnce("BALL_HIT", clamp((speed - 120) / 700, 0.08, 1));
     };
 
     const stepPhysics = (dt: number) => {
@@ -305,16 +292,12 @@ export function NoSkuPhysicsFooter({
           b.x += b.vx * sdt;
           b.y += b.vy * sdt;
 
-          // Roll spin coupled softly with horizontal travel
           b.angle += b.omega * sdt * 57.2958;
           b.omega *= 0.992;
 
-          // Floor
           if (b.y + b.r > floorY) {
-            const impact = Math.abs(b.vy);
             b.y = floorY - b.r;
             if (b.vy > 0) {
-              if (step === 0) maybeBeep(impact);
               b.vy = -b.vy * restitution;
               if (Math.abs(b.vy) < 28) b.vy = 0;
               b.vx *= 0.94;
@@ -322,27 +305,20 @@ export function NoSkuPhysicsFooter({
             }
           }
 
-          // Gentle ceiling after release inside arena
           if (b.y - b.r < wallTopPad) {
             b.y = wallTopPad + b.r;
             if (b.vy < 0) b.vy = -b.vy * 0.35;
           }
 
-          // Side walls once entered inside container bounds
           if (b.x - b.r < 6 && b.vx < 0) {
-            const impact = Math.abs(b.vx);
             b.x = b.r + 6;
-            if (step === 0) maybeBeep(impact);
             b.vx = -b.vx * 0.55;
           } else if (b.x + b.r > width - 6 && b.vx > 0) {
-            const impact = Math.abs(b.vx);
             b.x = width - b.r - 6;
-            if (step === 0) maybeBeep(impact);
             b.vx = -b.vx * 0.55;
           }
         }
 
-        // Pairwise circle-circle elastic collision + separation
         for (let i = 0; i < bodies.length; i++) {
           const a = bodies[i];
           if (!a.released) continue;
@@ -366,14 +342,12 @@ export function NoSkuPhysicsFooter({
             const invMassSum = invMa + invMb;
             if (invMassSum <= 0) continue;
 
-            // Positional correction
             const corr = (overlap * 0.88) / invMassSum;
             a.x -= nx * corr * invMa;
             a.y -= ny * corr * invMa;
             b.x += nx * corr * invMb;
             b.y += ny * corr * invMb;
 
-            // Relative velocity along collision normal
             const rvx = b.vx - a.vx;
             const rvy = b.vy - a.vy;
             const velAlongNormal = rvx * nx + rvy * ny;
@@ -392,14 +366,11 @@ export function NoSkuPhysicsFooter({
               b.vy += impY * invMb;
             }
 
-            // Tangential slip drives angular spin
             const tx = -ny;
             const ty = nx;
             const tanVel = rvx * tx + rvy * ty;
             if (!a.dragging) a.omega += (tanVel / Math.max(24, a.r)) * 0.22;
             if (!b.dragging) b.omega -= (tanVel / Math.max(24, b.r)) * 0.22;
-
-            if (step === 0) maybeBeep(Math.abs(velAlongNormal));
           }
         }
       }
@@ -443,7 +414,6 @@ export function NoSkuPhysicsFooter({
 
     relaunchRef.current = launchCascade;
 
-    // Initial resting state before scroll entry
     initBodies(true);
     paintDom();
 
@@ -506,7 +476,6 @@ export function NoSkuPhysicsFooter({
       pointerVy = 0;
       lastPointerTs = performance.now();
       b.dragging = true;
-      playOnce("TAPE_PRESS", 0.7);
       try {
         target.setPointerCapture?.(e.pointerId);
       } catch {
@@ -606,7 +575,6 @@ export function NoSkuPhysicsFooter({
               key={item.href + item.label}
               href={item.href}
               className="ns-footer-link"
-              onMouseEnter={() => playOnce("MENU_HOVER", 0.8)}
             >
               <span className="ns-footer-link-dot" aria-hidden="true" />
               <span className="ns-footer-link-text">
@@ -619,7 +587,6 @@ export function NoSkuPhysicsFooter({
             type="button"
             className="ns-footer-link ns-footer-btn"
             onClick={onClaimBox}
-            onMouseEnter={() => playOnce("MENU_HOVER", 0.8)}
           >
             <span className="ns-footer-link-dot" aria-hidden="true" />
             <span className="ns-footer-link-text">
@@ -632,29 +599,16 @@ export function NoSkuPhysicsFooter({
           <button
             type="button"
             className="ns-footer-chip"
-            onClick={() => {
-              playOnce("TAPE_PRESS", 0.85);
-              relaunchRef.current?.();
-            }}
+            onClick={() => relaunchRef.current?.()}
           >
             {copy.dropAgain}
           </button>
           <button
             type="button"
             className="ns-footer-chip"
-            onClick={() => {
-              playOnce("MENU_PULL", 0.9);
-              onReplayPeel();
-            }}
+            onClick={onReplayPeel}
           >
             {copy.replayPeel}
-          </button>
-          <button
-            type="button"
-            className={`ns-footer-chip ${soundOn ? "is-active" : ""}`}
-            onClick={onToggleSound}
-          >
-            {soundOn ? copy.soundOn : copy.soundOff}
           </button>
         </div>
       </div>

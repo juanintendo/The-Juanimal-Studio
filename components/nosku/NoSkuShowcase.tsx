@@ -4,12 +4,6 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useLanguage } from "@/components/LanguageProvider";
 import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
-import {
-  isSoundEnabled,
-  playOnce,
-  setSoundEnabled,
-  subscribeSound,
-} from "@/lib/nosku-sound";
 import { HeroTapeCanvas, StickyNoteWebGL } from "@/components/nosku/NoSkuHero3D";
 import {
   FooterCopy,
@@ -47,8 +41,6 @@ interface LocalizedCopy {
   menuTopMeta: string;
   menuFootLeft: string;
   menuFootRight: string;
-  soundOn: string;
-  soundOff: string;
   menuItems: Array<{
     label: string;
     href: string;
@@ -66,6 +58,7 @@ interface LocalizedCopy {
   crateCaptionRightPending: string;
   crateCaptionRightSealed: string;
   crateSealedBanner: string;
+  rerollTape: string;
   ledgerTitle: string;
   ledgerRows: Array<[string, string]>;
   waveHead: string;
@@ -104,8 +97,6 @@ const COPY_NS: Record<"en" | "es", LocalizedCopy> = {
     menuTopMeta: "NO SKU™ — CASE #02 BY JUANIMAL STUDIO",
     menuFootLeft: "00% PRODUCT • 100% PROOF OF CRAFT",
     menuFootRight: "WE DON'T CHASE IT — THE PRODUCT FINDS US.",
-    soundOn: "SFX ON",
-    soundOff: "SFX OFF",
     menuItems: [
       {
         label: "EMPTY CRATE",
@@ -147,7 +138,7 @@ const COPY_NS: Record<"en" | "es", LocalizedCopy> = {
     heroStampPressed: "STUCK FLAT • NICE",
     heroLines: ["THERE IS NO PRODUCT YET.", "JUST WATCH WHAT WE CAN DO."],
     heroSubcap:
-      "Scroll to unspool real Three.js tape down onto an empty box. Poke any headline. Toggle Web Audio foley in the corner. Zero inventory — 100% proof.",
+      "Scroll to pivot the Three.js roll frontal and unspool tape straight down onto an empty box. Poke any headline. Throw the stickers in the footer. Zero inventory — 100% proof.",
     stickyNoteLines: [
       "note to self:",
       "still no SKU.",
@@ -160,12 +151,13 @@ const COPY_NS: Record<"en" | "es", LocalizedCopy> = {
     crateCaptionRightPending: "SCROLL DOWN TO SEAL CRATE ↓",
     crateCaptionRightSealed: "SEALED WITH PURE SHOWOFF ✓",
     crateSealedBanner: "NO SKU // SEALED EMPTY",
+    rerollTape: "RE-ROLL TAPE",
     ledgerTitle: "MANIFEST // SKU #000",
     ledgerRows: [
       ["Physical Units", "000 in stock"],
       ["Warehouse", "None / Localhost"],
       ["Render Engine", "Three.js + 60fps DOM"],
-      ["Foley Engine", "100% Web Audio Synth"],
+      ["Interaction", "Elastic Poke + 2D Physics"],
       ["Mission", "Let the product find us"],
     ],
     waveHead: "THERE IS NO PRODUCT YET",
@@ -190,7 +182,7 @@ const COPY_NS: Record<"en" | "es", LocalizedCopy> = {
           { label: "ZERO JANK", rot: -2 },
         ],
         description:
-          "Real-time vertex deformation, scroll-driven unspooling and spring recovery tuned by hand — even before a product exists.",
+          "Real-time vertex deformation, synchronized frontal roll-unspooling and spring recovery tuned by hand — before a product even exists.",
         image: "/images/nosku/specimen-motion.png",
         imageAlt: "Coiled glossy vermilion tape strips on archival bone paper",
       },
@@ -217,23 +209,23 @@ const COPY_NS: Record<"en" | "es", LocalizedCopy> = {
           "Electric cobalt industrial tape strips peeling off kraft grid paper",
       },
       {
-        id: "sonic",
+        id: "kinetic",
         code: "POWER 03 / 06",
         kicker: "THE",
-        word: "SONIC",
+        word: "KINETIC",
         bg: "#D4FF2B",
         ink: "#18110E",
         tagBg: "#18110E",
         tagInk: "#D4FF2B",
         subhead:
-          "Every tear, tap, transition and collision synthesized live in Web Audio.",
+          "Spring solvers, gravity collisions and damped inertia built straight into DOM & GL.",
         tags: [
-          { label: "ZERO MP3 BLOAT", rot: -3 },
-          { label: "PITCH BY SPEED", rot: 4 },
-          { label: "8 FOLEY CUES", rot: -2 },
+          { label: "ARC-LENGTH 1:1", rot: -3 },
+          { label: "ELASTIC COLLISIONS", rot: 4 },
+          { label: "DAMPED INERTIA", rot: -2 },
         ],
         description:
-          "Turn SFX on at bottom-right: hear adhesive noise pitch up as you scroll fast, sharp cuts at the crate, and hollow ball pops.",
+          "No canned video loops masquerading as interactivity: scroll couples 1:1 to cylinder rotation, ribbons flex with velocity, and balls throw on release.",
       },
       {
         id: "loud",
@@ -307,7 +299,7 @@ const COPY_NS: Record<"en" | "es", LocalizedCopy> = {
       {
         index: "02",
         word: "TO FLEX",
-        copy: "Three.js vertex ribbons, 2D physics collisions, procedural Web Audio synthesis, SVG arc-cuts and 60fps typographic springs inside one unified codebase.",
+        copy: "Three.js vertex ribbons, 2D physics collisions, arc-length camera splines, SVG arc-cuts and 60fps typographic springs inside one unified codebase.",
         prop: "try poking the letters ↑",
       },
       {
@@ -328,12 +320,12 @@ const COPY_NS: Record<"en" | "es", LocalizedCopy> = {
     modalTag: "SHIPPING LABEL // SKU #000 RESERVED",
     modalTitle: "YOU JUST CLAIMED AN EMPTY BOX.",
     modalBody:
-      "Right now Box #000 contains 0g of physical merchandise and 100% of our motion, 3D and sound craft. Want us to fill it with your actual product launch?",
+      "Right now Box #000 contains 0g of physical merchandise and 100% of our motion, 3D and physics craft. Want us to fill it with your actual product launch?",
     modalManifest: [
       "ITEM:        NONE YET (PURE PROOF)",
       "SKU ID:      NO-SKU-000",
       "WEIGHT:      0.00 KG (100% CODE CRAFT)",
-      "STACK:       THREE.JS + WEB AUDIO + NEXT.JS",
+      "STACK:       THREE.JS + SPRING PHYSICS + NEXT.JS",
       "NEXT STEP:   PUT YOUR PRODUCT INSIDE",
     ],
     modalGoContact: "FILL THIS BOX WITH JUANIMAL →",
@@ -344,8 +336,6 @@ const COPY_NS: Record<"en" | "es", LocalizedCopy> = {
       dropAgain: "DROP AGAIN",
       replayPeel: "REPLAY PEEL",
       claimBox: "CLAIM BOX #000",
-      soundOn: "SFX: ON",
-      soundOff: "SFX: OFF",
       links: [
         { label: "← JUANIMAL STUDIO", href: "/" },
         { label: "VECTRA TWIN #01", href: "/work/vectra-twin" },
@@ -360,8 +350,6 @@ const COPY_NS: Record<"en" | "es", LocalizedCopy> = {
     menuTopMeta: "NO SKU™ — CASO #02 DE THE JUANIMAL STUDIO",
     menuFootLeft: "00% PRODUCTO • 100% PRUEBA DE OFICIO",
     menuFootRight: "NO LO PERSEGUIMOS — EL PRODUCTO NOS ENCUENTRA.",
-    soundOn: "AUDIO ON",
-    soundOff: "AUDIO OFF",
     menuItems: [
       {
         label: "CAJA VACÍA",
@@ -403,7 +391,7 @@ const COPY_NS: Record<"en" | "es", LocalizedCopy> = {
     heroStampPressed: "BIEN PEGADA • LISTO",
     heroLines: ["AÚN NO HAY PRODUCTO.", "SOLO MIRA LO QUE HACEMOS."],
     heroSubcap:
-      "Haz scroll para desenrollar cinta 3D real en Three.js sobre una caja vacía. Empuja cada letra con el cursor. Enciende el audio foley en la esquina.",
+      "Haz scroll para girar el rollo Three.js de frente y desenrollar cinta 1:1 directo hasta sellar la caja vacía. Empuja cualquier titular con el mouse.",
     stickyNoteLines: [
       "nota mental:",
       "cero producto aún.",
@@ -416,12 +404,13 @@ const COPY_NS: Record<"en" | "es", LocalizedCopy> = {
     crateCaptionRightPending: "BAJA PARA SELLAR LA CAJA ↓",
     crateCaptionRightSealed: "SELLADA A PURO SHOWOFF ✓",
     crateSealedBanner: "NO SKU // SELLADA VACÍA",
+    rerollTape: "RE-ENROLLAR CINTA",
     ledgerTitle: "MANIFIESTO // SKU #000",
     ledgerRows: [
       ["Unidades Físicas", "000 en bodega"],
       ["Bodega", "Ninguna / Localhost"],
       ["Motor 3D", "Three.js + DOM 60fps"],
-      ["Motor Sonoro", "Foley Web Audio en vivo"],
+      ["Interacción", "Poke Elástico + Física 2D"],
       ["Regla", "El producto nos encuentra"],
     ],
     waveHead: "AÚN NO EXISTE NINGÚN PRODUCTO",
@@ -445,7 +434,7 @@ const COPY_NS: Record<"en" | "es", LocalizedCopy> = {
           { label: "CERO JANK", rot: -2 },
         ],
         description:
-          "Deformación de vértices en tiempo real, desenrollado por scroll y resortes calibrados a mano incluso sin un producto real.",
+          "Deformación de vértices en tiempo real, giro frontal 1:1 al desenrollar y resortes calibrados a mano incluso sin un producto real.",
         image: "/images/nosku/specimen-motion.png",
         imageAlt: "Cintas vermilion brillantes enrolladas sobre papel archivo",
       },
@@ -471,23 +460,23 @@ const COPY_NS: Record<"en" | "es", LocalizedCopy> = {
         imageAlt: "Cinta azul cobalto despegándose sobre grilla kraft",
       },
       {
-        id: "sonic",
+        id: "kinetic",
         code: "PODER 03 / 06",
         kicker: "LO",
-        word: "SONORO",
+        word: "CINÉTICO",
         bg: "#D4FF2B",
         ink: "#18110E",
         tagBg: "#18110E",
         tagInk: "#D4FF2B",
         subhead:
-          "Cada rasgado, golpe y cambio de estado sintetizado en Web Audio.",
+          "Resortes, colisiones con gravedad e inercia amortiguada directo en código.",
         tags: [
-          { label: "CERO MP3 PESADOS", rot: -3 },
-          { label: "TONO POR VELOCIDAD", rot: 4 },
-          { label: "8 EFECTOS FOLEY", rot: -2 },
+          { label: "SINCRONÍA 1:1", rot: -3 },
+          { label: "COLISIÓN 2D", rot: 4 },
+          { label: "INERCIA SUAVE", rot: -2 },
         ],
         description:
-          "Activa el audio abajo a la derecha: escucha la cinta tensarse al scrollear, el corte seco en la caja y cada choque en el footer.",
+          "Nada de videos falsos haciéndose pasar por interacción: el scroll gira el cilindro 1:1, la cinta flexiona con la velocidad y las bolas se lanzan.",
       },
       {
         id: "loud",
@@ -561,7 +550,7 @@ const COPY_NS: Record<"en" | "es", LocalizedCopy> = {
       {
         index: "02",
         word: "LUJEAR",
-        copy: "cintas 3D en Three.js, física 2D con colisiones, foley sintetizado, máscaras SVG curvas y resortes 60fps en un solo sistema.",
+        copy: "cintas 3D en Three.js, física 2D con colisiones, rutas Bézier de cámara, máscaras SVG curvas y resortes 60fps en un solo sistema.",
         prop: "empuja las letras con el mouse ↑",
       },
       {
@@ -582,12 +571,12 @@ const COPY_NS: Record<"en" | "es", LocalizedCopy> = {
     modalTag: "GUÍA DE ENVÍO // SKU #000 RESERVADO",
     modalTitle: "ACABAS DE RECLAMAR UNA CAJA VACÍA.",
     modalBody:
-      "Ahora mismo la Caja #000 trae 0g de mercancía física y 100% de nuestro oficio en 3D, motion y audio. ¿La llenamos con tu próximo lanzamiento?",
+      "Ahora mismo la Caja #000 trae 0g de mercancía física y 100% de nuestro oficio en 3D, motion y física. ¿La llenamos con tu próximo lanzamiento?",
     modalManifest: [
       "ARTÍCULO:    NINGUNO AÚN (PURO SHOWOFF)",
       "SKU ID:      NO-SKU-000",
       "PESO:        0.00 KG (100% CÓDIGO & MOTION)",
-      "STACK:       THREE.JS + WEB AUDIO + NEXT.JS",
+      "STACK:       THREE.JS + SPRING PHYSICS + NEXT.JS",
       "SIGUIENTE:   PONER TU PRODUCTO ADENTRO",
     ],
     modalGoContact: "LLENAR ESTA CAJA CON JUANIMAL →",
@@ -599,8 +588,6 @@ const COPY_NS: Record<"en" | "es", LocalizedCopy> = {
       dropAgain: "SOLTAR DE NUEVO",
       replayPeel: "REPETIR INTRO",
       claimBox: "RECLAMAR CAJA #000",
-      soundOn: "SFX: ON",
-      soundOff: "SFX: OFF",
       links: [
         { label: "← JUANIMAL STUDIO", href: "/" },
         { label: "VECTRA TWIN #01", href: "/work/vectra-twin" },
@@ -620,28 +607,29 @@ const PRELOADER_COLORS = [
 ];
 
 function KineticSlideArtwork({ id, ink }: { id: string; ink: string }) {
-  if (id === "sonic") {
+  if (id === "kinetic") {
     return (
       <svg viewBox="0 0 360 450" className="ns-key-svg" aria-hidden="true">
         <rect width="360" height="450" fill="#D4FF2B" />
         <g stroke="#18110E" strokeWidth="4" fill="none">
-          <circle cx="180" cy="225" r="142" strokeDasharray="10 8" />
-          <circle cx="180" cy="225" r="102" />
-          <circle cx="180" cy="225" r="56" fill="#FF4D29" />
-          <path d="M 38 225 Q 74 140 110 225 T 182 225 T 254 225 T 322 225" strokeWidth="6" />
-          <path d="M 52 292 Q 116 250 180 292 T 308 292" strokeWidth="3.5" />
-          <path d="M 52 158 Q 116 200 180 158 T 308 158" strokeWidth="3.5" />
+          <circle cx="180" cy="198" r="132" strokeDasharray="12 8" />
+          <circle cx="180" cy="198" r="88" />
+          <path d="M 180 66 L 180 330 M 48 198 L 312 198" strokeWidth="2.5" opacity="0.45" />
+          <circle cx="180" cy="198" r="34" fill="#FF4D29" />
+          <circle cx="268" cy="198" r="18" fill="#18110E" />
+          <circle cx="118" cy="136" r="14" fill="#1F4BFF" />
+          <path d="M 52 368 Q 116 320 180 368 T 308 368" strokeWidth="5" />
         </g>
         <text
           x="180"
-          y="404"
+          y="416"
           textAnchor="middle"
           fill="#18110E"
           fontFamily="monospace"
           fontWeight="800"
           fontSize="14"
         >
-          WEB AUDIO // ZERO MP3
+          1:1 SPRING &amp; ORBITAL PHYSICS
         </text>
       </svg>
     );
@@ -678,12 +666,15 @@ function KineticSlideArtwork({ id, ink }: { id: string; ink: string }) {
       </svg>
     );
   }
-  // weird
   return (
     <svg viewBox="0 0 360 450" className="ns-key-svg" aria-hidden="true">
       <rect width="360" height="450" fill="#FFB800" />
       <g stroke="#18110E" strokeWidth="5" fill="none">
-        <path d="M 48 92 L 306 92 L 96 225 L 308 225 L 62 358 L 312 358" strokeLinecap="round" strokeLinejoin="round" />
+        <path
+          d="M 48 92 L 306 92 L 96 225 L 308 225 L 62 358 L 312 358"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
         <polygon points="292,340 326,358 292,376" fill={ink} />
         <circle cx="96" cy="225" r="24" fill="#FF4D29" />
         <circle cx="306" cy="92" r="20" fill="#F4EFE6" />
@@ -702,23 +693,21 @@ export function NoSkuShowcase() {
   const [preLifted, setPreLifted] = useState(false);
   const [preHidden, setPreHidden] = useState(false);
 
-  // Menu & Sound & Modal states
+  // Menu, Crate & Modal states
   const [menuOpen, setMenuOpen] = useState(false);
-  const [soundOn, setSoundOn] = useState(false);
   const [stampPressed, setStampPressed] = useState(false);
   const [crateSealed, setCrateSealed] = useState(false);
+  const [tapeResetKey, setTapeResetKey] = useState(0);
   const [claimOpen, setClaimOpen] = useState(false);
 
-  // Orbital slider states
-  const [slideIdx, setSlideIdx] = useState(0);
-  const [prevSlideIdx, setPrevSlideIdx] = useState(0);
+  // Orbital slider states: separated background sweep vs headline swap for zero color flash
+  const [bgPrevIdx, setBgPrevIdx] = useState(0);
+  const [bgNextIdx, setBgNextIdx] = useState(0);
+  const [displayIdx, setDisplayIdx] = useState(0);
   const [wipeNonce, setWipeNonce] = useState(0);
   const [wipeActive, setWipeActive] = useState(false);
   const [glyphDip, setGlyphDip] = useState(false);
   const [wheelOffsetDeg, setWheelOffsetDeg] = useState(180);
-
-  // HUD for Giant Camera
-  const [camHud, setCamHud] = useState({ x: 0, y: 0, stop: "00" });
 
   // DOM Refs
   const crateRef = useRef<HTMLDivElement | null>(null);
@@ -731,6 +720,9 @@ export function NoSkuShowcase() {
   const giantCanvasRef = useRef<HTMLDivElement | null>(null);
   const downArrowLineRef = useRef<SVGPathElement | null>(null);
   const upArrowLineRef = useRef<SVGPathElement | null>(null);
+  const hudStopRef = useRef<HTMLSpanElement | null>(null);
+  const hudCoordRef = useRef<HTMLSpanElement | null>(null);
+  const orbitalTimersRef = useRef<number[]>([]);
 
   // Poke registries
   const pokeTargetsRef = useRef<Set<HTMLElement>>(new Set());
@@ -739,16 +731,6 @@ export function NoSkuShowcase() {
     if (el) {
       pokeTargetsRef.current.add(el);
     }
-  }, []);
-
-  // Sync module sound state
-  useEffect(() => {
-    setSoundOn(isSoundEnabled());
-    return subscribeSound(setSoundOn);
-  }, []);
-
-  const handleToggleSound = useCallback(() => {
-    setSoundEnabled(!isSoundEnabled());
   }, []);
 
   // Preloader Curtain Sequence
@@ -778,7 +760,7 @@ export function NoSkuShowcase() {
     setPreloaderKey((k) => k + 1);
   }, []);
 
-  // Reusable Elastic Character Poke Engine (sweet-tape initPoke physics)
+  // Reusable Elastic Character Poke Engine (fixed fontSize lookup + resize invalidation)
   useEffect(() => {
     if (reduced) return;
     const finePointer = window.matchMedia(
@@ -806,7 +788,8 @@ export function NoSkuShowcase() {
 
       const cacheMetrics = () => {
         const rect = container.getBoundingClientRect();
-        fontSize = parseFloat(getComputedStyle(container).fontSize) || 64;
+        fontSize =
+          parseFloat(getComputedStyle(chars[0] ?? container).fontSize) || 64;
         centers = chars.map((ch) => {
           const r = (ch.parentElement ?? ch).getBoundingClientRect();
           return {
@@ -862,13 +845,19 @@ export function NoSkuShowcase() {
         });
       };
 
+      const onResize = () => {
+        active = false;
+      };
+
       container.addEventListener("pointermove", onMove);
       container.addEventListener("pointerleave", onLeave);
+      window.addEventListener("resize", onResize);
 
       cleanups.push(() => {
         if (raf) cancelAnimationFrame(raf);
         container.removeEventListener("pointermove", onMove);
         container.removeEventListener("pointerleave", onLeave);
+        window.removeEventListener("resize", onResize);
         chars.forEach((ch) => {
           ch.style.transition = "";
           ch.style.transform = "";
@@ -935,7 +924,8 @@ export function NoSkuShowcase() {
         lastScrollY = sy;
 
         const targetScale = clamp(0.9 + delta * 0.35, -3.6, 4.8);
-        const ease = Math.abs(targetScale - 0.9) > Math.abs(timeScale - 0.9) ? 0.14 : 0.04;
+        const ease =
+          Math.abs(targetScale - 0.9) > Math.abs(timeScale - 0.9) ? 0.14 : 0.04;
         timeScale += (targetScale - timeScale) * ease;
         offset -= 95 * timeScale * dt;
         if (offset < -loopLen) offset += loopLen;
@@ -968,48 +958,66 @@ export function NoSkuShowcase() {
     };
   }, [lang, reduced]);
 
-  // Orbital Switcher with Curved Paint Wipe + Dipping Typography
+  // Orbital Switcher with flash-free Curved Paint Wipe + Dipping Typography
   const triggerSlideChange = useCallback(
     (nextIndex: number) => {
       const normalized =
         ((nextIndex % copy.slides.length) + copy.slides.length) %
         copy.slides.length;
-      if (normalized === slideIdx) return;
+      if (normalized === bgNextIdx) return;
 
-      playOnce("SLIDE_CHANGE", 1);
-      setPrevSlideIdx(slideIdx);
+      orbitalTimersRef.current.forEach((id) => window.clearTimeout(id));
+      orbitalTimersRef.current = [];
+
+      setBgPrevIdx(bgNextIdx);
+      setBgNextIdx(normalized);
       setGlyphDip(true);
       setWipeNonce((n) => n + 1);
       setWipeActive(true);
-      setWheelOffsetDeg((d) => d + 60);
 
-      window.setTimeout(() => {
-        setSlideIdx(normalized);
+      const stepDeg = 360 / copy.slides.length;
+      setWheelOffsetDeg(180 - normalized * stepDeg);
+
+      const tSwap = window.setTimeout(() => {
+        setDisplayIdx(normalized);
         setGlyphDip(false);
-      }, 220);
+      }, 190);
 
-      window.setTimeout(() => {
+      const tDone = window.setTimeout(() => {
         setWipeActive(false);
-      }, 720);
+      }, 700);
+
+      orbitalTimersRef.current.push(tSwap, tDone);
     },
-    [copy.slides.length, slideIdx]
+    [bgNextIdx, copy.slides.length]
   );
 
-  // Keyboard Navigation on Orbital Wheel
+  useEffect(() => {
+    return () => {
+      orbitalTimersRef.current.forEach((id) => window.clearTimeout(id));
+    };
+  }, []);
+
+  // Keyboard Navigation (Arrows + Escape)
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        if (claimOpen) setClaimOpen(false);
+        if (menuOpen) setMenuOpen(false);
+        return;
+      }
       if (claimOpen || menuOpen) return;
       if (e.key === "ArrowRight") {
-        triggerSlideChange(slideIdx + 1);
+        triggerSlideChange(bgNextIdx + 1);
       } else if (e.key === "ArrowLeft") {
-        triggerSlideChange(slideIdx - 1);
+        triggerSlideChange(bgNextIdx - 1);
       }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [claimOpen, menuOpen, slideIdx, triggerSlideChange]);
+  }, [bgNextIdx, claimOpen, menuOpen, triggerSlideChange]);
 
-  // 2D Multi-Directional Arc-Length Parameterized Bézier Camera (giant-pinning)
+  // 2D Multi-Directional Arc-Length Parameterized Bézier Camera (zero-rerender 60fps HUD)
   useEffect(() => {
     const track = giantTrackRef.current;
     const canvas = giantCanvasRef.current;
@@ -1033,18 +1041,16 @@ export function NoSkuShowcase() {
       const toPxX = (v: number) => (v * vw) / 100;
       const toPxY = (s: number) => (s * vh) / 100;
 
-      // Keyframes mapping viewport camera pan coordinates (-canvasOffset)
       const rawStops: Pt[] = [
-        { x: 0, y: 0 }, // 00 Opener
-        { x: -toPxX(4), y: -toPxY(42) }, // 01 TO PROVE left
-        { x: -toPxX(42), y: -toPxY(42) }, // 01 TO PROVE horizontal pan right
-        { x: -toPxX(152), y: -toPxY(114) }, // Diagonal Down-Right -> 02 TO FLEX left
-        { x: -toPxX(198), y: -toPxY(114) }, // 02 TO FLEX horizontal pan right
-        { x: -toPxX(312), y: -toPxY(34) }, // Diagonal Up-Right -> 03 TO ATTRACT left
-        { x: -toPxX(364), y: -toPxY(34) }, // 03 TO ATTRACT final settle
+        { x: 0, y: 0 },
+        { x: -toPxX(4), y: -toPxY(42) },
+        { x: -toPxX(42), y: -toPxY(42) },
+        { x: -toPxX(152), y: -toPxY(114) },
+        { x: -toPxX(198), y: -toPxY(114) },
+        { x: -toPxX(312), y: -toPxY(34) },
+        { x: -toPxX(364), y: -toPxY(34) },
       ];
 
-      // Round sharp turns (> 70 deg) using quadratic Bezier corner fillets (13% of shortest leg)
       const smoothPts: Pt[] = [];
       for (let i = 0; i < rawStops.length; i++) {
         const cur = rawStops[i];
@@ -1142,7 +1148,6 @@ export function NoSkuShowcase() {
         1
       )}px, 0)`;
 
-      // Self-draw diagonal arrows during respective diagonal segments
       if (downLine) {
         const pDown = clamp((smoothP - 0.25) / 0.2, 0, 1);
         downLine.style.strokeDashoffset = `${(downLen * (1 - pDown)).toFixed(1)}`;
@@ -1152,7 +1157,6 @@ export function NoSkuShowcase() {
         upLine.style.strokeDashoffset = `${(upLen * (1 - pUp)).toFixed(1)}`;
       }
 
-      // Reveal taped props smoothly along travel
       props.forEach((el, idx) => {
         const start = 0.08 + idx * 0.27;
         const peel = clamp((smoothP - start) / 0.14, 0, 1);
@@ -1160,12 +1164,21 @@ export function NoSkuShowcase() {
       });
 
       const stopIdx =
-        smoothP < 0.12 ? "00" : smoothP < 0.42 ? "01" : smoothP < 0.72 ? "02" : "03";
-      setCamHud({
-        x: Math.round(-pos.x),
-        y: Math.round(-pos.y),
-        stop: stopIdx,
-      });
+        smoothP < 0.12
+          ? "00"
+          : smoothP < 0.42
+            ? "01"
+            : smoothP < 0.72
+              ? "02"
+              : "03";
+      if (hudStopRef.current) {
+        hudStopRef.current.textContent = `CAMERA 2D // STOP ${stopIdx} / 03`;
+      }
+      if (hudCoordRef.current) {
+        hudCoordRef.current.textContent = `CAM X: ${Math.round(
+          -pos.x
+        )}PX • Y: ${Math.round(-pos.y)}PX`;
+      }
 
       if (Math.abs(targetP - smoothP) > 0.0005) {
         raf = requestAnimationFrame(tick);
@@ -1192,11 +1205,11 @@ export function NoSkuShowcase() {
     };
   }, [lang, reduced]);
 
-  const currentSlide = copy.slides[slideIdx];
-  const prevSlide = copy.slides[prevSlideIdx];
+  const currentSlide = copy.slides[displayIdx];
+  const prevBgColor = copy.slides[bgPrevIdx].bg;
+  const nextBgColor = copy.slides[bgNextIdx].bg;
 
   const handleMenuLinkClick = (scrollTarget?: string) => {
-    playOnce("TAPE_PRESS", 0.75);
     setMenuOpen(false);
     if (scrollTarget) {
       const target = document.getElementById(scrollTarget);
@@ -1229,7 +1242,9 @@ export function NoSkuShowcase() {
             }}
           />
         ))}
-        <div className={`ns-pre-sheet ns-arc-cut ${preLifted ? "is-lifted" : ""}`}>
+        <div
+          className={`ns-pre-sheet ns-arc-cut ${preLifted ? "is-lifted" : ""}`}
+        >
           <div className="ns-pre-center">
             <div
               className="ns-pre-sticker"
@@ -1250,7 +1265,7 @@ export function NoSkuShowcase() {
         </div>
       </div>
 
-      {/* 2. Physical PULL ME Menu + Floating Sound Orb */}
+      {/* 2. Physical PULL ME Menu */}
       <nav
         className="ns-menu"
         data-open={menuOpen ? "true" : "false"}
@@ -1259,10 +1274,7 @@ export function NoSkuShowcase() {
         <button
           type="button"
           className="ns-menu-tab"
-          onClick={() => {
-            playOnce("MENU_PULL", 1);
-            setMenuOpen((o) => !o);
-          }}
+          onClick={() => setMenuOpen((o) => !o)}
         >
           <span className="ns-menu-tab-dot" aria-hidden="true" />
           <span>{menuOpen ? copy.menuTabClose : copy.menuTabOpen}</span>
@@ -1276,20 +1288,14 @@ export function NoSkuShowcase() {
                 <button
                   type="button"
                   className={`ns-lang-btn ${lang === "en" ? "is-active" : ""}`}
-                  onClick={() => {
-                    playOnce("TAPE_PRESS", 0.6);
-                    setLang("en");
-                  }}
+                  onClick={() => setLang("en")}
                 >
                   EN
                 </button>
                 <button
                   type="button"
                   className={`ns-lang-btn ${lang === "es" ? "is-active" : ""}`}
-                  onClick={() => {
-                    playOnce("TAPE_PRESS", 0.6);
-                    setLang("es");
-                  }}
+                  onClick={() => setLang("es")}
                 >
                   ES
                 </button>
@@ -1310,7 +1316,6 @@ export function NoSkuShowcase() {
                     <button
                       type="button"
                       className="ns-menu-link"
-                      onMouseEnter={() => playOnce("MENU_HOVER", 0.8)}
                       onClick={() => handleMenuLinkClick(item.scrollTarget)}
                     >
                       <span className="ns-menu-link-left">
@@ -1350,7 +1355,6 @@ export function NoSkuShowcase() {
                     <Link
                       href={item.href}
                       className="ns-menu-link"
-                      onMouseEnter={() => playOnce("MENU_HOVER", 0.8)}
                       onClick={() => setMenuOpen(false)}
                     >
                       <span className="ns-menu-link-left">
@@ -1399,23 +1403,8 @@ export function NoSkuShowcase() {
         </div>
       </nav>
 
-      {/* Bottom-Right Persistent Foley Sound Orb */}
-      <button
-        type="button"
-        className={`ns-sound-orb ${soundOn ? "is-on" : ""}`}
-        onClick={handleToggleSound}
-        aria-pressed={soundOn}
-      >
-        <span className="ns-sound-bars" aria-hidden="true">
-          <span />
-          <span />
-          <span />
-        </span>
-        <span>{soundOn ? copy.soundOn : copy.soundOff}</span>
-      </button>
-
       <main id="main">
-        {/* 3. Hero with Parabolic Poke Headlines + 3D Roll + Empty Crate + 3D Curling Sticky Note */}
+        {/* 3. Hero with Parabolic Poke Headlines + Frontal 1:1 3D Roll + Empty Crate */}
         <section className="ns-hero" id="ns-hero">
           <div className="ns-hero-wrapper">
             <div className="ns-hero-top ns-arc-cut">
@@ -1429,10 +1418,7 @@ export function NoSkuShowcase() {
                   <button
                     type="button"
                     className={`ns-peel-stamp ${stampPressed ? "is-pressed" : ""}`}
-                    onClick={() => {
-                      playOnce("TAPE_PRESS", 1);
-                      setStampPressed((s) => !s);
-                    }}
+                    onClick={() => setStampPressed((s) => !s)}
                   >
                     {stampPressed
                       ? copy.heroStampPressed
@@ -1473,10 +1459,11 @@ export function NoSkuShowcase() {
               <p className="ns-hero-subcap">{copy.heroSubcap}</p>
             </div>
 
-            {/* 3D Unspooling Tape Roll spanning over the crate */}
+            {/* 3D Unspooling Tape Roll suspended cleanly in open runway into crate */}
             <HeroTapeCanvas
               crateRef={crateRef}
               reduced={reduced}
+              resetKey={tapeResetKey}
               onCut={() => setCrateSealed(true)}
             />
 
@@ -1507,11 +1494,20 @@ export function NoSkuShowcase() {
                 </div>
                 <div className="ns-crate-caption">
                   <span>{copy.crateCaptionLeft}</span>
-                  <span>
-                    {crateSealed
-                      ? copy.crateCaptionRightSealed
-                      : copy.crateCaptionRightPending}
-                  </span>
+                  {crateSealed ? (
+                    <button
+                      type="button"
+                      className="ns-reroll-btn"
+                      onClick={() => {
+                        setCrateSealed(false);
+                        setTapeResetKey((k) => k + 1);
+                      }}
+                    >
+                      {copy.rerollTape}
+                    </button>
+                  ) : (
+                    <span>{copy.crateCaptionRightPending}</span>
+                  )}
                 </div>
               </div>
 
@@ -1583,13 +1579,13 @@ export function NoSkuShowcase() {
           <div className="ns-bg-overlay" aria-hidden="true">
             <div
               className="ns-bg-layer"
-              style={{ background: prevSlide.bg }}
+              style={{ background: prevBgColor }}
             />
             <div
-              key={`bg-${currentSlide.id}-${wipeNonce}`}
+              key={`bg-${bgNextIdx}-${wipeNonce}`}
               className="ns-bg-layer ns-bg-layer--next ns-arc-cut"
               style={{
-                background: currentSlide.bg,
+                background: nextBgColor,
                 animation: wipeActive
                   ? "nsPaintSweep 0.68s cubic-bezier(0.22, 1, 0.36, 1) forwards"
                   : "none",
@@ -1614,8 +1610,8 @@ export function NoSkuShowcase() {
                     className="ns-orbital-tag"
                     style={
                       {
-                        "--tag-bg": currentSlide.tagBg,
-                        "--tag-ink": currentSlide.tagInk,
+                        "--ns-tag-bg": currentSlide.tagBg,
+                        "--ns-tag-ink": currentSlide.tagInk,
                         "--rot": tg.rot,
                       } as React.CSSProperties
                     }
@@ -1633,9 +1629,9 @@ export function NoSkuShowcase() {
                     key={sl.id}
                     type="button"
                     role="tab"
-                    aria-selected={idx === slideIdx}
+                    aria-selected={idx === bgNextIdx}
                     className={`ns-step-pill ${
-                      idx === slideIdx ? "is-active" : ""
+                      idx === bgNextIdx ? "is-active" : ""
                     }`}
                     onClick={() => triggerSlideChange(idx)}
                   >
@@ -1692,7 +1688,7 @@ export function NoSkuShowcase() {
                 <button
                   type="button"
                   className="ns-roll-it"
-                  onClick={() => triggerSlideChange(slideIdx + 1)}
+                  onClick={() => triggerSlideChange(bgNextIdx + 1)}
                 >
                   {copy.rollButton}
                 </button>
@@ -1709,14 +1705,14 @@ export function NoSkuShowcase() {
                       type="button"
                       aria-label={`Select ${sl.word}`}
                       className={`ns-orbit-node ${
-                        idx === slideIdx ? "is-selected" : ""
+                        idx === bgNextIdx ? "is-selected" : ""
                       }`}
                       style={
                         {
                           transform: `translate3d(${tx.toFixed(
                             1
                           )}px, ${ty.toFixed(1)}px, 0) scale(${
-                            idx === slideIdx ? 1.18 : 0.94
+                            idx === bgNextIdx ? 1.18 : 0.94
                           })`,
                           "--node-bg": sl.bg,
                           "--node-fg": sl.ink,
@@ -1737,11 +1733,11 @@ export function NoSkuShowcase() {
         <section ref={giantTrackRef} className="ns-giant" id="ns-giant">
           <div className="ns-giant-sticky">
             <div className="ns-giant-hud" aria-hidden="true">
-              <span className="ns-giant-hud-pill">
-                CAMERA 2D // STOP {camHud.stop} / 03
+              <span ref={hudStopRef} className="ns-giant-hud-pill">
+                CAMERA 2D // STOP 00 / 03
               </span>
-              <span className="ns-giant-hud-pill">
-                CAM X: {camHud.x}PX • Y: {camHud.y}PX
+              <span ref={hudCoordRef} className="ns-giant-hud-pill">
+                CAM X: 0PX • Y: 0PX
               </span>
             </div>
 
@@ -1886,18 +1882,11 @@ export function NoSkuShowcase() {
                 <button
                   type="button"
                   className="ns-btn-primary"
-                  onClick={() => {
-                    playOnce("TAPE_PRESS", 1);
-                    setClaimOpen(true);
-                  }}
+                  onClick={() => setClaimOpen(true)}
                 >
                   {copy.claimCta}
                 </button>
-                <Link
-                  href="/work/vectra-twin"
-                  className="ns-btn-ghost"
-                  onMouseEnter={() => playOnce("MENU_HOVER", 0.7)}
-                >
+                <Link href="/work/vectra-twin" className="ns-btn-ghost">
                   {copy.inspectVectraCta}
                 </Link>
               </div>
@@ -1909,13 +1898,8 @@ export function NoSkuShowcase() {
       {/* 8. Physics Bouncing Sticker Balls Footer */}
       <NoSkuPhysicsFooter
         copy={copy.footer}
-        soundOn={soundOn}
-        onToggleSound={handleToggleSound}
         onReplayPeel={handleReplayPreloader}
-        onClaimBox={() => {
-          playOnce("TAPE_PRESS", 1);
-          setClaimOpen(true);
-        }}
+        onClaimBox={() => setClaimOpen(true)}
         bindPoke={bindPoke}
       />
 
@@ -1963,7 +1947,6 @@ export function NoSkuShowcase() {
                 href="/contact"
                 className="ns-btn-primary"
                 style={{ textDecoration: "none" }}
-                onClick={() => playOnce("TAPE_CUT", 0.9)}
               >
                 {copy.modalGoContact}
               </Link>

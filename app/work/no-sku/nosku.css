@@ -463,75 +463,6 @@
   font-weight: 600;
 }
 
-/* Bottom-right Persistent Foley Sound Orb */
-.ns-sound-orb {
-  position: fixed;
-  right: clamp(14px, 2.2vw, 30px);
-  bottom: clamp(14px, 2.2vw, 30px);
-  z-index: 410;
-  pointer-events: auto;
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 16px;
-  border-radius: 999px;
-  background: var(--ns-ink);
-  color: var(--ns-bone);
-  border: 2px solid var(--ns-bone);
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  cursor: pointer;
-  box-shadow: 0 10px 26px rgba(24, 17, 14, 0.28);
-  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
-    background-color 0.2s ease;
-}
-
-.ns-sound-orb:hover {
-  transform: scale(1.06);
-}
-
-.ns-sound-orb.is-on {
-  background: var(--ns-vermilion);
-  color: var(--ns-ink);
-  border-color: var(--ns-ink);
-}
-
-.ns-sound-bars {
-  display: inline-flex;
-  align-items: flex-end;
-  gap: 2.5px;
-  height: 12px;
-}
-
-.ns-sound-bars span {
-  width: 2.5px;
-  height: 4px;
-  background: currentColor;
-  border-radius: 2px;
-}
-
-.ns-sound-orb.is-on .ns-sound-bars span:nth-child(1) {
-  animation: nsBar 0.72s ease-in-out infinite alternate;
-}
-.ns-sound-orb.is-on .ns-sound-bars span:nth-child(2) {
-  animation: nsBar 0.56s ease-in-out 0.14s infinite alternate;
-}
-.ns-sound-orb.is-on .ns-sound-bars span:nth-child(3) {
-  animation: nsBar 0.68s ease-in-out 0.28s infinite alternate;
-}
-
-@keyframes nsBar {
-  from {
-    height: 3px;
-  }
-  to {
-    height: 12px;
-  }
-}
-
 /* ==========================================================================
    3. Physical Hero + 3D Roll + Empty Crate Stage
    ========================================================================== */
@@ -551,9 +482,9 @@
 .ns-hero-top {
   position: relative;
   width: 100%;
-  min-height: clamp(460px, 52vw, 760px);
-  padding: clamp(72px, 8vw, 110px) clamp(18px, 4.5vw, 68px)
-    calc(var(--ns-curve-depth) + clamp(36px, 5vw, 78px));
+  min-height: clamp(460px, 50vw, 720px);
+  padding: clamp(72px, 8vw, 108px) clamp(18px, 4.5vw, 68px)
+    calc(var(--ns-curve-depth) + clamp(56px, 7vw, 110px));
   background: var(--ns-bone);
   display: flex;
   flex-direction: column;
@@ -691,17 +622,13 @@
 /* Full-Corridor 3D Unspooling Tape Canvas Overlay */
 .ns-hero-tape {
   position: absolute;
-  top: clamp(260px, 24vw, 360px);
+  top: clamp(390px, 37vw, 540px);
   left: 0;
   width: 100%;
-  height: clamp(640px, 76vw, 1080px);
+  height: clamp(680px, 76vw, 1020px);
   z-index: 6;
-  pointer-events: auto;
-  cursor: grab;
-}
-
-.ns-hero-tape:active {
-  cursor: grabbing;
+  pointer-events: none;
+  cursor: default;
 }
 
 .ns-hero-tape-fallback {
@@ -716,7 +643,7 @@
   position: relative;
   z-index: 3;
   max-width: 1380px;
-  margin: clamp(32px, 5vw, 72px) auto 0;
+  margin: clamp(88px, 12vw, 165px) auto 0;
   padding: clamp(20px, 4vw, 56px) clamp(18px, 4vw, 52px);
   display: grid;
   grid-template-columns: minmax(220px, 0.85fr) minmax(300px, 1.15fr) minmax(220px, 0.85fr);
@@ -818,12 +745,32 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 8px;
   padding-top: 10px;
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
+}
+
+.ns-reroll-btn {
+  padding: 5px 11px;
+  border-radius: 999px;
+  border: 1.5px solid var(--ns-ink);
+  background: var(--ns-vermilion);
+  color: var(--ns-ink);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.ns-reroll-btn:hover {
+  transform: scale(1.06);
 }
 
 .ns-spec-ledger {
@@ -1836,6 +1783,10 @@
     top: 0;
     height: 360px;
     margin-bottom: -80px;
+  }
+
+  .ns-hero-bottom {
+    margin-top: 24px;
   }
 
   .ns-orbital-grid {
