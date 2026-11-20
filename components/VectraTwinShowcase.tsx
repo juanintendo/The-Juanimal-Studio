@@ -1567,6 +1567,15 @@ function PinnedStepperSection({
                     </span>
                   ))}
                 </div>
+                <span className="vt-step-progress-rail" aria-hidden="true">
+                  <span
+                    className="vt-step-progress-fill"
+                    style={{
+                      backgroundColor: data.accentHex,
+                      transform: `scaleX(${subP.toFixed(3)})`,
+                    }}
+                  />
+                </span>
               </div>
             </div>
 
@@ -1621,9 +1630,9 @@ function SoftDotCursor({
     const syncDom = () => {
       const el = dotRef.current;
       if (!el) return;
-      el.style.transform = `translate3d(${(current.x - 10).toFixed(1)}px, ${(
-        current.y - 10
-      ).toFixed(1)}px, 0) scale(${expanded ? 1.85 : 1})`;
+      el.style.transform = `translate3d(${(current.x - 6).toFixed(1)}px, ${(
+        current.y - 6
+      ).toFixed(1)}px, 0) scale(${expanded ? 1.65 : 1})`;
       el.style.opacity = visible && !draggingOrScrollbar ? "1" : "0";
       el.classList.toggle("is-expanded", expanded);
     };
@@ -1819,14 +1828,15 @@ export function VectraTwinShowcase() {
   const [activeNav, setActiveNav] = useState<SectionNavId>("what");
   const [cursorAccent, setCursorAccent] = useState<string>("#f97279");
   const [navVisible, setNavVisible] = useState(true);
+  const [footerClear, setFooterClear] = useState(false);
   const [recapOpen, setRecapOpen] = useState(false);
-  const [recapLens, setRecapLens] = useState<RecapLens>("matrix");
   const [inspectionMode, setInspectionMode] = useState<InspectionMode>("mesh");
   const [whatP, setWhatP] = useState(reduced ? 1 : 0);
 
   const heroPtrRef = useRef<{ nx: number; ny: number }>({ nx: 0, ny: 0 });
   const whatRef = useRef<HTMLElement | null>(null);
   const whereRef = useRef<HTMLElement | null>(null);
+  const footerRef = useRef<HTMLElement | null>(null);
   const idleTimerRef = useRef<number | null>(null);
 
   const handleEnterSection = useCallback(
@@ -1874,6 +1884,11 @@ export function VectraTwinShowcase() {
           setActiveNav("where");
           setCursorAccent("#2a72a3");
         }
+      }
+
+      if (footerRef.current) {
+        const fRect = footerRef.current.getBoundingClientRect();
+        setFooterClear(fRect.top <= vh * 0.72);
       }
 
       if (y > 140) {
@@ -1989,9 +2004,6 @@ export function VectraTwinShowcase() {
                 >
                   {c.heroPrimary}
                 </button>
-                <Link href="/contact" className="vt-btn-outline">
-                  {c.heroSecondary}
-                </Link>
               </div>
               <p className="vt-hero-note">{c.heroNote}</p>
             </div>
@@ -2116,26 +2128,99 @@ export function VectraTwinShowcase() {
         </div>
       </section>
 
-      {/* BOTTOM STUDIO PITCH */}
-      <section className="vt-studio-cta">
-        <div className="vt-studio-cta-box">
-          <span className="vt-chapter-chip">{c.studioPitch.eyebrow}</span>
-          <h2>{c.studioPitch.title}</h2>
-          <p>{c.studioPitch.desc}</p>
-          <div className="vt-hero-cta-row">
-            <Link href="/contact" className="vt-btn-dark">
-              {c.studioPitch.cta}
-            </Link>
-            <Link href="/#work" className="vt-btn-outline">
-              {c.studioPitch.secondary}
-            </Link>
+      {/* CLEAN SWISS EDITORIAL FOOTER (Commission + Studio Return, Auto-Clears Bottom Nav) */}
+      <footer ref={footerRef} id="vt-footer" className="vt-footer">
+        <div className="vt-footer-top">
+          <div>
+            <span className="vt-chapter-chip">{c.studioPitch.eyebrow}</span>
+            <h2 className="vt-footer-h2">{c.studioPitch.title}</h2>
+          </div>
+
+          <div className="vt-footer-pitch">
+            <p>{c.studioPitch.desc}</p>
+            <div className="vt-hero-cta-row">
+              <Link href="/contact" className="vt-btn-dark">
+                {c.studioPitch.cta}
+              </Link>
+              <Link href="/#work" className="vt-btn-outline">
+                {c.studioPitch.secondary}
+              </Link>
+            </div>
           </div>
         </div>
-      </section>
 
-      {/* APPLE FROSTED GLASS SPLIT BOTTOM NAVIGATION */}
+        <div className="vt-footer-grid">
+          <div className="vt-footer-col">
+            <small>{lang === "es" ? "Capítulos" : "Chapters"}</small>
+            <button
+              type="button"
+              className="vt-footer-lang-btn"
+              onClick={() => scrollToTarget("what")}
+            >
+              01 · WHAT
+            </button>
+            <button
+              type="button"
+              className="vt-footer-lang-btn"
+              onClick={() => scrollToTarget("how")}
+            >
+              02 · HOW
+            </button>
+            <button
+              type="button"
+              className="vt-footer-lang-btn"
+              onClick={() => scrollToTarget("why")}
+            >
+              03 · WHY
+            </button>
+            <button
+              type="button"
+              className="vt-footer-lang-btn"
+              onClick={() => scrollToTarget("where")}
+            >
+              04 · WHERE
+            </button>
+          </div>
+
+          <div className="vt-footer-col">
+            <small>The Juanimal Studio</small>
+            <Link href="/">{lang === "es" ? "Portada del Estudio" : "Studio Home"}</Link>
+            <Link href="/#work">{lang === "es" ? "8 Trabajos Reales" : "All 8 Shipped Works"}</Link>
+            <Link href="/work/frame-by-agents">Launch Kit #001</Link>
+            <Link href="/about">{lang === "es" ? "Sobre Mí" : "About"}</Link>
+          </div>
+
+          <div className="vt-footer-col">
+            <small>{lang === "es" ? "Contacto Directo" : "Direct Contact"}</small>
+            <a href="mailto:hello@juanimal.studio">hello@juanimal.studio</a>
+            <Link href="/contact">
+              {lang === "es" ? "Cotizar Proyecto" : "Start a Project"}
+            </Link>
+            <button
+              type="button"
+              className="vt-footer-lang-btn"
+              onClick={() => setLang(lang === "en" ? "es" : "en")}
+            >
+              {lang === "es" ? "Switch to English (EN)" : "Cambiar a Español (ES)"}
+            </button>
+          </div>
+        </div>
+
+        <div className="vt-footer-bottom">
+          <span>
+            PORTFOLIO SHOWCASE #01 // VECTRA TWIN BY THE JUANIMAL STUDIO
+          </span>
+          <span>
+            SWISS NEO-GROTESQUE · #C6D8E6 · #F97279 · #2A72A3
+          </span>
+        </div>
+      </footer>
+
+      {/* APPLE FROSTED GLASS SPLIT BOTTOM NAVIGATION (Hides smoothly while scrolling + clears Footer) */}
       <nav
-        className={`vt-site-nav ${navVisible ? "is-visible" : "is-hidden"}`}
+        className={`vt-site-nav ${
+          footerClear ? "is-footer-clear" : navVisible ? "is-visible" : "is-hidden"
+        }`}
         aria-label="Vectra Twin primary section navigation"
       >
         <ExpandableSectionNav
@@ -2150,7 +2235,11 @@ export function VectraTwinShowcase() {
             className="vt-glass-btn"
             onClick={() => scrollToTarget("top")}
           >
-            {c.overview}
+            <span className="vt-roll-wrap">
+              <span className="vt-roll-text" data-label={c.overview}>
+                {c.overview}
+              </span>
+            </span>
           </button>
           <button
             type="button"
@@ -2159,7 +2248,11 @@ export function VectraTwinShowcase() {
             aria-expanded={recapOpen}
           >
             <span className="vt-nav-dot" aria-hidden="true" />
-            {c.recapBtn}
+            <span className="vt-roll-wrap">
+              <span className="vt-roll-text" data-label={c.recapBtn}>
+                {c.recapBtn}
+              </span>
+            </span>
           </button>
           <button
             type="button"
@@ -2170,15 +2263,19 @@ export function VectraTwinShowcase() {
             {lang.toUpperCase()}
           </button>
           <Link href="/contact" className="vt-glass-cta">
-            {c.contactBtn}
+            <span className="vt-roll-wrap">
+              <span className="vt-roll-text" data-label={c.contactBtn}>
+                {c.contactBtn}
+              </span>
+            </span>
           </Link>
         </div>
       </nav>
 
-      {/* RECAP EXECUTIVE DRAWER */}
+      {/* WEMBI FANNING 5-CARD RECAP DECK (#menu) */}
       {recapOpen && (
         <div
-          className="vt-recap-backdrop"
+          className="vt-deck-backdrop"
           role="dialog"
           aria-modal="true"
           aria-label={c.recap.title}
@@ -2186,99 +2283,124 @@ export function VectraTwinShowcase() {
             if (e.target === e.currentTarget) setRecapOpen(false);
           }}
         >
-          <div className="vt-recap-modal">
-            <div className="vt-recap-head">
-              <div>
-                <span className="vt-chapter-chip">{c.recap.eyebrow}</span>
-                <h2>{c.recap.title}</h2>
-                <p>{c.recap.subtitle}</p>
+          <div className="vt-deck-top">
+            <span className="vt-chapter-chip">{c.recap.eyebrow}</span>
+            <button
+              type="button"
+              className="vt-deck-close"
+              onClick={() => setRecapOpen(false)}
+            >
+              {c.recap.close}
+            </button>
+          </div>
+
+          <div className="vt-deck-inner">
+            <button
+              type="button"
+              className="vt-deck-card"
+              onClick={() => scrollToTarget("what")}
+            >
+              <div className="vt-deck-card-top">
+                <span>n.001 // WHAT</span>
+                <strong>{c.recap.matrix[0].metric}</strong>
               </div>
-              <button
-                type="button"
-                className="vt-recap-close"
-                onClick={() => setRecapOpen(false)}
-              >
-                {c.recap.close}
-              </button>
-            </div>
-
-            <div className="vt-recap-tabs" role="tablist">
-              {c.recap.lenses.map((lens) => (
-                <button
-                  key={lens.id}
-                  type="button"
-                  role="tab"
-                  aria-selected={recapLens === lens.id}
-                  className={`vt-recap-tab ${
-                    recapLens === lens.id ? "is-active" : ""
-                  }`}
-                  onClick={() => setRecapLens(lens.id)}
-                >
-                  {lens.label}
-                </button>
-              ))}
-            </div>
-
-            {recapLens === "matrix" && (
-              <div className="vt-recap-grid">
-                {c.recap.matrix.map((m) => (
-                  <button
-                    key={m.code}
-                    type="button"
-                    className="vt-recap-card"
-                    onClick={() => scrollToTarget(m.navId)}
-                  >
-                    <div className="vt-recap-card-top">
-                      <span>{m.code}</span>
-                      <strong>{m.metric}</strong>
-                    </div>
-                    <h3>{m.title}</h3>
-                    <p>{m.summary}</p>
-                    <span className="vt-recap-jump">{c.recap.jump}</span>
-                  </button>
-                ))}
+              <h3 className="vt-deck-card-title">{c.recap.matrix[0].title}</h3>
+              <ul className="vt-deck-card-list">
+                <li>{lang === "es" ? "Réplica Espacial" : "Spatial Replica"}</li>
+                <li>{lang === "es" ? "Gemelo en Vivo" : "Live Twin"}</li>
+                <li>{lang === "es" ? "Estado 99.98%" : "99.98% Sync"}</li>
+              </ul>
+              <div className="vt-deck-card-foot">
+                <span>WHAT</span>
+                <span>{c.recap.jump}</span>
               </div>
-            )}
+            </button>
 
-            {recapLens === "stack" && (
-              <div className="vt-recap-grid">
-                {c.recap.stack.map((layer) => (
-                  <div key={layer.step} className="vt-recap-card is-static">
-                    <div className="vt-recap-card-top">
-                      <span>{layer.step}</span>
-                      <strong>ACTIVE</strong>
-                    </div>
-                    <h3>{layer.title}</h3>
-                    <p>{layer.detail}</p>
-                  </div>
-                ))}
+            <button
+              type="button"
+              className="vt-deck-card"
+              onClick={() => scrollToTarget("how")}
+            >
+              <div className="vt-deck-card-top">
+                <span>n.002 // HOW</span>
+                <strong>{c.recap.matrix[1].metric}</strong>
               </div>
-            )}
-
-            {recapLens === "telemetry" && (
-              <div className="vt-recap-grid">
-                {c.recap.metrics.map((m) => (
-                  <div key={m.label} className="vt-recap-card is-static">
-                    <div className="vt-recap-card-top">
-                      <span>{m.label}</span>
-                      <strong>VERIFIED</strong>
-                    </div>
-                    <h3 className="vt-recap-big-stat">{m.value}</h3>
-                    <p>{m.note}</p>
-                  </div>
-                ))}
+              <h3 className="vt-deck-card-title">{c.recap.matrix[1].title}</h3>
+              <ul className="vt-deck-card-list">
+                <li>Data</li>
+                <li>Device</li>
+                <li>Application</li>
+              </ul>
+              <div className="vt-deck-card-foot">
+                <span>HOW</span>
+                <span>{c.recap.jump}</span>
               </div>
-            )}
+            </button>
 
-            <div className="vt-recap-foot">
-              <Link
-                href="/contact"
-                className="vt-btn-dark"
-                onClick={() => setRecapOpen(false)}
-              >
-                {c.recap.bookCta}
-              </Link>
-            </div>
+            <button
+              type="button"
+              className="vt-deck-card"
+              onClick={() => scrollToTarget("why")}
+            >
+              <div className="vt-deck-card-top">
+                <span>n.003 // WHY</span>
+                <strong>{c.recap.matrix[2].metric}</strong>
+              </div>
+              <h3 className="vt-deck-card-title">{c.recap.matrix[2].title}</h3>
+              <ul className="vt-deck-card-list">
+                <li>{lang === "es" ? "Efectivo" : "Effective"}</li>
+                <li>{lang === "es" ? "Sostenible" : "Sustainable"}</li>
+                <li>{lang === "es" ? "Autónomo" : "Autonomous"}</li>
+              </ul>
+              <div className="vt-deck-card-foot">
+                <span>WHY</span>
+                <span>{c.recap.jump}</span>
+              </div>
+            </button>
+
+            <button
+              type="button"
+              className="vt-deck-card"
+              onClick={() => scrollToTarget("where")}
+            >
+              <div className="vt-deck-card-top">
+                <span>n.004 // WHERE</span>
+                <strong>{c.recap.matrix[3].metric}</strong>
+              </div>
+              <h3 className="vt-deck-card-title">{c.recap.matrix[3].title}</h3>
+              <ul className="vt-deck-card-list">
+                <li>Industrial</li>
+                <li>GPU &amp; AI Labs</li>
+                <li>{lang === "es" ? "Energía & Aero" : "Energy & Aero"}</li>
+              </ul>
+              <div className="vt-deck-card-foot">
+                <span>WHERE</span>
+                <span>{c.recap.jump}</span>
+              </div>
+            </button>
+
+            <button
+              type="button"
+              className="vt-deck-card"
+              onClick={() => scrollToEl("vt-footer")}
+            >
+              <div className="vt-deck-card-top">
+                <span>n.005 // CONTACT</span>
+                <strong>JUANIMAL</strong>
+              </div>
+              <h3 className="vt-deck-card-title">
+                {lang === "es" ? "Encargar Web" : "Commission Web"}
+              </h3>
+              <ul className="vt-deck-card-list">
+                <li>{lang === "es" ? "Motion a Medida" : "Custom Motion"}</li>
+                <li>Next.js + Canvas</li>
+                <li>hello@juanimal.studio</li>
+              </ul>
+              <div className="vt-deck-card-foot">
+                <span>FOOTER</span>
+                <span>{c.recap.jump}</span>
+              </div>
+            </button>
           </div>
         </div>
       )}
