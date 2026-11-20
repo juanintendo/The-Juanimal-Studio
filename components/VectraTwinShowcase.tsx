@@ -20,10 +20,7 @@ interface StepperItem {
     | "application"
     | "acquire"
     | "control"
-    | "predict"
-    | "effective"
-    | "sustainable"
-    | "autonomous";
+    | "predict";
 }
 
 interface StepperSectionData {
@@ -34,8 +31,18 @@ interface StepperSectionData {
   accentHex: string;
   accentSoft: string;
   reversed?: boolean;
-  paletteMode: "coral-lead" | "cerulean-lead" | "glacial-harmony";
+  paletteMode: "coral-lead" | "cerulean-lead";
   items: [StepperItem, StepperItem, StepperItem];
+}
+
+interface PillItemData {
+  id: string;
+  label: string;
+  subTag: string;
+  targetScrollId?: string;
+  bg: string;
+  color: string;
+  isRoundCapsule: boolean;
 }
 
 interface CopySchema {
@@ -59,7 +66,21 @@ interface CopySchema {
     tail: string;
     sub: string;
   };
-  steppers: [StepperSectionData, StepperSectionData, StepperSectionData];
+  howTower: {
+    id: string;
+    eyebrow: string;
+    hint: string;
+    ringTheme: "glacial-coral" | "cerulean-ice";
+    pills: PillItemData[];
+  };
+  steppers: [StepperSectionData, StepperSectionData];
+  whyTower: {
+    id: string;
+    eyebrow: string;
+    hint: string;
+    ringTheme: "glacial-coral" | "cerulean-ice";
+    pills: PillItemData[];
+  };
   whereSection: {
     index: string;
     tag: string;
@@ -114,17 +135,43 @@ const COPY_VT: Record<"en" | "es", CopySchema> = {
     heroTitleA: "Instant Digital Twin",
     heroTitleB: "of Everything.",
     heroLede:
-      "Vectra Twin elevates physical machinery, GPU compute racks, and complex digital infrastructure by orchestrating a living virtual replica in real time.",
+      "Vectra Twin improves the performance of any machine, GPU cluster, or digital infrastructure by orchestrating its living spatial replica in real time.",
     heroPrimary: "Scroll Narrative ↓",
     heroSecondary: "Commission Similar Site",
     heroNote:
-      "Natural pinned wheel tempo · Scroll slowly through Data → Device → Application",
+      "Pinned wheel tempo · Push pills by velocity · Data → Device → Application",
     whatStatement: {
       prefix: "n.001 · WHAT",
       lead: "An intelligent",
       highlight: "Digital Twin",
-      tail: "managed remotely in real time—identifying the strongest future operating scenario before steel ever feels stress.",
-      sub: "Built as Portfolio Showcase #01 by The Juanimal Studio to demonstrate natural scroll choreography and Swiss editorial precision.",
+      tail: "managed remotely in real time—identifying the strongest operating scenario before steel ever feels stress.",
+      sub: "Full-viewport cognitive pacing · Case #01 by The Juanimal Studio.",
+    },
+    howTower: {
+      id: "vt-how-tower",
+      eyebrow: "n.002 · HOW // SYSTEM PILLARS",
+      hint: "MOVE POINTER ACROSS PILLS TO PUSH · CLICK TO JUMP",
+      ringTheme: "cerulean-ice",
+      pills: [
+        {
+          id: "pill-dt",
+          label: "Digital Twin",
+          subTag: "01 · SPATIAL REPLICA",
+          targetScrollId: "vt-step-01",
+          bg: "#f97279",
+          color: "#0d1520",
+          isRoundCapsule: false,
+        },
+        {
+          id: "pill-fn",
+          label: "Functioning",
+          subTag: "02 · ENGINE LOOP",
+          targetScrollId: "vt-step-02",
+          bg: "#ffffff",
+          color: "#0d1520",
+          isRoundCapsule: true,
+        },
+      ],
     },
     steppers: [
       {
@@ -133,7 +180,7 @@ const COPY_VT: Record<"en" | "es", CopySchema> = {
         index: "01",
         heading: "Digital Twin",
         accentHex: "#f97279",
-        accentSoft: "rgba(249, 114, 121, 0.24)",
+        accentSoft: "rgba(249, 114, 121, 0.42)",
         paletteMode: "coral-lead",
         items: [
           {
@@ -158,7 +205,7 @@ const COPY_VT: Record<"en" | "es", CopySchema> = {
             metric: "LIVE AI ENGINE",
             visualVariant: "application",
             description:
-              "Usage rules and programmable logic: workflow automation, energy efficiency, real-time simulation, prediction, and agent AI orchestration.",
+              "Usage rules and programmable logic: workflow automation, energy efficiency, real-time simulation, prediction, and agent orchestration.",
           },
         ],
       },
@@ -168,7 +215,7 @@ const COPY_VT: Record<"en" | "es", CopySchema> = {
         index: "02",
         heading: "Functioning",
         accentHex: "#2a72a3",
-        accentSoft: "rgba(42, 114, 163, 0.22)",
+        accentSoft: "rgba(42, 114, 163, 0.25)",
         reversed: true,
         paletteMode: "cerulean-lead",
         items: [
@@ -198,42 +245,42 @@ const COPY_VT: Record<"en" | "es", CopySchema> = {
           },
         ],
       },
-      {
-        id: "vt-step-03",
-        navId: "why",
-        index: "03",
-        heading: "Predictive Value",
-        accentHex: "#f97279",
-        accentSoft: "rgba(198, 216, 230, 0.85)",
-        paletteMode: "glacial-harmony",
-        items: [
-          {
-            category: "Effective",
-            tag: "STEP 03.A // THROUGHPUT",
-            metric: "+24% EFFICIENCY",
-            visualVariant: "effective",
-            description:
-              "Transforms reactive guesswork into surgical operating adjustments that unlock higher throughput across existing hardware.",
-          },
-          {
-            category: "Sustainable",
-            tag: "STEP 03.B // THERMAL BALANCE",
-            metric: "-19% PEAK WATTAGE",
-            visualVariant: "sustainable",
-            description:
-              "Balances thermal load and power envelopes dynamically—extending machine longevity while lowering cooling waste.",
-          },
-          {
-            category: "Autonomous",
-            tag: "STEP 03.C // ZERO DOWNTIME",
-            metric: "-41% OUTAGES",
-            visualVariant: "autonomous",
-            description:
-              "Turns emergency midnight shutdowns into scheduled five-minute maintenance windows between high-priority production runs.",
-          },
-        ],
-      },
     ],
+    whyTower: {
+      id: "vt-why-tower",
+      eyebrow: "n.003 · WHY // OUTCOME PILLARS",
+      hint: "ENTER FROM LEFT OR RIGHT TO KICK WITH VELOCITY",
+      ringTheme: "glacial-coral",
+      pills: [
+        {
+          id: "pill-eff",
+          label: "Effective",
+          subTag: "+24% THROUGHPUT",
+          targetScrollId: "vt-where",
+          bg: "#2a72a3",
+          color: "#ffffff",
+          isRoundCapsule: false,
+        },
+        {
+          id: "pill-sus",
+          label: "Sustainable",
+          subTag: "-19% PEAK WATTAGE",
+          targetScrollId: "vt-where",
+          bg: "#ffffff",
+          color: "#0d1520",
+          isRoundCapsule: true,
+        },
+        {
+          id: "pill-aut",
+          label: "Autonomous",
+          subTag: "-41% DOWNTIME",
+          targetScrollId: "vt-where",
+          bg: "#f97279",
+          color: "#0d1520",
+          isRoundCapsule: false,
+        },
+      ],
+    },
     whereSection: {
       index: "n.004",
       tag: "WHERE // DEPLOYMENT FOOTPRINT",
@@ -406,13 +453,39 @@ const COPY_VT: Record<"en" | "es", CopySchema> = {
     heroPrimary: "Explorar Scroll ↓",
     heroSecondary: "Encargar Web Similar",
     heroNote:
-      "Tempo natural bloqueado · Haz scroll suave para recorrer Data → Device → Application",
+      "Tempo natural bloqueado · Empuja las píldoras con el mouse · Data → Device → Application",
     whatStatement: {
       prefix: "n.001 · WHAT",
       lead: "Un",
       highlight: "Gemelo Digital",
       tail: "inteligente gestionado a distancia en tiempo real, capaz de identificar el mejor escenario futuro antes de que el metal sufra desgaste.",
-      sub: "Construido como Caso #01 por The Juanimal Studio con tempo editorial suizo y narrativa bloqueada por scroll.",
+      sub: "Composición a pantalla completa · Caso #01 por The Juanimal Studio.",
+    },
+    howTower: {
+      id: "vt-how-tower",
+      eyebrow: "n.002 · HOW // PILARES DEL SISTEMA",
+      hint: "PASA EL MOUSE POR LOS BORDES PARA EMPUJAR · CLIC PARA IR",
+      ringTheme: "cerulean-ice",
+      pills: [
+        {
+          id: "pill-dt",
+          label: "Digital Twin",
+          subTag: "01 · RÉPLICA ESPACIAL",
+          targetScrollId: "vt-step-01",
+          bg: "#f97279",
+          color: "#0d1520",
+          isRoundCapsule: false,
+        },
+        {
+          id: "pill-fn",
+          label: "Functioning",
+          subTag: "02 · MOTOR EN VIVO",
+          targetScrollId: "vt-step-02",
+          bg: "#ffffff",
+          color: "#0d1520",
+          isRoundCapsule: true,
+        },
+      ],
     },
     steppers: [
       {
@@ -421,7 +494,7 @@ const COPY_VT: Record<"en" | "es", CopySchema> = {
         index: "01",
         heading: "Digital Twin",
         accentHex: "#f97279",
-        accentSoft: "rgba(249, 114, 121, 0.24)",
+        accentSoft: "rgba(249, 114, 121, 0.42)",
         paletteMode: "coral-lead",
         items: [
           {
@@ -456,7 +529,7 @@ const COPY_VT: Record<"en" | "es", CopySchema> = {
         index: "02",
         heading: "Functioning",
         accentHex: "#2a72a3",
-        accentSoft: "rgba(42, 114, 163, 0.22)",
+        accentSoft: "rgba(42, 114, 163, 0.25)",
         reversed: true,
         paletteMode: "cerulean-lead",
         items: [
@@ -486,42 +559,42 @@ const COPY_VT: Record<"en" | "es", CopySchema> = {
           },
         ],
       },
-      {
-        id: "vt-step-03",
-        navId: "why",
-        index: "03",
-        heading: "Valor Predictivo",
-        accentHex: "#f97279",
-        accentSoft: "rgba(198, 216, 230, 0.85)",
-        paletteMode: "glacial-harmony",
-        items: [
-          {
-            category: "Efectivo",
-            tag: "PASO 03.A // RENDIMIENTO",
-            metric: "+24% EFICIENCIA",
-            visualVariant: "effective",
-            description:
-              "Convierte conjeturas reactivas en ajustes quirúrgicos de operación que liberan mayor productividad en el mismo hardware.",
-          },
-          {
-            category: "Sostenible",
-            tag: "PASO 03.B // BALANCE TÉRMICO",
-            metric: "-19% PICOS WATT",
-            visualVariant: "sustainable",
-            description:
-              "Equilibra carga térmica y envolventes eléctricas en vivo, alargando la vida útil del equipo y reduciendo consumo innecesario.",
-          },
-          {
-            category: "Autónomo",
-            tag: "PASO 03.C // CERO PARADAS",
-            metric: "-41% FALLAS",
-            visualVariant: "autonomous",
-            description:
-              "Transforma paradas imprevistas de emergencia en micro-ventanas planificadas entre ciclos de producción prioritarios.",
-          },
-        ],
-      },
     ],
+    whyTower: {
+      id: "vt-why-tower",
+      eyebrow: "n.003 · WHY // IMPACTO REAL",
+      hint: "ENTRA POR IZQUIERDA O DERECHA PARA IMPULSAR LAS PÍLDORAS",
+      ringTheme: "glacial-coral",
+      pills: [
+        {
+          id: "pill-eff",
+          label: "Effective",
+          subTag: "+24% RENDIMIENTO",
+          targetScrollId: "vt-where",
+          bg: "#2a72a3",
+          color: "#ffffff",
+          isRoundCapsule: false,
+        },
+        {
+          id: "pill-sus",
+          label: "Sustainable",
+          subTag: "-19% PICOS WATT",
+          targetScrollId: "vt-where",
+          bg: "#ffffff",
+          color: "#0d1520",
+          isRoundCapsule: true,
+        },
+        {
+          id: "pill-aut",
+          label: "Autonomous",
+          subTag: "-41% PARADAS",
+          targetScrollId: "vt-where",
+          bg: "#f97279",
+          color: "#0d1520",
+          isRoundCapsule: false,
+        },
+      ],
+    },
     whereSection: {
       index: "n.004",
       tag: "WHERE // ESCENARIOS DE DESPLIEGUE",
@@ -686,22 +759,15 @@ type AlphaStop = { pos: number; rgb: RGB; alpha: number };
 const STOPS_BY_MODE: Record<StepperSectionData["paletteMode"], AlphaStop[]> = {
   "coral-lead": [
     { pos: 0, rgb: [13, 21, 32], alpha: 0.2 },
-    { pos: 0.28, rgb: [42, 114, 163], alpha: 0.92 }, // #2a72a3 Cerulean transition
-    { pos: 0.62, rgb: [249, 114, 121], alpha: 1 }, // #f97279 Coral wave peak
-    { pos: 1, rgb: [13, 21, 32], alpha: 1 }, // Solid editorial black
+    { pos: 0.28, rgb: [42, 114, 163], alpha: 0.92 },
+    { pos: 0.62, rgb: [249, 114, 121], alpha: 1 },
+    { pos: 1, rgb: [13, 21, 32], alpha: 1 },
   ],
   "cerulean-lead": [
     { pos: 0, rgb: [13, 21, 32], alpha: 0.2 },
-    { pos: 0.28, rgb: [249, 114, 121], alpha: 0.92 }, // #f97279 Coral transition
-    { pos: 0.62, rgb: [42, 114, 163], alpha: 1 }, // #2a72a3 Cerulean peak
-    { pos: 1, rgb: [13, 21, 32], alpha: 1 }, // Solid editorial black
-  ],
-  "glacial-harmony": [
-    { pos: 0, rgb: [13, 21, 32], alpha: 0.2 },
-    { pos: 0.26, rgb: [122, 169, 204], alpha: 0.88 }, // Soft glacial blue bridge
-    { pos: 0.56, rgb: [249, 114, 121], alpha: 0.98 }, // #f97279 Coral rose
-    { pos: 0.8, rgb: [42, 114, 163], alpha: 1 }, // #2a72a3 Deep cerulean
-    { pos: 1, rgb: [13, 21, 32], alpha: 1 }, // Solid editorial black
+    { pos: 0.28, rgb: [249, 114, 121], alpha: 0.92 },
+    { pos: 0.62, rgb: [42, 114, 163], alpha: 1 },
+    { pos: 1, rgb: [13, 21, 32], alpha: 1 },
   ],
 };
 
@@ -744,12 +810,9 @@ function SmoothGradientDescription({
     [text]
   );
 
-  // Reach full solid black by 82% of the sub-step, holding 82%..100% steady in solid black
   const scrubP = clamp(subProgress / 0.82, 0, 1);
-  // Wide feather window (0.42) gives an unmistakably smooth liquid gradient sweep
   const feather = 0.42;
   const waveHead = scrubP * (1 + feather);
-
   let charCursor = 0;
 
   return (
@@ -781,6 +844,396 @@ function SmoothGradientDescription({
   );
 }
 
+/* Sculptural 3D Glass Torus Rings Canvas (echoing Ref 1 background geometry in #c6d8e6 / #2a72a3 / #f97279) */
+function SculpturalRingsCanvas({
+  theme,
+  reduced,
+  pointerOffsetRef,
+}: {
+  theme: "glacial-coral" | "cerulean-ice";
+  reduced: boolean;
+  pointerOffsetRef?: React.MutableRefObject<{ nx: number; ny: number }>;
+}) {
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    let raf = 0;
+    let time = 0;
+    let smoothNx = 0;
+    let smoothNy = 0;
+
+    const resize = () => {
+      const parent = canvas.parentElement;
+      if (!parent) return;
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      canvas.width = Math.max(1, Math.floor(parent.clientWidth * dpr));
+      canvas.height = Math.max(1, Math.floor(parent.clientHeight * dpr));
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    };
+
+    resize();
+    window.addEventListener("resize", resize);
+
+    const drawRing = (
+      cx: number,
+      cy: number,
+      rx: number,
+      ry: number,
+      rot: number,
+      bandW: number,
+      cLight: string,
+      cMid: string,
+      cEdge: string
+    ) => {
+      ctx.save();
+      ctx.translate(cx, cy);
+      ctx.rotate(rot);
+
+      // Soft cast shadow beneath sculptural ring
+      ctx.save();
+      ctx.translate(10, 18);
+      ctx.beginPath();
+      ctx.ellipse(0, 0, rx, ry, 0, 0, Math.PI * 2);
+      ctx.strokeStyle = "rgba(13, 21, 32, 0.14)";
+      ctx.lineWidth = bandW * 1.08;
+      ctx.stroke();
+      ctx.restore();
+
+      // Main sculpted 3D ring gradient body
+      const grad = ctx.createLinearGradient(-rx, -ry, rx, ry);
+      grad.addColorStop(0, cLight);
+      grad.addColorStop(0.5, cMid);
+      grad.addColorStop(1, cEdge);
+
+      ctx.beginPath();
+      ctx.ellipse(0, 0, rx, ry, 0, 0, Math.PI * 2);
+      ctx.strokeStyle = grad;
+      ctx.lineWidth = bandW;
+      ctx.stroke();
+
+      // Specular rim highlight along outer bevel
+      ctx.beginPath();
+      ctx.ellipse(0, 0, rx + bandW * 0.28, ry + bandW * 0.28, 0, 0.2, Math.PI * 1.1);
+      ctx.strokeStyle = "rgba(255, 255, 255, 0.62)";
+      ctx.lineWidth = Math.max(2, bandW * 0.14);
+      ctx.lineCap = "round";
+      ctx.stroke();
+
+      ctx.restore();
+    };
+
+    const render = () => {
+      const w = canvas.clientWidth;
+      const h = canvas.clientHeight;
+      if (!w || !h) {
+        if (!reduced) raf = requestAnimationFrame(render);
+        return;
+      }
+
+      if (!reduced) time += 0.012;
+      const targetNx = pointerOffsetRef?.current.nx ?? 0;
+      const targetNy = pointerOffsetRef?.current.ny ?? 0;
+      smoothNx += (targetNx - smoothNx) * 0.06;
+      smoothNy += (targetNy - smoothNy) * 0.06;
+
+      ctx.clearRect(0, 0, w, h);
+
+      // Soft atmospheric gradient backdrop
+      const bg = ctx.createLinearGradient(0, 0, w, h);
+      if (theme === "cerulean-ice") {
+        bg.addColorStop(0, "#d7e5f0");
+        bg.addColorStop(0.55, "#c6d8e6");
+        bg.addColorStop(1, "#acc7dc");
+      } else {
+        bg.addColorStop(0, "#dfeaf3");
+        bg.addColorStop(0.5, "#c6d8e6");
+        bg.addColorStop(1, "#e5d5dc");
+      }
+      ctx.fillStyle = bg;
+      ctx.fillRect(0, 0, w, h);
+
+      const baseR = Math.min(w, h) * 0.24;
+      const band = Math.max(26, baseR * 0.34);
+
+      const cx = w * 0.5 + smoothNx * 28;
+      const cy = h * 0.48 + smoothNy * 20;
+
+      // Diagonal cascade of sculptural interlocking rings (matching Ref 1 silhouettes)
+      const rings =
+        theme === "cerulean-ice"
+          ? [
+              { ox: -1.35, oy: -0.95, s: 0.92, rot: -0.68, c1: "#f5f9fc", c2: "#c6d8e6", c3: "#8fb3cf" },
+              { ox: -0.78, oy: -0.52, s: 1.0, rot: -0.62, c1: "#3e8ec5", c2: "#2a72a3", c3: "#164466" },
+              { ox: -0.18, oy: -0.15, s: 1.06, rot: -0.58, c1: "#eaf3f9", c2: "#9bc4de", c3: "#2a72a3" },
+              { ox: 0.44, oy: 0.16, s: 1.04, rot: -0.55, c1: "#d2e2ee", c2: "#7ca2be", c3: "#355066" },
+              { ox: 1.02, oy: 0.56, s: 1.02, rot: -0.58, c1: "#ffc2c5", c2: "#f97279", c3: "#b8454b" },
+            ]
+          : [
+              { ox: -1.3, oy: -0.82, s: 0.95, rot: 0.55, c1: "#f97279", c2: "#d4555d", c3: "#7c2c33" },
+              { ox: -0.68, oy: -0.44, s: 1.02, rot: 0.6, c1: "#ffffff", c2: "#c6d8e6", c3: "#6c91b0" },
+              { ox: 0.0, oy: -0.04, s: 1.08, rot: 0.62, c1: "#589fd0", c2: "#2a72a3", c3: "#133a57" },
+              { ox: 0.68, oy: 0.34, s: 1.0, rot: 0.58, c1: "#ffe3e5", c2: "#f97279", c3: "#9e3b41" },
+              { ox: 1.32, oy: 0.72, s: 0.92, rot: 0.52, c1: "#e6eff7", c2: "#95b8d4", c3: "#2a72a3" },
+            ];
+
+      rings.forEach((rg, i) => {
+        const wobbleX = Math.sin(time + i * 1.1) * 8 + smoothNx * (i - 2) * 8;
+        const wobbleY = Math.cos(time * 0.8 + i * 0.9) * 8 + smoothNy * (i - 2) * 6;
+        drawRing(
+          cx + rg.ox * baseR * 0.98 + wobbleX,
+          cy + rg.oy * baseR * 0.74 + wobbleY,
+          baseR * rg.s,
+          baseR * rg.s * 0.72,
+          rg.rot + Math.sin(time * 0.5 + i) * 0.04,
+          band * (0.9 + (i % 2) * 0.14),
+          rg.c1,
+          rg.c2,
+          rg.c3
+        );
+      });
+
+      if (!reduced) raf = requestAnimationFrame(render);
+    };
+
+    render();
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener("resize", resize);
+    };
+  }, [pointerOffsetRef, reduced, theme]);
+
+  return (
+    <canvas
+      ref={canvasRef}
+      className="vt-rings-canvas"
+      aria-hidden="true"
+    />
+  );
+}
+
+/* Full-Bleed Sculptural Stage + Oversized Stacked Pills with Velocity Directional Mouse-Push Physics */
+function InteractivePillTower({
+  eyebrow,
+  hint,
+  sectionId,
+  ringTheme,
+  pills,
+  reduced,
+  onJumpId,
+  onEnterSection,
+  navId,
+  navAccent,
+}: {
+  eyebrow: string;
+  hint: string;
+  sectionId: string;
+  ringTheme: "glacial-coral" | "cerulean-ice";
+  pills: PillItemData[];
+  reduced: boolean;
+  onJumpId: (elId: string) => void;
+  onEnterSection: (navId: SectionNavId, accentHex: string) => void;
+  navId: SectionNavId;
+  navAccent: string;
+}) {
+  const stageRef = useRef<HTMLElement | null>(null);
+  const pillRefs = useRef<(HTMLButtonElement | null)[]>([]);
+  const textRefs = useRef<(HTMLSpanElement | null)[]>([]);
+  const ptrNormRef = useRef<{ nx: number; ny: number }>({ nx: 0, ny: 0 });
+  const velRef = useRef<{ lastX: number; lastY: number; dx: number; dy: number }>({
+    lastX: 0,
+    lastY: 0,
+    dx: 0,
+    dy: 0,
+  });
+
+  // Per-pill elastic spring state: current offset + target impulse
+  const springStatesRef = useRef<
+    { x: number; y: number; rot: number; vx: number; vy: number; vrot: number }[]
+  >([]);
+
+  useEffect(() => {
+    springStatesRef.current = pills.map(() => ({
+      x: 0,
+      y: 0,
+      rot: 0,
+      vx: 0,
+      vy: 0,
+      vrot: 0,
+    }));
+  }, [pills]);
+
+  useEffect(() => {
+    const el = stageRef.current;
+    if (!el) return;
+    const onScroll = () => {
+      const r = el.getBoundingClientRect();
+      const vh = window.innerHeight || 800;
+      if (r.top <= vh * 0.45 && r.bottom >= vh * 0.35) {
+        onEnterSection(navId, navAccent);
+      }
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, [navAccent, navId, onEnterSection]);
+
+  // Spring physics RAF loop settling pushed pills organically
+  useEffect(() => {
+    if (reduced) return;
+    let raf = 0;
+    const k = 0.085; // elastic stiffness
+    const damp = 0.78; // silky elastic damping
+
+    const step = () => {
+      const states = springStatesRef.current;
+      for (let i = 0; i < states.length; i++) {
+        const s = states[i];
+        s.vx = (s.vx - s.x * k) * damp;
+        s.vy = (s.vy - s.y * k) * damp;
+        s.vrot = (s.vrot - s.rot * k) * damp;
+        s.x += s.vx;
+        s.y += s.vy;
+        s.rot += s.vrot;
+
+        const btn = pillRefs.current[i];
+        const txt = textRefs.current[i];
+        if (btn) {
+          btn.style.transform = `translate3d(${s.x.toFixed(2)}px, ${s.y.toFixed(
+            2
+          )}px, 0) rotate(${s.rot.toFixed(2)}deg)`;
+        }
+        if (txt) {
+          txt.style.transform = `translate3d(${(s.x * 0.35).toFixed(2)}px, ${(
+            s.y * 0.35
+          ).toFixed(2)}px, 0)`;
+        }
+      }
+      raf = requestAnimationFrame(step);
+    };
+
+    raf = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(raf);
+  }, [reduced]);
+
+  const handleStageMouseMove = (e: React.MouseEvent<HTMLElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    ptrNormRef.current = {
+      nx: ((e.clientX - rect.left) / Math.max(1, rect.width) - 0.5) * 2,
+      ny: ((e.clientY - rect.top) / Math.max(1, rect.height) - 0.5) * 2,
+    };
+
+    const prev = velRef.current;
+    if (prev.lastX !== 0 || prev.lastY !== 0) {
+      prev.dx = e.clientX - prev.lastX;
+      prev.dy = e.clientY - prev.lastY;
+    }
+    prev.lastX = e.clientX;
+    prev.lastY = e.clientY;
+  };
+
+  const kickPill = (idx: number, e: React.MouseEvent<HTMLButtonElement>) => {
+    if (reduced) return;
+    const s = springStatesRef.current[idx];
+    if (!s) return;
+
+    const btnRect = e.currentTarget.getBoundingClientRect();
+    const { dx, dy } = velRef.current;
+    // Combine mouse velocity with side-of-entry geometry so even slow edge entries push clearly!
+    const relX = (e.clientX - (btnRect.left + btnRect.width * 0.5)) / Math.max(1, btnRect.width * 0.5);
+    const relY = (e.clientY - (btnRect.top + btnRect.height * 0.5)) / Math.max(1, btnRect.height * 0.5);
+
+    const impulseX =
+      Math.abs(dx) > 2
+        ? Math.max(-26, Math.min(26, dx * 0.85))
+        : -relX * 16; // Enter from left (relX < 0) -> kick RIGHT (+)!
+    const impulseY =
+      Math.abs(dy) > 2
+        ? Math.max(-18, Math.min(18, dy * 0.7))
+        : -relY * 11;
+    const impulseRot = (impulseX > 0 ? 1 : -1) * Math.min(5, Math.abs(impulseX) * 0.16);
+
+    s.vx += impulseX;
+    s.vy += impulseY;
+    s.vrot += impulseRot;
+  };
+
+  return (
+    <section
+      ref={stageRef}
+      id={sectionId}
+      className="vt-pill-tower-stage"
+      onMouseMove={handleStageMouseMove}
+      onMouseLeave={() => {
+        velRef.current = { lastX: 0, lastY: 0, dx: 0, dy: 0 };
+        ptrNormRef.current = { nx: 0, ny: 0 };
+      }}
+    >
+      <SculpturalRingsCanvas
+        theme={ringTheme}
+        reduced={reduced}
+        pointerOffsetRef={ptrNormRef}
+      />
+
+      <div className="vt-tower-top-meta">
+        <span>{eyebrow}</span>
+        <span>{hint}</span>
+      </div>
+
+      <div className="vt-tower-stack">
+        {pills.map((pill, idx) => (
+          <button
+            key={pill.id}
+            ref={(el) => {
+              pillRefs.current[idx] = el;
+            }}
+            type="button"
+            className={`vt-tower-pill ${
+              pill.isRoundCapsule ? "is-capsule" : "is-rect"
+            }`}
+            style={{
+              backgroundColor: pill.bg,
+              color: pill.color,
+              zIndex: pills.length - idx,
+            }}
+            onMouseEnter={(e) => kickPill(idx, e)}
+            onMouseMove={(e) => {
+              // Subtle live velocity transfer while moving across the pill surface
+              if (
+                Math.abs(velRef.current.dx) > 6 ||
+                Math.abs(velRef.current.dy) > 6
+              ) {
+                const s = springStatesRef.current[idx];
+                if (s) {
+                  s.vx += clamp(velRef.current.dx * 0.08, -2.5, 2.5);
+                  s.vy += clamp(velRef.current.dy * 0.08, -2, 2);
+                }
+              }
+              void e;
+            }}
+            onClick={() => {
+              if (pill.targetScrollId) onJumpId(pill.targetScrollId);
+            }}
+          >
+            <span
+              ref={(el) => {
+                textRefs.current[idx] = el;
+              }}
+              className="vt-tower-pill-inner"
+            >
+              <small className="vt-tower-sub">{pill.subTag}</small>
+              <span className="vt-tower-label">{pill.label}</span>
+            </span>
+          </button>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 function StepVisualCanvas({
   variant,
   isActive,
@@ -805,10 +1258,8 @@ function StepVisualCanvas({
       const parent = canvas.parentElement;
       if (!parent) return;
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
-      const w = parent.clientWidth;
-      const h = parent.clientHeight;
-      canvas.width = Math.max(1, Math.floor(w * dpr));
-      canvas.height = Math.max(1, Math.floor(h * dpr));
+      canvas.width = Math.max(1, Math.floor(parent.clientWidth * dpr));
+      canvas.height = Math.max(1, Math.floor(parent.clientHeight * dpr));
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     };
 
@@ -823,9 +1274,7 @@ function StepVisualCanvas({
         return;
       }
 
-      if (!reduced && isActive) {
-        tick += 0.022;
-      }
+      if (!reduced && isActive) tick += 0.022;
 
       ctx.clearRect(0, 0, w, h);
 
@@ -833,39 +1282,33 @@ function StepVisualCanvas({
       const cy = h * 0.5;
       const r = Math.min(w, h) * 0.34;
 
-      // Soft ambient backdrop aura using uploaded palette (#c6d8e6, #f97279, #2a72a3)
       const grad = ctx.createRadialGradient(
         cx + Math.cos(tick * 0.4) * r * 0.16,
         cy + Math.sin(tick * 0.4) * r * 0.14,
-        r * 0.15,
+        r * 0.14,
         cx,
         cy,
-        r * 1.45
+        r * 1.48
       );
-      if (variant === "data" || variant === "acquire" || variant === "effective") {
-        grad.addColorStop(0, "rgba(42, 114, 163, 0.24)");
-        grad.addColorStop(0.55, "rgba(198, 216, 230, 0.42)");
-        grad.addColorStop(1, "rgba(249, 114, 121, 0.12)");
-      } else if (
-        variant === "device" ||
-        variant === "control" ||
-        variant === "sustainable"
-      ) {
-        grad.addColorStop(0, "rgba(249, 114, 121, 0.26)");
-        grad.addColorStop(0.55, "rgba(42, 114, 163, 0.2)");
-        grad.addColorStop(1, "rgba(198, 216, 230, 0.25)");
-      } else {
+      if (variant === "data" || variant === "acquire") {
         grad.addColorStop(0, "rgba(42, 114, 163, 0.28)");
-        grad.addColorStop(0.5, "rgba(249, 114, 121, 0.22)");
+        grad.addColorStop(0.55, "rgba(198, 216, 230, 0.48)");
+        grad.addColorStop(1, "rgba(249, 114, 121, 0.14)");
+      } else if (variant === "device" || variant === "control") {
+        grad.addColorStop(0, "rgba(249, 114, 121, 0.30)");
+        grad.addColorStop(0.55, "rgba(42, 114, 163, 0.22)");
         grad.addColorStop(1, "rgba(198, 216, 230, 0.3)");
+      } else {
+        grad.addColorStop(0, "rgba(42, 114, 163, 0.32)");
+        grad.addColorStop(0.5, "rgba(249, 114, 121, 0.24)");
+        grad.addColorStop(1, "rgba(198, 216, 230, 0.36)");
       }
       ctx.fillStyle = grad;
       ctx.fillRect(0, 0, w, h);
 
-      // Subtle Swiss Grid
       ctx.strokeStyle = "rgba(13, 21, 32, 0.08)";
       ctx.lineWidth = 1;
-      const step = 36;
+      const step = 42;
       ctx.beginPath();
       for (let gx = (w % step) / 2; gx < w; gx += step) {
         ctx.moveTo(gx, 0);
@@ -877,42 +1320,46 @@ function StepVisualCanvas({
       }
       ctx.stroke();
 
-      // Mode-specific geometry choreography
       if (variant === "data" || variant === "acquire") {
-        // Multi-channel sine waves normalizing into tight equilibrium line
         for (let line = 0; line < 4; line++) {
           ctx.beginPath();
-          const baseY = cy + (line - 1.5) * 34;
-          for (let px = w * 0.12; px <= w * 0.88; px += 4) {
-            const normX = (px - w * 0.12) / (w * 0.76);
-            const damp = variant === "acquire" ? 1 - normX * 0.7 : Math.sin(normX * Math.PI);
-            const amp = (24 - line * 4) * damp;
-            const py = baseY + Math.sin(normX * 11 - tick * (1.8 + line * 0.25) + line) * amp;
-            if (px <= w * 0.12 + 1) ctx.moveTo(px, py);
+          const baseY = cy + (line - 1.5) * 42;
+          for (let px = w * 0.1; px <= w * 0.9; px += 4) {
+            const normX = (px - w * 0.1) / (w * 0.8);
+            const damp =
+              variant === "acquire"
+                ? 1 - normX * 0.7
+                : Math.sin(normX * Math.PI);
+            const amp = (28 - line * 4) * damp;
+            const py =
+              baseY +
+              Math.sin(normX * 11 - tick * (1.8 + line * 0.25) + line) * amp;
+            if (px <= w * 0.1 + 1) ctx.moveTo(px, py);
             else ctx.lineTo(px, py);
           }
           ctx.strokeStyle =
-            line % 2 === 0 ? "rgba(42, 114, 163, 0.9)" : "rgba(249, 114, 121, 0.88)";
-          ctx.lineWidth = line === 0 ? 2.8 : 1.7;
+            line % 2 === 0
+              ? "rgba(42, 114, 163, 0.95)"
+              : "rgba(249, 114, 121, 0.92)";
+          ctx.lineWidth = line === 0 ? 3.2 : 1.9;
           ctx.stroke();
         }
-        // Moving sample dots
         for (let k = 0; k < 5; k++) {
-          const prog = ((tick * 0.28 + k * 0.2) % 1);
-          const dx = w * 0.12 + prog * (w * 0.76);
-          const dy = cy + Math.sin(prog * 11 - tick * 1.8) * 24 * Math.sin(prog * Math.PI);
+          const prog = (tick * 0.28 + k * 0.2) % 1;
+          const dx = w * 0.1 + prog * (w * 0.8);
+          const dy =
+            cy + Math.sin(prog * 11 - tick * 1.8) * 28 * Math.sin(prog * Math.PI);
           ctx.beginPath();
-          ctx.arc(dx, dy, 5, 0, Math.PI * 2);
+          ctx.arc(dx, dy, 6, 0, Math.PI * 2);
           ctx.fillStyle = "#f97279";
           ctx.fill();
         }
       } else if (variant === "device" || variant === "control") {
-        // Gyroscopic twin rings + mechanical crosshair control lock
-        [1, 0.74, 0.48].forEach((scale, idx) => {
+        [1.04, 0.76, 0.48].forEach((scale, idx) => {
           ctx.save();
           ctx.translate(cx, cy);
           ctx.rotate((idx === 1 ? -1 : 1) * tick * (0.45 + idx * 0.2));
-          ctx.scale(1, 0.56 + idx * 0.12);
+          ctx.scale(1, 0.58 + idx * 0.12);
           ctx.beginPath();
           ctx.arc(0, 0, r * scale, 0, Math.PI * 2);
           ctx.strokeStyle =
@@ -920,34 +1367,32 @@ function StepVisualCanvas({
               ? "#2a72a3"
               : idx === 1
               ? "#f97279"
-              : "rgba(13, 21, 32, 0.75)";
-          ctx.lineWidth = idx === 2 ? 1.8 : 2.6;
-          if (idx === 1) ctx.setLineDash([10, 7]);
+              : "rgba(13, 21, 32, 0.78)";
+          ctx.lineWidth = idx === 2 ? 2.2 : 3.2;
+          if (idx === 1) ctx.setLineDash([12, 8]);
           ctx.stroke();
           ctx.setLineDash([]);
           ctx.restore();
         });
-        // Locking cube node in center
-        const boxS = r * 0.34;
+        const boxS = r * 0.36;
         ctx.save();
         ctx.translate(cx, cy);
         ctx.rotate(tick * 0.35);
         ctx.strokeStyle = "#0d1520";
-        ctx.lineWidth = 2;
+        ctx.lineWidth = 2.4;
         ctx.strokeRect(-boxS / 2, -boxS / 2, boxS, boxS);
-        ctx.fillStyle = "rgba(249, 114, 121, 0.28)";
+        ctx.fillStyle = "rgba(249, 114, 121, 0.32)";
         ctx.fillRect(-boxS / 2, -boxS / 2, boxS, boxS);
         ctx.restore();
       } else {
-        // Predictive fan / Autonomous node graph
         const pts: [number, number][] = [];
         for (let i = 0; i < 6; i++) {
           const a = (i * Math.PI * 2) / 6 + tick * 0.25;
-          const dist = r * (0.72 + Math.sin(tick + i) * 0.08);
+          const dist = r * (0.76 + Math.sin(tick + i) * 0.09);
           pts.push([cx + Math.cos(a) * dist, cy + Math.sin(a) * dist]);
         }
-        ctx.strokeStyle = "rgba(42, 114, 163, 0.45)";
-        ctx.lineWidth = 1.6;
+        ctx.strokeStyle = "rgba(42, 114, 163, 0.5)";
+        ctx.lineWidth = 1.8;
         ctx.beginPath();
         for (let i = 0; i < pts.length; i++) {
           for (let j = i + 1; j < pts.length; j++) {
@@ -959,11 +1404,11 @@ function StepVisualCanvas({
 
         pts.forEach(([px, py], i) => {
           ctx.beginPath();
-          ctx.arc(px, py, i % 2 === 0 ? 7 : 5.5, 0, Math.PI * 2);
+          ctx.arc(px, py, i % 2 === 0 ? 8 : 6.5, 0, Math.PI * 2);
           ctx.fillStyle = i % 2 === 0 ? "#f97279" : "#2a72a3";
           ctx.fill();
           ctx.strokeStyle = "#ffffff";
-          ctx.lineWidth = 2;
+          ctx.lineWidth = 2.2;
           ctx.stroke();
         });
       }
@@ -980,13 +1425,7 @@ function StepVisualCanvas({
     };
   }, [isActive, reduced, variant]);
 
-  return (
-    <canvas
-      ref={canvasRef}
-      className="vt-step-canvas"
-      aria-hidden="true"
-    />
-  );
+  return <canvas ref={canvasRef} className="vt-step-canvas" aria-hidden="true" />;
 }
 
 function PinnedStepperSection({
@@ -1018,7 +1457,10 @@ function PinnedStepperSection({
       const raw = clamp(-rect.top / maxScroll, 0, 1);
       targetPRef.current = raw;
 
-      if (rect.top <= window.innerHeight * 0.48 && rect.bottom >= window.innerHeight * 0.3) {
+      if (
+        rect.top <= window.innerHeight * 0.48 &&
+        rect.bottom >= window.innerHeight * 0.3
+      ) {
         onEnterSection(data.navId, data.accentHex);
       }
     };
@@ -1026,7 +1468,7 @@ function PinnedStepperSection({
     const tick = () => {
       const diff = targetPRef.current - smoothPRef.current;
       if (Math.abs(diff) > 0.0005) {
-        smoothPRef.current += diff * 0.11; // Gentle physical inertia
+        smoothPRef.current += diff * 0.11;
         setSmoothP(smoothPRef.current);
       }
       raf = requestAnimationFrame(tick);
@@ -1043,10 +1485,6 @@ function PinnedStepperSection({
     };
   }, [data.accentHex, data.navId, onEnterSection, reduced]);
 
-  // Divide total pinned travel evenly into 3 sub-steps:
-  // [0.00..0.34] -> stepIdx 0
-  // [0.34..0.68] -> stepIdx 1
-  // [0.68..1.00] -> stepIdx 2
   const stepIdx = smoothP < 0.34 ? 0 : smoothP < 0.68 ? 1 : 2;
   const subP =
     stepIdx === 0
@@ -1064,7 +1502,6 @@ function PinnedStepperSection({
     >
       <div className="vt-stepper-sticky">
         <div className="vt-stepper-inner">
-          {/* Left / Right Media Stage Column */}
           <div className="vt-step-media">
             <div className="vt-step-media-box">
               {data.items.map((item, idx) => {
@@ -1096,7 +1533,6 @@ function PinnedStepperSection({
             </div>
           </div>
 
-          {/* Copy & Rolling Title Column (Wembi formula) */}
           <div className="vt-step-content">
             <div className="vt-step-title-stack">
               <div className="vt-step-index-row">
@@ -1170,7 +1606,9 @@ function SoftDotCursor({
   useEffect(() => {
     if (reduced) return;
     if (typeof window === "undefined") return;
-    const finePointer = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+    const finePointer = window.matchMedia(
+      "(hover: hover) and (pointer: fine)"
+    ).matches;
     if (!finePointer) return;
 
     let raf = 0;
@@ -1196,7 +1634,6 @@ function SoftDotCursor({
         syncDom();
         return;
       }
-      // Hide immediately when hovering near the native browser scrollbar strip
       const nearScrollbar =
         e.clientX >= document.documentElement.clientWidth - 18 ||
         e.clientX <= 2 ||
@@ -1218,12 +1655,13 @@ function SoftDotCursor({
 
       const tgtEl = e.target as HTMLElement | null;
       expanded = Boolean(
-        tgtEl?.closest("a, button, [role='button'], .vt-sector-card, .vt-mode-btn")
+        tgtEl?.closest(
+          "a, button, [role='button'], .vt-sector-card, .vt-mode-btn, .vt-tower-pill"
+        )
       );
     };
 
     const onPointerDown = (e: PointerEvent) => {
-      // If user clicks to drag scrollbar or select text, suppress dot so zero residue remains
       if (
         e.clientX >= document.documentElement.clientWidth - 22 ||
         e.buttons === 1
@@ -1280,6 +1718,99 @@ function SoftDotCursor({
   );
 }
 
+/* Hover-Expanding Apple Frosted Glass Section Switcher (compacts to active item at rest on desktop, expands on hover) */
+function ExpandableSectionNav({
+  chapters,
+  activeNav,
+  onSelect,
+}: {
+  chapters: { id: SectionNavId; num: string; label: string }[];
+  activeNav: SectionNavId;
+  onSelect: (id: SectionNavId) => void;
+}) {
+  const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
+  const [expanded, setExpanded] = useState(false);
+  const btnRefs = useRef<(HTMLButtonElement | null)[]>([]);
+  const listRef = useRef<HTMLDivElement | null>(null);
+  const sliderRef = useRef<HTMLSpanElement | null>(null);
+
+  const activeIdx = Math.max(
+    0,
+    chapters.findIndex((c) => c.id === activeNav)
+  );
+  const sliderIdx = hoveredIdx !== null ? hoveredIdx : activeIdx;
+
+  const updateSlider = useCallback(() => {
+    const btn = btnRefs.current[sliderIdx];
+    const slider = sliderRef.current;
+    if (!btn || !slider) return;
+    if (!expanded) {
+      slider.style.width = `${btn.offsetWidth}px`;
+      slider.style.transform = "translateX(0px)";
+    } else {
+      slider.style.width = `${btn.offsetWidth}px`;
+      slider.style.transform = `translateX(${btn.offsetLeft}px)`;
+    }
+  }, [expanded, sliderIdx]);
+
+  useEffect(() => {
+    updateSlider();
+    const t = window.setTimeout(updateSlider, 80);
+    window.addEventListener("resize", updateSlider);
+    return () => {
+      window.clearTimeout(t);
+      window.removeEventListener("resize", updateSlider);
+    };
+  }, [updateSlider, chapters]);
+
+  return (
+    <div
+      className={`vt-glass-pill vt-nav-left vt-expand-nav ${
+        expanded ? "is-expanded" : "is-compact"
+      }`}
+      onMouseEnter={() => setExpanded(true)}
+      onMouseLeave={() => {
+        setExpanded(false);
+        setHoveredIdx(null);
+      }}
+      onFocus={() => setExpanded(true)}
+      onBlur={(e) => {
+        if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+          setExpanded(false);
+          setHoveredIdx(null);
+        }
+      }}
+      role="group"
+      aria-label="Dynamic section switcher"
+    >
+      <div className="vt-expand-inner" ref={listRef}>
+        <span ref={sliderRef} className="vt-expand-slider" aria-hidden="true" />
+        {chapters.map((item, i) => {
+          const isAct = activeNav === item.id;
+          return (
+            <button
+              key={item.id}
+              ref={(el) => {
+                btnRefs.current[i] = el;
+              }}
+              type="button"
+              className={`vt-glass-btn vt-expand-btn ${
+                isAct ? "is-active" : ""
+              }`}
+              onMouseEnter={() => setHoveredIdx(i)}
+              onClick={() => onSelect(item.id)}
+            >
+              <span className="vt-nav-dot" aria-hidden="true" />
+              <span className="vt-nav-num">{item.num}</span>
+              <span>{item.label}</span>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 export function VectraTwinShowcase() {
   const { lang, setLang } = useLanguage();
   const reduced = usePrefersReducedMotion();
@@ -1293,6 +1824,7 @@ export function VectraTwinShowcase() {
   const [inspectionMode, setInspectionMode] = useState<InspectionMode>("mesh");
   const [whatP, setWhatP] = useState(reduced ? 1 : 0);
 
+  const heroPtrRef = useRef<{ nx: number; ny: number }>({ nx: 0, ny: 0 });
   const whatRef = useRef<HTMLElement | null>(null);
   const whereRef = useRef<HTMLElement | null>(null);
   const idleTimerRef = useRef<number | null>(null);
@@ -1305,7 +1837,6 @@ export function VectraTwinShowcase() {
     []
   );
 
-  // Keyboard toggle [R] for Recap & [Escape] to close
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") setRecapOpen(false);
@@ -1322,16 +1853,14 @@ export function VectraTwinShowcase() {
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
-  // Gentle scroll choreography for top nav & WHAT statement scrub
   useEffect(() => {
     const onScroll = () => {
       const y = window.scrollY || 0;
       const vh = window.innerHeight || 800;
 
-      // Measure WHAT statement scrub
       if (whatRef.current && !reduced) {
         const wRect = whatRef.current.getBoundingClientRect();
-        const prog = clamp((vh * 0.8 - wRect.top) / (vh * 0.45), 0, 1);
+        const prog = clamp((vh * 0.78 - wRect.top) / (vh * 0.45), 0, 1);
         setWhatP(prog);
         if (wRect.top <= vh * 0.48 && wRect.bottom >= vh * 0.25) {
           setActiveNav("what");
@@ -1366,6 +1895,12 @@ export function VectraTwinShowcase() {
     };
   }, [reduced]);
 
+  const scrollToEl = (elId: string) => {
+    setRecapOpen(false);
+    const el = document.getElementById(elId);
+    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
   const scrollToTarget = (id: SectionNavId | "top") => {
     setRecapOpen(false);
     if (id === "top") {
@@ -1376,12 +1911,11 @@ export function VectraTwinShowcase() {
       id === "what"
         ? "vt-what"
         : id === "how"
-        ? "vt-step-01"
+        ? "vt-how-tower"
         : id === "why"
-        ? "vt-step-03"
+        ? "vt-why-tower"
         : "vt-where";
-    const el = document.getElementById(targetId);
-    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+    scrollToEl(targetId);
   };
 
   const activeInspection =
@@ -1392,7 +1926,7 @@ export function VectraTwinShowcase() {
     <div className="vt-page" id="top">
       <SoftDotCursor accentColor={cursorAccent} reduced={reduced} />
 
-      {/* Top Subtle Studio Return Medallion */}
+      {/* Clean Studio Return Bar */}
       <header className="vt-topbar">
         <Link
           href="/"
@@ -1413,10 +1947,26 @@ export function VectraTwinShowcase() {
         </div>
       </header>
 
-      {/* GENEROUS GLACIAL EDITORIAL HERO */}
-      <section className="vt-hero">
-        <div className="vt-hero-aura" aria-hidden="true" />
-        <div className="vt-hero-grid-lines" aria-hidden="true" />
+      {/* FULL-BLEED ROUNDED HERO FRAME WITH SCULPTURAL RINGS BACKDROP */}
+      <section
+        className="vt-hero-frame"
+        onMouseMove={(e) => {
+          const r = e.currentTarget.getBoundingClientRect();
+          heroPtrRef.current = {
+            nx: ((e.clientX - r.left) / Math.max(1, r.width) - 0.5) * 2,
+            ny: ((e.clientY - r.top) / Math.max(1, r.height) - 0.5) * 2,
+          };
+        }}
+        onMouseLeave={() => {
+          heroPtrRef.current = { nx: 0, ny: 0 };
+        }}
+      >
+        <SculpturalRingsCanvas
+          theme="glacial-coral"
+          reduced={reduced}
+          pointerOffsetRef={heroPtrRef}
+        />
+        <div className="vt-hero-glass-scrim" aria-hidden="true" />
 
         <div className="vt-hero-content">
           <div className="vt-hero-top-row">
@@ -1428,27 +1978,29 @@ export function VectraTwinShowcase() {
             <span className="vt-hero-title-accent">{c.heroTitleB}</span>
           </h1>
 
-          <div className="vt-hero-split-body">
+          <div className="vt-hero-bottom-row">
             <p className="vt-hero-lede">{c.heroLede}</p>
-            <div className="vt-hero-cta-row">
-              <button
-                type="button"
-                className="vt-btn-dark"
-                onClick={() => scrollToTarget("what")}
-              >
-                {c.heroPrimary}
-              </button>
-              <Link href="/contact" className="vt-btn-outline">
-                {c.heroSecondary}
-              </Link>
+            <div className="vt-hero-right-cta">
+              <div className="vt-hero-cta-row">
+                <button
+                  type="button"
+                  className="vt-btn-dark"
+                  onClick={() => scrollToTarget("what")}
+                >
+                  {c.heroPrimary}
+                </button>
+                <Link href="/contact" className="vt-btn-outline">
+                  {c.heroSecondary}
+                </Link>
+              </div>
+              <p className="vt-hero-note">{c.heroNote}</p>
             </div>
-            <p className="vt-hero-note">{c.heroNote}</p>
           </div>
         </div>
       </section>
 
-      {/* n.001 WHAT EDITORIAL STATEMENT */}
-      <section ref={whatRef} id="vt-what" className="vt-what-section">
+      {/* STOP 1: n.001 WHAT FULL-SCREEN COGNITIVE STATEMENT */}
+      <section ref={whatRef} id="vt-what" className="vt-what-stage">
         <div className="vt-what-inner">
           <span className="vt-chapter-chip">{c.whatStatement.prefix}</span>
           <div className="vt-what-statement">
@@ -1467,7 +2019,21 @@ export function VectraTwinShowcase() {
         </div>
       </section>
 
-      {/* n.002 HOW & n.003 WHY — PINNED 3-SUB-STEP WEMBI STEPPERS */}
+      {/* STOP 2: n.002 HOW INTERACTIVE PILL TOWER (Ref 1 + Directional Velocity Push Physics) */}
+      <InteractivePillTower
+        eyebrow={c.howTower.eyebrow}
+        hint={c.howTower.hint}
+        sectionId={c.howTower.id}
+        ringTheme={c.howTower.ringTheme}
+        pills={c.howTower.pills}
+        reduced={reduced}
+        onJumpId={scrollToEl}
+        onEnterSection={handleEnterSection}
+        navId="how"
+        navAccent="#f97279"
+      />
+
+      {/* STOPS 3 & 4: PINNED 3-STEP STEPPERS (01 Digital Twin & 02 Functioning) */}
       {c.steppers.map((stepper) => (
         <PinnedStepperSection
           key={stepper.id}
@@ -1477,8 +2043,22 @@ export function VectraTwinShowcase() {
         />
       ))}
 
-      {/* n.004 WHERE + CUSTOM GENERATED CORE INSPECTOR */}
-      <section ref={whereRef} id="vt-where" className="vt-where-section">
+      {/* STOP 5: n.003 WHY INTERACTIVE PILL TOWER */}
+      <InteractivePillTower
+        eyebrow={c.whyTower.eyebrow}
+        hint={c.whyTower.hint}
+        sectionId={c.whyTower.id}
+        ringTheme={c.whyTower.ringTheme}
+        pills={c.whyTower.pills}
+        reduced={reduced}
+        onJumpId={scrollToEl}
+        onEnterSection={handleEnterSection}
+        navId="why"
+        navAccent="#2a72a3"
+      />
+
+      {/* STOP 6: n.004 WHERE + CUSTOM CORE INSPECTOR */}
+      <section ref={whereRef} id="vt-where" className="vt-where-frame">
         <div className="vt-where-head">
           <span className="vt-chapter-chip">{c.whereSection.tag}</span>
           <h2 className="vt-where-h2">{c.whereSection.headline}</h2>
@@ -1495,7 +2075,6 @@ export function VectraTwinShowcase() {
           ))}
         </div>
 
-        {/* Custom Core Diagram Framed Uncropped (object-fit: contain) */}
         <div className="vt-inspector-shell">
           <div className="vt-inspector-bar">
             <div>
@@ -1554,31 +2133,17 @@ export function VectraTwinShowcase() {
         </div>
       </section>
 
-      {/* APPLE BLURRED GLASS SPLIT BOTTOM NAVIGATION (Split Left/Right on Desktop, Centered on Mobile) */}
+      {/* APPLE FROSTED GLASS SPLIT BOTTOM NAVIGATION */}
       <nav
         className={`vt-site-nav ${navVisible ? "is-visible" : "is-hidden"}`}
         aria-label="Vectra Twin primary section navigation"
       >
-        {/* LEFT GLASS PILL: WHAT / HOW / WHY / WHERE */}
-        <div className="vt-glass-pill vt-nav-left" role="group">
-          {c.navChapters.map((item) => {
-            const isAct = activeNav === item.id;
-            return (
-              <button
-                key={item.id}
-                type="button"
-                className={`vt-glass-btn ${isAct ? "is-active" : ""}`}
-                onClick={() => scrollToTarget(item.id)}
-              >
-                <span className="vt-nav-dot" aria-hidden="true" />
-                <span className="vt-nav-num">{item.num}</span>
-                <span>{item.label}</span>
-              </button>
-            );
-          })}
-        </div>
+        <ExpandableSectionNav
+          chapters={c.navChapters}
+          activeNav={activeNav}
+          onSelect={scrollToTarget}
+        />
 
-        {/* RIGHT GLASS PILL: Overview, Recap, EN/ES, Contact */}
         <div className="vt-glass-pill vt-nav-right" role="group">
           <button
             type="button"
