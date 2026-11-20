@@ -61,7 +61,6 @@ interface LocalizedCopy {
   crateCaptionLeft: string;
   crateCaptionRightPending: string;
   crateCaptionRightSealed: string;
-  crateSealedBanner: string;
   ledgerTitle: string;
   ledgerRows: Array<[string, string]>;
   waveHead: string;
@@ -151,7 +150,6 @@ const COPY_NS: Record<"en" | "es", LocalizedCopy> = {
     crateCaptionLeft: "BOX #000 // ARCHIVAL KRAFT",
     crateCaptionRightPending: "SCROLL DOWN TO FOLD & SEAL CRATE ↓",
     crateCaptionRightSealed: "SEALED BY SCROLL • SCROLL UP TO REOPEN ↑",
-    crateSealedBanner: "NO SKU // SEALED EMPTY",
     ledgerTitle: "MANIFEST // SKU #000",
     ledgerRows: [
       ["Physical Units", "000 in stock"],
@@ -411,7 +409,6 @@ const COPY_NS: Record<"en" | "es", LocalizedCopy> = {
     crateCaptionLeft: "CAJA #000 // KRAFT DE ARCHIVO",
     crateCaptionRightPending: "BAJA PARA PLEGAR Y SELLAR ↓",
     crateCaptionRightSealed: "SELLADA AL SCROLL • SUBE PARA ABRIR ↑",
-    crateSealedBanner: "NO SKU // SELLADA VACÍA",
     ledgerTitle: "MANIFIESTO // SKU #000",
     ledgerRows: [
       ["Unidades Físicas", "000 en bodega"],
@@ -657,9 +654,16 @@ export function NoSkuShowcase() {
   const badgeRefs = useRef<Array<SVGGElement | null>>([]);
   const giantTrackRef = useRef<HTMLElement | null>(null);
   const giantCanvasRef = useRef<HTMLDivElement | null>(null);
-  const downArrowLineRef = useRef<SVGPathElement | null>(null);
-  const upArrowLineRef = useRef<SVGPathElement | null>(null);
-  const curveDownArrowRef = useRef<SVGPathElement | null>(null);
+  const row3Ref = useRef<HTMLDivElement | null>(null);
+  const downArrowWrapRef = useRef<HTMLDivElement | null>(null);
+  const downShaftRef = useRef<SVGPathElement | null>(null);
+  const downHeadRef = useRef<SVGPathElement | null>(null);
+  const upArrowWrapRef = useRef<HTMLDivElement | null>(null);
+  const upShaftRef = useRef<SVGPathElement | null>(null);
+  const upHeadRef = useRef<SVGPathElement | null>(null);
+  const curveArrowWrapRef = useRef<HTMLDivElement | null>(null);
+  const curveShaftRef = useRef<SVGPathElement | null>(null);
+  const curveHeadRef = useRef<SVGPathElement | null>(null);
   const hudStopRef = useRef<HTMLSpanElement | null>(null);
   const hudCoordRef = useRef<HTMLSpanElement | null>(null);
   const orbitalTimersRef = useRef<number[]>([]);
@@ -1046,6 +1050,14 @@ export function NoSkuShowcase() {
       const toPxX = (v: number) => (v * vw) / 100;
       const toPxY = (s: number) => (s * vh) / 100;
 
+      const row3El = row3Ref.current;
+      const row3EndStopX = row3El
+        ? Math.min(
+            -toPxX(320),
+            -(row3El.offsetLeft + row3El.offsetWidth - vw * 0.94)
+          )
+        : -toPxX(338);
+
       const rawStops: Pt[] = [
         { x: 0, y: 0 },
         { x: -toPxX(4), y: -toPxY(42) },
@@ -1053,7 +1065,7 @@ export function NoSkuShowcase() {
         { x: -toPxX(152), y: -toPxY(114) },
         { x: -toPxX(198), y: -toPxY(114) },
         { x: -toPxX(308), y: -toPxY(34) },
-        { x: -toPxX(338), y: -toPxY(34) },
+        { x: row3EndStopX, y: -toPxY(34) },
       ];
 
       const smoothPts: Pt[] = [];
@@ -1124,25 +1136,62 @@ export function NoSkuShowcase() {
 
     buildFilletedPath();
 
-    const downLine = downArrowLineRef.current;
-    const upLine = upArrowLineRef.current;
-    const curveDownLine = curveDownArrowRef.current;
-    const downLen = downLine ? downLine.getTotalLength() : 620;
-    const upLen = upLine ? upLine.getTotalLength() : 620;
-    const curveDownLen = curveDownLine ? curveDownLine.getTotalLength() : 540;
+    const initArrowPair = (
+      shaft: SVGPathElement | null,
+      head: SVGPathElement | null,
+      fallbackShaftLen: number,
+      fallbackHeadLen: number
+    ) => {
+      const sLen = shaft ? shaft.getTotalLength() : fallbackShaftLen;
+      const hLen = head ? head.getTotalLength() : fallbackHeadLen;
+      if (shaft) {
+        shaft.style.strokeDasharray = `${sLen} ${sLen + 8}`;
+        shaft.style.strokeDashoffset = `${sLen}`;
+        shaft.style.opacity = "0";
+      }
+      if (head) {
+        head.style.strokeDasharray = `${hLen} ${hLen + 8}`;
+        head.style.strokeDashoffset = `${hLen}`;
+        head.style.opacity = "0";
+      }
+      return { shaft, head, sLen, hLen };
+    };
 
-    if (downLine) {
-      downLine.style.strokeDasharray = `${downLen} ${downLen + 6}`;
-      downLine.style.strokeDashoffset = `${downLen}`;
-    }
-    if (upLine) {
-      upLine.style.strokeDasharray = `${upLen} ${upLen + 6}`;
-      upLine.style.strokeDashoffset = `${upLen}`;
-    }
-    if (curveDownLine) {
-      curveDownLine.style.strokeDasharray = `${curveDownLen} ${curveDownLen + 6}`;
-      curveDownLine.style.strokeDashoffset = `${curveDownLen}`;
-    }
+    const setArrowProgress = (
+      pair: {
+        shaft: SVGPathElement | null;
+        head: SVGPathElement | null;
+        sLen: number;
+        hLen: number;
+      },
+      progress: number
+    ) => {
+      const p = clamp(progress, 0, 1);
+      const sProg = clamp(p / 0.84, 0, 1);
+      const hProg = clamp((p - 0.8) / 0.2, 0, 1);
+      if (pair.shaft) {
+        pair.shaft.style.strokeDashoffset = `${(pair.sLen * (1 - sProg)).toFixed(1)}`;
+        pair.shaft.style.opacity = sProg <= 0.004 ? "0" : "1";
+      }
+      if (pair.head) {
+        pair.head.style.strokeDashoffset = `${(pair.hLen * (1 - hProg)).toFixed(1)}`;
+        pair.head.style.opacity = hProg <= 0.004 ? "0" : "1";
+      }
+    };
+
+    const downPair = initArrowPair(
+      downShaftRef.current,
+      downHeadRef.current,
+      540,
+      140
+    );
+    const upPair = initArrowPair(upShaftRef.current, upHeadRef.current, 540, 140);
+    const curvePair = initArrowPair(
+      curveShaftRef.current,
+      curveHeadRef.current,
+      460,
+      130
+    );
 
     const props = Array.from(
       track.querySelectorAll<HTMLElement>(".ns-giant-tape-prop")
@@ -1160,20 +1209,33 @@ export function NoSkuShowcase() {
         1
       )}px, 0)`;
 
-      if (downLine) {
-        const pDown = clamp((smoothP - 0.22) / 0.22, 0, 1);
-        downLine.style.strokeDashoffset = `${(downLen * (1 - pDown)).toFixed(1)}`;
+      const vw = window.innerWidth || 1280;
+
+      if (downArrowWrapRef.current) {
+        const r = downArrowWrapRef.current.getBoundingClientRect();
+        const pDown = clamp((vw * 0.78 - r.left) / Math.max(220, vw * 0.68), 0, 1);
+        setArrowProgress(downPair, pDown);
       }
-      if (upLine) {
-        const pUp = clamp((smoothP - 0.52) / 0.22, 0, 1);
-        upLine.style.strokeDashoffset = `${(upLen * (1 - pUp)).toFixed(1)}`;
+      if (upArrowWrapRef.current) {
+        const r = upArrowWrapRef.current.getBoundingClientRect();
+        const pUp = clamp((vw * 0.82 - r.left) / Math.max(220, vw * 0.76), 0, 1);
+        setArrowProgress(upPair, pUp);
       }
-      if (curveDownLine) {
-        const pCurve = clamp((smoothP - 0.74) / 0.24, 0, 1);
-        curveDownLine.style.strokeDashoffset = `${(
-          curveDownLen *
-          (1 - pCurve)
-        ).toFixed(1)}`;
+      if (curveArrowWrapRef.current) {
+        const r = curveArrowWrapRef.current.getBoundingClientRect();
+        const curveStartLeft = vw * 0.96;
+        const curveRestLeft = vw * 0.94 - Math.max(180, r.width);
+        const pCurveView = clamp(
+          (curveStartLeft - r.left) /
+            Math.max(140, curveStartLeft - curveRestLeft),
+          0,
+          1
+        );
+        const pCurve =
+          smoothP >= 0.985
+            ? Math.max(pCurveView, clamp((smoothP - 0.94) / 0.045, 0, 1))
+            : pCurveView;
+        setArrowProgress(curvePair, pCurve);
       }
 
       props.forEach((el, idx) => {
@@ -1213,11 +1275,20 @@ export function NoSkuShowcase() {
       scheduleTick();
     };
 
+    let unmounted = false;
+    document.fonts?.ready?.then(() => {
+      if (!unmounted) {
+        buildFilletedPath();
+        scheduleTick();
+      }
+    });
+
     window.addEventListener("scroll", scheduleTick, { passive: true });
     window.addEventListener("resize", onResize);
     scheduleTick();
 
     return () => {
+      unmounted = true;
       if (raf) cancelAnimationFrame(raf);
       window.removeEventListener("scroll", scheduleTick);
       window.removeEventListener("resize", onResize);
@@ -1514,14 +1585,6 @@ export function NoSkuShowcase() {
                   {/* Reversible 3D corrugated folding box flaps */}
                   <div className="ns-crate-flap is-left" aria-hidden="true" />
                   <div className="ns-crate-flap is-right" aria-hidden="true" />
-
-                  <div
-                    className={`ns-crate-seal-banner ${
-                      crateSealed ? "is-sealed" : ""
-                    }`}
-                  >
-                    {copy.crateSealedBanner}
-                  </div>
                 </div>
                 <div className="ns-crate-caption">
                   <span>{copy.crateCaptionLeft}</span>
@@ -1793,11 +1856,24 @@ export function NoSkuShowcase() {
               </div>
 
               {/* Thick Diagonal Down-Right Self-Drawing Vector Arrow */}
-              <div className="ns-diag-down-arrow" aria-hidden="true">
+              <div
+                ref={downArrowWrapRef}
+                className="ns-diag-down-arrow"
+                aria-hidden="true"
+              >
                 <svg viewBox="0 0 460 300">
                   <path
-                    ref={downArrowLineRef}
-                    d="M 18 22 C 155 102, 285 188, 424 274 M 372 276 L 428 278 L 408 224"
+                    ref={downShaftRef}
+                    d="M 18 22 C 155 102, 285 188, 424 274"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="16"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                  <path
+                    ref={downHeadRef}
+                    d="M 372 276 L 428 278 L 408 224"
                     fill="none"
                     stroke="currentColor"
                     strokeWidth="16"
@@ -1834,11 +1910,24 @@ export function NoSkuShowcase() {
               </div>
 
               {/* Thick Diagonal Up-Right Self-Drawing Vector Arrow */}
-              <div className="ns-diag-up-arrow" aria-hidden="true">
+              <div
+                ref={upArrowWrapRef}
+                className="ns-diag-up-arrow"
+                aria-hidden="true"
+              >
                 <svg viewBox="0 0 460 300">
                   <path
-                    ref={upArrowLineRef}
-                    d="M 22 274 C 165 202, 294 118, 426 28 M 374 26 L 430 26 L 414 82"
+                    ref={upShaftRef}
+                    d="M 22 274 C 165 202, 294 118, 426 28"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="16"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                  <path
+                    ref={upHeadRef}
+                    d="M 374 26 L 430 26 L 414 82"
                     fill="none"
                     stroke="currentColor"
                     strokeWidth="16"
@@ -1849,7 +1938,7 @@ export function NoSkuShowcase() {
               </div>
 
               {/* Row 3 */}
-              <div className="ns-giant-row ns-giant-row--3">
+              <div ref={row3Ref} className="ns-giant-row ns-giant-row--3">
                 <div>
                   <span className="ns-giant-index">
                     {copy.giantRows[2].index}
@@ -1872,21 +1961,34 @@ export function NoSkuShowcase() {
                 <span className="ns-giant-tape-prop">
                   {copy.giantRows[2].prop}
                 </span>
-              </div>
 
-              {/* Smooth Curved Downward Exit Arrow Guiding Straight Into Manifesto */}
-              <div className="ns-curve-down-arrow" aria-hidden="true">
-                <svg viewBox="0 0 360 320">
-                  <path
-                    ref={curveDownArrowRef}
-                    d="M 14 56 L 210 56 C 280 56, 296 106, 296 292 M 264 258 L 296 298 L 328 258"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="16"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
+                {/* Smooth Curved Downward Exit Arrow Guiding Straight Into Manifesto */}
+                <div
+                  ref={curveArrowWrapRef}
+                  className="ns-curve-down-arrow"
+                  aria-hidden="true"
+                >
+                  <svg viewBox="0 0 360 320">
+                    <path
+                      ref={curveShaftRef}
+                      d="M 14 56 L 210 56 C 280 56, 296 106, 296 292"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="16"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                    <path
+                      ref={curveHeadRef}
+                      d="M 264 258 L 296 298 L 328 258"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="16"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </div>
               </div>
             </div>
           </div>

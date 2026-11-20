@@ -649,13 +649,13 @@
 .ns-hero-bottom {
   position: relative;
   z-index: 3;
-  max-width: 1380px;
-  margin: clamp(110px, 14vw, 195px) auto 0;
-  padding: clamp(20px, 4vw, 56px) clamp(18px, 4vw, 52px);
+  max-width: 1480px;
+  margin: clamp(92px, 12vw, 165px) auto 0;
+  padding: clamp(24px, 4vw, 60px) clamp(18px, 4vw, 48px);
   display: grid;
-  grid-template-columns: minmax(220px, 0.85fr) minmax(300px, 1.15fr) minmax(220px, 0.85fr);
+  grid-template-columns: minmax(250px, 0.88fr) minmax(340px, 1.24fr) minmax(250px, 0.88fr);
   align-items: center;
-  gap: clamp(20px, 3vw, 42px);
+  gap: clamp(24px, 3.4vw, 50px);
 }
 
 .ns-note-column {
@@ -667,7 +667,7 @@
 }
 
 .ns-sticky-note {
-  width: clamp(210px, 24vw, 320px);
+  width: clamp(245px, 27vw, 370px);
   aspect-ratio: 1 / 0.94;
   transform: rotate(3deg);
   filter: drop-shadow(0 18px 24px rgba(24, 17, 14, 0.24));
@@ -689,11 +689,11 @@
 
 .ns-hand-note {
   font-family: var(--ns-hand);
-  font-size: clamp(24px, 2.5vw, 36px);
-  line-height: 1.12;
+  font-size: clamp(28px, 2.9vw, 42px);
+  line-height: 1.1;
   color: var(--ns-ink);
   transform: rotate(-3.5deg);
-  max-width: 310px;
+  max-width: 360px;
 }
 
 .ns-crate-stage {
@@ -702,9 +702,9 @@
   --active-tape-bg: #FF4D29;
   --active-tape-ink: #18110E;
   position: relative;
-  width: min(100%, 490px);
+  width: min(100%, 580px);
   margin: 0 auto;
-  padding: 14px;
+  padding: 16px;
   background: var(--ns-bone);
   border: 3px solid var(--ns-ink);
   border-radius: 16px;
@@ -766,36 +766,6 @@
     scaleX(calc(0.45 + var(--flap-t, 0) * 0.56));
 }
 
-.ns-crate-seal-banner {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%) rotate(-2deg) scaleX(0);
-  transform-origin: center;
-  width: 106%;
-  padding: 9px 14px;
-  background: var(--active-tape-bg, var(--ns-vermilion));
-  color: var(--active-tape-ink, var(--ns-ink));
-  border-top: 2px solid var(--ns-ink);
-  border-bottom: 2px solid var(--ns-ink);
-  font-family: var(--ns-disp);
-  font-weight: 900;
-  font-size: clamp(16px, 1.7vw, 24px);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  text-align: center;
-  opacity: 0;
-  z-index: 3;
-  transition: transform 0.38s cubic-bezier(0.22, 1, 0.36, 1),
-    opacity 0.24s ease, background-color 0.3s ease, color 0.3s ease;
-  pointer-events: none;
-}
-
-.ns-crate-seal-banner.is-sealed {
-  transform: translate(-50%, -50%) rotate(-2deg) scaleX(1);
-  opacity: 0.96;
-}
-
 .ns-crate-caption {
   display: flex;
   justify-content: space-between;
@@ -813,15 +783,15 @@
   background: rgba(244, 239, 230, 0.88);
   border: 2px solid var(--ns-ink);
   border-radius: 12px;
-  padding: 18px 20px;
+  padding: 22px 24px;
   transform: rotate(2deg);
   box-shadow: 6px 8px 0 rgba(24, 17, 14, 0.16);
 }
 
 .ns-spec-ledger h3 {
-  margin: 0 0 10px;
+  margin: 0 0 12px;
   font-family: ui-monospace, monospace;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 800;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -831,16 +801,16 @@
 .ns-spec-ledger dl {
   margin: 0;
   display: grid;
-  gap: 8px;
+  gap: 10px;
 }
 
 .ns-spec-ledger div {
   display: flex;
   justify-content: space-between;
   gap: 14px;
-  font-size: 13px;
+  font-size: 15px;
   border-bottom: 1px dashed rgba(24, 17, 14, 0.25);
-  padding-bottom: 5px;
+  padding-bottom: 7px;
 }
 
 .ns-spec-ledger dt {
@@ -1268,7 +1238,7 @@
 
 .ns-giant-canvas {
   position: relative;
-  width: 470vw;
+  width: 500vw;
   height: 230svh;
   will-change: transform;
 }
@@ -1391,11 +1361,14 @@
 }
 
 .ns-curve-down-arrow {
-  position: absolute;
-  left: 392vw;
-  top: 72svh;
-  width: clamp(260px, 30vw, 440px);
-  height: clamp(240px, 32svh, 360px);
+  position: relative;
+  left: auto;
+  top: auto;
+  flex-shrink: 0;
+  align-self: flex-start;
+  margin-top: 26px;
+  width: clamp(220px, 24vw, 360px);
+  height: clamp(220px, 29svh, 330px);
   color: var(--ns-vermilion);
   pointer-events: none;
 }
@@ -1885,8 +1858,7 @@
   .ns-char,
   .ns-footer-char,
   .ns-orbit-node,
-  .ns-archetype-glyph,
-  .ns-crate-seal-banner {
+  .ns-archetype-glyph {
     animation: none !important;
     transition: none !important;
   }

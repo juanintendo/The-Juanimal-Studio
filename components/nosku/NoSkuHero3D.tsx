@@ -249,9 +249,9 @@ export function HeroTapeCanvas({
         const rollSpinGroup = new THREE.Group();
         rollPivot.add(rollSpinGroup);
 
-        const tapeWidth = 1.06;
-        const outerR = 1.32;
-        const innerR = 0.78;
+        const tapeWidth = 1.18;
+        const outerR = 1.38;
+        const innerR = 0.82;
         const patternPeriodWorld = (2 * Math.PI * outerR) / tilesPerCircumference;
 
         const coreGeo = new THREE.CylinderGeometry(
@@ -333,6 +333,7 @@ export function HeroTapeCanvas({
           opacity: 0.94,
         });
         const ribbonMesh = new THREE.Mesh(ribbonGeo, ribbonMat);
+        ribbonMesh.visible = false;
         scene.add(ribbonMesh);
 
         // Layout Metrics & Interactive Orbit State
@@ -343,13 +344,12 @@ export function HeroTapeCanvas({
         let rollHomeYWorld = 2.0;
         let crateBottomWorld = -3.0;
 
-        const baseStubLen = 0.22;
         const restRotY = 32 * (Math.PI / 180);
 
         let isIntersecting = true;
         let smoothProg = 0;
-        let unspoolLen = baseStubLen;
-        let prevUnspool = baseStubLen;
+        let unspoolLen = 0;
+        let prevUnspool = 0;
         let smoothVel = 0;
 
         let pointerNormX = 0;
@@ -393,35 +393,35 @@ export function HeroTapeCanvas({
 
           if (crateRef.current) {
             const cRect = crateRef.current.getBoundingClientRect();
-            const crateCenterInStage =
-              cRect.top - rect.top + cRect.height * 0.5;
+            const crateBottomInStage =
+              cRect.top - rect.top + cRect.height * 0.72;
             crateBottomWorld =
-              visibleHeightWorld / 2 - crateCenterInStage * worldPerPx;
+              visibleHeightWorld / 2 - crateBottomInStage * worldPerPx;
           } else {
-            crateBottomWorld = rollHomeYWorld - 4.2;
+            crateBottomWorld = rollHomeYWorld - 4.9;
           }
         };
 
         const updateRibbonGeometry = (
           startY: number,
+          startZ: number,
           totalDropLen: number,
           unspoolDelta: number,
           velAmp: number,
-          timeSec: number,
-          extraZShift: number
+          timeSec: number
         ) => {
           const pos = ribbonGeo.attributes.position;
           const uv = ribbonGeo.attributes.uv;
-          const activeLen = Math.max(0.14, totalDropLen);
+          const activeLen = Math.max(0.08, totalDropLen);
 
           for (let i = 0; i < pos.count; i++) {
             const origX = baseRibbonPos[i * 3];
             const origY = baseRibbonPos[i * 3 + 1];
-            const t = 0.5 - origY; // 0 at roll takeoff -> 1 at crate bottom
+            const t = 0.5 - origY; // 0 at underside roll peel -> 1 at crate bottom
 
             const worldY = startY - t * activeLen;
-            // Ribbon leaves front tangent (+Z = outerR) and lays flush onto crate seam (z = 0.16)
-            const baseZ = 0.16 + Math.pow(1 - t, 1.85) * (outerR - 0.16 + 0.018) + extraZShift * (1 - t);
+            // Ribbon peels from bottom-front underside outside cylinder toward flat crate seam (z = 0.16)
+            const baseZ = 0.16 + Math.pow(1 - t, 2.0) * (startZ - 0.16);
             const ripple =
               velAmp > 0.002
                 ? Math.sin(t * 7.0 - timeSec * 5.2) * velAmp * t * (1 - t)
@@ -456,7 +456,7 @@ export function HeroTapeCanvas({
             1
           );
 
-          if (dragging && e.pointerId === dragPointerId) {
+          if (dragging && e.pointerId === dragPointerId && smoothProg <= 0.08) {
             const dx = e.clientX - lastDragX;
             const dy = e.clientY - lastDragY;
             lastDragX = e.clientX;
@@ -477,6 +477,7 @@ export function HeroTapeCanvas({
         };
 
         const onHitDown = (e: PointerEvent) => {
+          if (smoothProg > 0.08) return;
           e.preventDefault();
           dragging = true;
           dragPointerId = e.pointerId;
@@ -530,7 +531,7 @@ export function HeroTapeCanvas({
             rollPivot.position.set(0, rollHomeYWorld, 0);
             rollPivot.rotation.set(0.22, restRotY, -0.1);
             rollSpinGroup.rotation.x = 0;
-            updateRibbonGeometry(rollHomeYWorld, 1.85, 1.85, 0, 0, 0);
+            ribbonMesh.visible = false;
             onSealProgressRef.current?.(0);
             renderer.render(scene, camera);
             return;
@@ -563,22 +564,23 @@ export function HeroTapeCanvas({
           const baseRotZ = -0.1 * (1 - frontT);
           const baseRotX = 0.22 * (1 - frontT) + 0.1 * frontT;
 
-          // Interactive mouse hover + free drag orbit inertia
-          const hoverTargetX = pointerActive ? pointerNormY * 0.12 : 0;
-          const hoverTargetY = pointerActive ? pointerNormX * 0.14 : 0;
+          // Interactive mouse hover + free drag orbit inertia (damped tightly once scroll-sealing starts)
+          const hoverScale = 1 - 0.55 * smoothStep(0.04, 0.25, smoothProg);
+          const hoverTargetX = pointerActive ? pointerNormY * 0.12 * hoverScale : 0;
+          const hoverTargetY = pointerActive ? pointerNormX * 0.14 * hoverScale : 0;
           const hDamp = 1 - Math.exp(-4.5 * dt);
           smoothHoverTiltX += (hoverTargetX - smoothHoverTiltX) * hDamp;
           smoothHoverTiltY += (hoverTargetY - smoothHoverTiltY) * hDamp;
 
-          if (!dragging) {
+          if (!dragging || smoothProg > 0.08) {
             dragRotY += dragVelY;
             dragRotX = clamp(dragRotX + dragVelX, -1.1, 1.1);
-            const inertiaDecay = Math.exp(-5 * dt);
+            const inertiaDecay = Math.exp(-(smoothProg > 0.08 ? 10 : 5) * dt);
             dragVelX *= inertiaDecay;
             dragVelY *= inertiaDecay;
 
-            // Gentle spring return when not dragging so it settles naturally while still allowing free spins
-            const relax = Math.exp(-1.8 * dt);
+            // Gentle spring return when resting; fast alignment during active scroll-sealing
+            const relax = Math.exp(-(smoothProg > 0.08 ? 9 : 1.8) * dt);
             dragRotX *= relax;
             dragRotY *= relax;
             userSpinBonus *= relax;
@@ -592,11 +594,13 @@ export function HeroTapeCanvas({
             baseRotZ - dragRotY * 0.15
           );
 
-          // Exact 1:1 synchronized unspooling length & X-spin
-          const targetSpan = Math.max(1.85, rollHomeYWorld - crateBottomWorld);
-          const unspoolProg = smoothStep(0.04, 0.96, smoothProg);
-          unspoolLen = baseStubLen + (targetSpan - baseStubLen) * unspoolProg;
-          const unspoolDelta = Math.max(0, unspoolLen - baseStubLen);
+          // Hide ribbon at rest (no stub in hollow core); peel cleanly off underside on scroll
+          const startY = rollHomeYWorld + bobY - outerR * 0.86;
+          const startZ = outerR * 0.54;
+          const targetSpan = Math.max(0.18, startY - crateBottomWorld);
+          const unspoolProg = smoothStep(0.045, 0.96, smoothProg);
+          unspoolLen = targetSpan * unspoolProg;
+          const unspoolDelta = Math.max(0, unspoolLen);
 
           rollSpinGroup.rotation.x = unspoolDelta / outerR + userSpinBonus;
 
@@ -606,14 +610,19 @@ export function HeroTapeCanvas({
             (clamp(rawVel * 0.025, 0, 0.075) - smoothVel) *
             clamp(1 - Math.exp(-8 * dt), 0, 1);
 
-          updateRibbonGeometry(
-            rollHomeYWorld + bobY,
-            unspoolLen,
-            unspoolDelta,
-            smoothVel,
-            timeSec,
-            dragRotX * 0.25
-          );
+          if (smoothProg < 0.045 || unspoolLen <= 0.02) {
+            ribbonMesh.visible = false;
+          } else {
+            ribbonMesh.visible = true;
+            updateRibbonGeometry(
+              startY,
+              startZ,
+              unspoolLen,
+              unspoolDelta,
+              smoothVel,
+              timeSec
+            );
+          }
 
           renderer.render(scene, camera);
         };
