@@ -254,6 +254,27 @@ export function WorkShowcaseV2() {
 
               {/* Media Stage obeying Framing Contract: 100% object-fit: contain inside .cel-frame */}
               <div ref={isIoa ? reelRef : undefined} className="wsv2-media">
+                {item.id === "no-sku" && (
+                  <div className="wsv2-saulbass-stage">
+                    <div className="cel-frame">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src="/images/nosku/crate-empty.png"
+                        alt="NO SKU empty corrugated prototype shipping crate stamped #000"
+                        loading="lazy"
+                      />
+                    </div>
+                    <div className="cel-frame">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src="/images/nosku/specimen-motion.png"
+                        alt="Sculptural glossy signal-vermilion adhesive tape specimen"
+                        loading="lazy"
+                      />
+                    </div>
+                  </div>
+                )}
+
                 {item.id === "vectra-twin" && (
                   <div className="wsv2-saulbass-stage">
                     <div className="cel-frame cel-video-9x16">

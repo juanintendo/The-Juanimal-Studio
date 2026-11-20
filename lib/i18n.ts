@@ -293,16 +293,16 @@ export const COPY = {
       ],
     },
     stats: [
-      { count: 8, label: "Live case studies across SaaS, film & games" },
+      { count: 9, label: "Live case studies across SaaS, film & games" },
       { count: 12, label: "Classical animation principles checked per frame" },
       { count: 11, label: "Proprietary agent production skills in our pipeline" },
       { count: 2, label: "Native launch languages (English & Spanish)" },
     ],
     work: {
-      eyebrow: "Selected Work (8 Shipped & Framed Uncropped)",
+      eyebrow: "Selected Work (9 Shipped & Framed Uncropped)",
       title: "Motion, code & launched systems",
       filters: [
-        { id: "all", label: "All (8)" },
+        { id: "all", label: "All (9)" },
         { id: "launch", label: "Launch Kits & SaaS" },
         { id: "code", label: "Code Motion & Web" },
         { id: "animation", label: "Animation & Games" },
@@ -312,6 +312,27 @@ export const COPY = {
       watchFilm: "Watch Full Film",
       closeModal: "Close",
       items: [
+        {
+          id: "no-sku",
+          category: "code",
+          title: "NO SKU™",
+          meta: "Portfolio Web Concept #02 • Three.js Unspooling Roll & 2D Camera • 2026",
+          intro: "There is no product yet. Just watch what we can do.",
+          paragraphs: [
+            "An absurdly over-engineered tactile showcase for a product that doesn't exist yet: real Three.js unspooling ribbon physics over an empty crate, 3D paper-curl sticky notes, procedural Web Audio foley, and elastic letter poking.",
+            "Built in Industrial Vermilion (#FF4D29), Archival Bone (#F4EFE6), Espresso Ink (#18110E), and 6 orbital SVG arc-cut paint sweeps — ending with throwable 2D physics sticker balls.",
+          ],
+          facts: [
+            { label: "3D & Physics", value: "Three.js Roll + 2D Drag/Throw Balls" },
+            { label: "Audio", value: "100% Procedural Web Audio Foley" },
+            { label: "Navigation", value: "PULL ME Drawer + 2D Bezier Camera" },
+            { label: "Status", value: "Live Prototype (/work/no-sku, EN/ES)" },
+          ],
+          primaryHref: "/work/no-sku",
+          primaryLabel: "Open Live Website →",
+          secondaryHref: "/contact",
+          secondaryLabel: "Fill Box #000 With Your Product →",
+        },
         {
           id: "vectra-twin",
           category: "code",
@@ -925,16 +946,16 @@ export const COPY = {
       ],
     },
     stats: [
-      { count: 8, label: "Casos reales en SaaS, cine y videojuegos" },
+      { count: 9, label: "Casos reales en SaaS, cine y videojuegos" },
       { count: 12, label: "Principios clásicos revisados en cada frame" },
       { count: 11, label: "Skills propietarios de producción en nuestro pipeline" },
       { count: 2, label: "Idiomas nativos de lanzamiento (Inglés y Español)" },
     ],
     work: {
-      eyebrow: "Trabajo Seleccionado (8 Reales · Cero Rostros Recortados)",
+      eyebrow: "Trabajo Seleccionado (9 Reales · Cero Rostros Recortados)",
       title: "Motion, código y sistemas publicados",
       filters: [
-        { id: "all", label: "Todos (8)" },
+        { id: "all", label: "Todos (9)" },
         { id: "launch", label: "Launch Kits & SaaS" },
         { id: "code", label: "Code Motion & Web" },
         { id: "animation", label: "Animación & Juegos" },
@@ -944,6 +965,27 @@ export const COPY = {
       watchFilm: "Ver Corto Completo",
       closeModal: "Cerrar",
       items: [
+        {
+          id: "no-sku",
+          category: "code",
+          title: "NO SKU™",
+          meta: "Portafolio Web #02 • Cinta 3D Three.js & Cámara 2D • 2026",
+          intro: "Aún no existe ningún producto. Solo mira lo que podemos hacer.",
+          paragraphs: [
+            "Segunda web insignia de nuestra cartera diseñada para una caja vacía sin inventario: rollo 3D en Three.js que se desenrolla con el scroll, nota adherible con curl en tiempo real, foley Web Audio y letras elásticas reactivas al cursor.",
+            "Construida en Rojo Señal Vermilion (#FF4D29), Hueso Archivo (#F4EFE6), Tinta Espresso (#18110E) y 6 barridos de pintura curvos orbitales — cerrando con bolas físicas lanzables en el footer.",
+          ],
+          facts: [
+            { label: "3D & Física", value: "Rollo Three.js + Bolas 2D Lanzables" },
+            { label: "Audio", value: "100% Foley Sintetizado en Web Audio" },
+            { label: "Cámara", value: "Panel PULL ME + Ruta 2D Bézier" },
+            { label: "Estado", value: "Prototipo Vivo (/work/no-sku, EN/ES)" },
+          ],
+          primaryHref: "/work/no-sku",
+          primaryLabel: "Abrir Web en Vivo →",
+          secondaryHref: "/contact",
+          secondaryLabel: "Llenar la Caja #000 →",
+        },
         {
           id: "vectra-twin",
           category: "code",

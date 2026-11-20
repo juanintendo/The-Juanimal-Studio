@@ -2,7 +2,7 @@
   "name": "juanimal-studio",
   "version": "2.0.0",
   "private": true,
-  "description": "The Juanimal Studio \u2014 Tech Wizard portfolio (Next.js + Tailwind)",
+  "description": "The Juanimal Studio — Tech Wizard portfolio (Next.js + Tailwind)",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -10,16 +10,18 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.45.0",
     "next": "^15.5.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
-    "@supabase/supabase-js": "^2.45.0",
-    "stripe": "^17.5.0"
+    "stripe": "^17.5.0",
+    "three": "^0.187.0"
   },
   "devDependencies": {
     "@types/node": "^22.15.0",
     "@types/react": "^19.1.0",
     "@types/react-dom": "^19.1.0",
+    "@types/three": "^0.187.0",
     "autoprefixer": "^10.4.21",
     "eslint": "^9.25.0",
     "eslint-config-next": "^15.5.0",
