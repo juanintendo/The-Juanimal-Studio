@@ -255,13 +255,27 @@ export function WorkShowcaseV2() {
               {/* Media Stage obeying Framing Contract: 100% object-fit: contain inside .cel-frame */}
               <div ref={isIoa ? reelRef : undefined} className="wsv2-media">
                 {item.id === "vectra-twin" && (
-                  <div className="cel-frame cel-video-16x9">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src="/images/v3/vectra-twin-core.png"
-                      alt="Vectra Twin key-lime isometric digital twin core and orbital telemetry"
-                      loading="lazy"
-                    />
+                  <div className="wsv2-saulbass-stage">
+                    <div className="cel-frame cel-video-9x16">
+                      <video
+                        data-clip
+                        src="/media/vectra/hero-rings.mp4"
+                        poster="/media/vectra/hero-rings-poster.jpg"
+                        muted
+                        loop
+                        playsInline
+                        preload="none"
+                        aria-label="Vectra Twin sculptural interlocking rings hero reel"
+                      />
+                    </div>
+                    <div className="cel-frame">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src="/images/v3/vectra-twin-core.png"
+                        alt="Vectra Twin isometric digital twin core and orbital telemetry"
+                        loading="lazy"
+                      />
+                    </div>
                   </div>
                 )}
 

@@ -118,7 +118,7 @@ interface CopySchema {
   };
 }
 
-const HERO_VIDEO_SRC: string | null = null; // Drop Flow MP4 at /media/vectra/hero-vertical.mp4 & set string
+const HERO_VIDEO_SRC: string | null = "/media/vectra/hero-rings.mp4";
 
 const COPY_VT: Record<"en" | "es", CopySchema> = {
   en: {
@@ -1180,6 +1180,40 @@ function InteractivePillTower({
         pointerOffsetRef={ptrNormRef}
       />
 
+      <div className="vt-tower-video-wrap" aria-hidden="true">
+        {!reduced ? (
+          <>
+            <video
+              className="vt-tower-video-bg"
+              autoPlay
+              loop
+              muted
+              playsInline
+              poster="/media/vectra/tower-rings-poster.jpg"
+            >
+              <source src="/media/vectra/tower-rings.mp4" type="video/mp4" />
+            </video>
+            <video
+              className="vt-tower-video-fg"
+              autoPlay
+              loop
+              muted
+              playsInline
+              poster="/media/vectra/tower-rings-poster.jpg"
+            >
+              <source src="/media/vectra/tower-rings.mp4" type="video/mp4" />
+            </video>
+          </>
+        ) : (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src="/media/vectra/tower-rings-poster.jpg"
+            alt=""
+            className="vt-tower-video-fg"
+          />
+        )}
+      </div>
+
       <div className="vt-tower-top-meta">
         <span>{eyebrow}</span>
         <span>{hint}</span>
@@ -1233,6 +1267,84 @@ function InteractivePillTower({
         ))}
       </div>
     </section>
+  );
+}
+
+function StepVisualMediaLayer({
+  variant,
+  isActive,
+  reduced,
+}: {
+  variant: StepperItem["visualVariant"];
+  isActive: boolean;
+  reduced: boolean;
+}) {
+  const vidRef = useRef<HTMLVideoElement | null>(null);
+
+  const clipConfig = useMemo(() => {
+    if (variant === "data" || variant === "acquire") {
+      return {
+        src: "/media/vectra/step-data-ribbons.mp4",
+        poster: "/media/vectra/step-data-ribbons-poster.jpg",
+        isAmbientOnly: false,
+      };
+    }
+    if (variant === "device" || variant === "control") {
+      return {
+        src: "/media/vectra/step-device-turbine.mp4",
+        poster: "/media/vectra/step-device-turbine-poster.jpg",
+        isAmbientOnly: false,
+      };
+    }
+    return {
+      src: "/media/vectra/hero-rings.mp4",
+      poster: "/media/vectra/hero-rings-poster.jpg",
+      isAmbientOnly: true,
+    };
+  }, [variant]);
+
+  useEffect(() => {
+    const el = vidRef.current;
+    if (!el) return;
+    if (isActive && !reduced) {
+      el.play().catch(() => {});
+    } else {
+      el.pause();
+    }
+  }, [isActive, reduced]);
+
+  return (
+    <>
+      {!reduced ? (
+        <video
+          ref={vidRef}
+          className={`vt-step-video ${clipConfig.isAmbientOnly ? "is-ambient" : ""}`}
+          loop
+          muted
+          playsInline
+          preload="metadata"
+          poster={clipConfig.poster}
+          aria-hidden="true"
+        >
+          <source src={clipConfig.src} type="video/mp4" />
+        </video>
+      ) : (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={clipConfig.poster}
+          alt=""
+          className={`vt-step-video ${clipConfig.isAmbientOnly ? "is-ambient" : ""}`}
+          aria-hidden="true"
+        />
+      )}
+      {clipConfig.isAmbientOnly && (
+        <StepVisualCanvas
+          variant={variant}
+          isActive={isActive}
+          reduced={reduced}
+        />
+      )}
+    </>
   );
 }
 
@@ -1514,7 +1626,7 @@ function PinnedStepperSection({
                     className={`vt-step-media-el ${isActive ? "is-active" : ""}`}
                     aria-hidden={!isActive}
                   >
-                    <StepVisualCanvas
+                    <StepVisualMediaLayer
                       variant={item.visualVariant}
                       isActive={isActive}
                       reduced={reduced}
@@ -1983,17 +2095,26 @@ export function VectraTwinShowcase() {
           reduced={reduced}
           pointerOffsetRef={heroPtrRef}
         />
-        {HERO_VIDEO_SRC && (
+        {HERO_VIDEO_SRC && !reduced ? (
           <video
             className="vt-hero-video"
             autoPlay
             loop
             muted
             playsInline
+            poster="/media/vectra/hero-rings-poster.jpg"
             aria-hidden="true"
           >
             <source src={HERO_VIDEO_SRC} type="video/mp4" />
           </video>
+        ) : (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src="/media/vectra/hero-rings-poster.jpg"
+            alt=""
+            className="vt-hero-video"
+            aria-hidden="true"
+          />
         )}
         <div className="vt-hero-glass-scrim" aria-hidden="true" />
 
