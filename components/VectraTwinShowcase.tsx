@@ -118,6 +118,8 @@ interface CopySchema {
   };
 }
 
+const HERO_VIDEO_SRC: string | null = null; // Drop Flow MP4 at /media/vectra/hero-vertical.mp4 & set string
+
 const COPY_VT: Record<"en" | "es", CopySchema> = {
   en: {
     backStudio: "← Studio Home",
@@ -131,12 +133,12 @@ const COPY_VT: Record<"en" | "es", CopySchema> = {
     recapBtn: "Recap",
     contactBtn: "Contact",
     heroBadge: "N°001 · INSTANT DIGITAL TWIN OF EVERYTHING",
-    heroCode: "PALETTE // #C6D8E6 · #F97279 · #2A72A3",
+    heroCode: "N°001 · The Digital Twin of Everything",
     heroTitleA: "Instant Digital Twin",
     heroTitleB: "of Everything.",
     heroLede:
-      "Vectra Twin improves the performance of any machine, GPU cluster, or digital infrastructure by orchestrating its living spatial replica in real time.",
-    heroPrimary: "Scroll Narrative ↓",
+      "Vectra instantly improves the performance of any device, machine, GPU rack, or digital system by orchestrating its virtual replica in real time.",
+    heroPrimary: "Scroll to WHAT ↓",
     heroSecondary: "Commission Similar Site",
     heroNote:
       "Pinned wheel tempo · Push pills by velocity · Data → Device → Application",
@@ -1962,7 +1964,7 @@ export function VectraTwinShowcase() {
         </div>
       </header>
 
-      {/* FULL-BLEED ROUNDED HERO FRAME WITH SCULPTURAL RINGS BACKDROP */}
+      {/* MONUMENTAL TALL VERTICAL POSTER HERO (Wembi 1870/2380 Proportions) */}
       <section
         className="vt-hero-frame"
         onMouseMove={(e) => {
@@ -1981,32 +1983,85 @@ export function VectraTwinShowcase() {
           reduced={reduced}
           pointerOffsetRef={heroPtrRef}
         />
+        {HERO_VIDEO_SRC && (
+          <video
+            className="vt-hero-video"
+            autoPlay
+            loop
+            muted
+            playsInline
+            aria-hidden="true"
+          >
+            <source src={HERO_VIDEO_SRC} type="video/mp4" />
+          </video>
+        )}
         <div className="vt-hero-glass-scrim" aria-hidden="true" />
 
-        <div className="vt-hero-content">
-          <div className="vt-hero-top-row">
-            <span className="vt-code-pill">{c.heroCode}</span>
+        {/* TOP EDGE-TO-EDGE GIANT GEOMETRIC SWISS WORDMARK */}
+        <div className="vt-hero-top-wordmark">
+          <svg
+            className="vt-hero-wordmark"
+            viewBox="0 0 1724 270"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            role="img"
+            aria-label="VECTRA"
+          >
+            <path
+              d="M 28 30 L 146 240 L 264 30 M 556 30 H 362 V 240 H 556 M 362 135 H 524 M 852 54 C 818 28 730 22 686 68 C 650 106 650 164 686 202 C 730 248 818 242 852 216 M 920 30 H 1164 M 1042 30 V 240 M 1244 240 V 30 H 1364 C 1424 30 1446 62 1446 92 C 1446 122 1424 148 1364 148 H 1244 M 1344 148 L 1448 240 M 1500 240 L 1600 30 L 1700 240 M 1536 168 H 1664"
+              stroke="currentColor"
+              strokeWidth="36"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </div>
+
+        {/* BOTTOM MONUMENTAL STATEMENT + GOOEY TWIN-DOT BULLET */}
+        <div className="vt-hero-bottom-block">
+          <div className="vt-hero-minititle">
+            <span>{c.heroCode}</span>
           </div>
 
-          <h1 className="vt-hero-title">
-            <span>{c.heroTitleA}</span>
-            <span className="vt-hero-title-accent">{c.heroTitleB}</span>
+          <h1 className="vt-hero-statement">
+            <svg className="vt-goo-filter-svg" aria-hidden="true">
+              <defs>
+                <filter id="vtGooBullet">
+                  <feGaussianBlur
+                    in="SourceGraphic"
+                    stdDeviation="7"
+                    result="blur"
+                  />
+                  <feColorMatrix
+                    in="blur"
+                    type="matrix"
+                    values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 19 -9"
+                    result="goo"
+                  />
+                  <feComposite in="SourceGraphic" in2="goo" operator="atop" />
+                </filter>
+              </defs>
+            </svg>
+            <span className="vt-goo-bullet" aria-hidden="true">
+              <span />
+              <span />
+            </span>
+            <span>
+              {lang === "es"
+                ? "Vectra mejora al instante el rendimiento de cualquier máquina, clúster GPU o sistema digital creando su réplica virtual viva en tiempo real."
+                : c.heroLede}
+            </span>
           </h1>
 
-          <div className="vt-hero-bottom-row">
-            <p className="vt-hero-lede">{c.heroLede}</p>
-            <div className="vt-hero-right-cta">
-              <div className="vt-hero-cta-row">
-                <button
-                  type="button"
-                  className="vt-btn-dark"
-                  onClick={() => scrollToTarget("what")}
-                >
-                  {c.heroPrimary}
-                </button>
-              </div>
-              <p className="vt-hero-note">{c.heroNote}</p>
-            </div>
+          <div className="vt-hero-cue-row">
+            <button
+              type="button"
+              className="vt-btn-dark"
+              onClick={() => scrollToTarget("what")}
+            >
+              {c.heroPrimary}
+            </button>
+            <span className="vt-hero-note">{c.heroNote}</span>
           </div>
         </div>
       </section>
