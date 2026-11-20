@@ -20,7 +20,7 @@
 
   --ns-disp: var(--ns-font-disp), "Barlow Condensed", "Arial Narrow", sans-serif;
   --ns-body: var(--ns-font-body), "Inter Tight", Inter, system-ui, sans-serif;
-  --ns-hand: var(--ns-font-hand), "Nothing You Could Do", "Segoe Script", cursive;
+  --ns-hand: var(--ns-font-hand), "Caveat Brush", cursive;
 
   --ns-curve-depth: clamp(54px, 10.336vw, 152px);
   --ns-section-curve: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1456 150.5' preserveAspectRatio='none'%3E%3Cpath d='M1456 0C801.9 272 212.833 113.333 0 0Z' fill='%23000'/%3E%3C/svg%3E");
@@ -482,9 +482,9 @@
 .ns-hero-top {
   position: relative;
   width: 100%;
-  min-height: clamp(460px, 50vw, 720px);
+  min-height: clamp(390px, 42vw, 600px);
   padding: clamp(72px, 8vw, 108px) clamp(18px, 4.5vw, 68px)
-    calc(var(--ns-curve-depth) + clamp(56px, 7vw, 110px));
+    calc(var(--ns-curve-depth) + clamp(36px, 5vw, 72px));
   background: var(--ns-bone);
   display: flex;
   flex-direction: column;
@@ -593,7 +593,7 @@
   align-items: flex-end;
   font-family: var(--ns-disp);
   font-weight: 900;
-  font-size: clamp(44px, 8.6vw, 138px);
+  font-size: clamp(40px, 7.6vw, 124px);
   line-height: 0.86;
   letter-spacing: -0.025em;
   text-transform: uppercase;
@@ -609,26 +609,33 @@
     rotate(calc(var(--ns-arc-tilt) * var(--ns-u) * -1));
 }
 
-.ns-hero-subcap {
-  margin-top: clamp(22px, 3vw, 38px);
-  max-width: 660px;
-  text-align: center;
-  font-size: clamp(16px, 1.35vw, 21px);
-  line-height: 1.45;
-  font-weight: 500;
-  color: rgba(24, 17, 14, 0.86);
-}
-
 /* Full-Corridor 3D Unspooling Tape Canvas Overlay */
 .ns-hero-tape {
   position: absolute;
-  top: clamp(390px, 37vw, 540px);
+  top: clamp(270px, 24vw, 355px);
   left: 0;
   width: 100%;
-  height: clamp(680px, 76vw, 1020px);
+  height: clamp(760px, 82vw, 1120px);
   z-index: 6;
   pointer-events: none;
   cursor: default;
+}
+
+.ns-hero-tape-hit {
+  position: absolute;
+  left: 50%;
+  top: 210px;
+  width: 240px;
+  height: 240px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  pointer-events: auto;
+  cursor: grab;
+  z-index: 2;
+}
+
+.ns-hero-tape-hit:active {
+  cursor: grabbing;
 }
 
 .ns-hero-tape-fallback {
@@ -643,7 +650,7 @@
   position: relative;
   z-index: 3;
   max-width: 1380px;
-  margin: clamp(88px, 12vw, 165px) auto 0;
+  margin: clamp(110px, 14vw, 195px) auto 0;
   padding: clamp(20px, 4vw, 56px) clamp(18px, 4vw, 52px);
   display: grid;
   grid-template-columns: minmax(220px, 0.85fr) minmax(300px, 1.15fr) minmax(220px, 0.85fr);
@@ -682,14 +689,18 @@
 
 .ns-hand-note {
   font-family: var(--ns-hand);
-  font-size: clamp(20px, 2.1vw, 30px);
-  line-height: 1.25;
+  font-size: clamp(24px, 2.5vw, 36px);
+  line-height: 1.12;
   color: var(--ns-ink);
   transform: rotate(-3.5deg);
-  max-width: 300px;
+  max-width: 310px;
 }
 
 .ns-crate-stage {
+  --flap-t: 0;
+  --seal-p: 0;
+  --active-tape-bg: #FF4D29;
+  --active-tape-ink: #18110E;
   position: relative;
   width: min(100%, 490px);
   margin: 0 auto;
@@ -705,6 +716,7 @@
   border-radius: 10px;
   overflow: hidden;
   background: var(--ns-bone);
+  perspective: 1100px;
 }
 
 .ns-crate-frame img {
@@ -713,16 +725,57 @@
   display: block;
 }
 
+/* 3D Reversible Corrugated Cardboard Folding Flaps */
+.ns-crate-flap {
+  position: absolute;
+  top: 23%;
+  bottom: 24%;
+  width: 36%;
+  pointer-events: none;
+  z-index: 2;
+  background:
+    repeating-linear-gradient(
+      90deg,
+      rgba(92, 58, 28, 0.08) 0px,
+      rgba(92, 58, 28, 0.08) 4px,
+      rgba(255, 236, 210, 0.06) 4px,
+      rgba(255, 236, 210, 0.06) 8px
+    ),
+    linear-gradient(180deg, #D5B188 0%, #B88D61 100%);
+  border: 2.5px solid #4A301A;
+  box-shadow: 0 10px 24px rgba(24, 17, 14, calc(0.14 + var(--flap-t, 0) * 0.28));
+  opacity: clamp(0, calc(var(--flap-t, 0) * 2.4), 0.98);
+  backface-visibility: hidden;
+}
+
+.ns-crate-flap.is-left {
+  left: 14%;
+  transform-origin: left center;
+  border-radius: 2px 6px 6px 2px;
+  transform: perspective(900px)
+    rotateY(calc(-102deg + var(--flap-t, 0) * 102deg))
+    scaleX(calc(0.45 + var(--flap-t, 0) * 0.56));
+}
+
+.ns-crate-flap.is-right {
+  right: 14%;
+  transform-origin: right center;
+  border-radius: 6px 2px 2px 6px;
+  transform: perspective(900px)
+    rotateY(calc(102deg - var(--flap-t, 0) * 102deg))
+    scaleX(calc(0.45 + var(--flap-t, 0) * 0.56));
+}
+
 .ns-crate-seal-banner {
   position: absolute;
   left: 50%;
   top: 50%;
-  transform: translate(-50%, -50%) rotate(-3deg) scaleX(0);
+  transform: translate(-50%, -50%) rotate(-2deg) scaleX(0);
   transform-origin: center;
   width: 106%;
   padding: 9px 14px;
-  background: var(--ns-vermilion);
-  color: var(--ns-ink);
+  background: var(--active-tape-bg, var(--ns-vermilion));
+  color: var(--active-tape-ink, var(--ns-ink));
   border-top: 2px solid var(--ns-ink);
   border-bottom: 2px solid var(--ns-ink);
   font-family: var(--ns-disp);
@@ -732,12 +785,14 @@
   text-transform: uppercase;
   text-align: center;
   opacity: 0;
-  transition: transform 0.52s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.32s ease;
+  z-index: 3;
+  transition: transform 0.38s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.24s ease, background-color 0.3s ease, color 0.3s ease;
   pointer-events: none;
 }
 
 .ns-crate-seal-banner.is-sealed {
-  transform: translate(-50%, -50%) rotate(-3deg) scaleX(1);
+  transform: translate(-50%, -50%) rotate(-2deg) scaleX(1);
   opacity: 0.96;
 }
 
@@ -752,25 +807,6 @@
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-}
-
-.ns-reroll-btn {
-  padding: 5px 11px;
-  border-radius: 999px;
-  border: 1.5px solid var(--ns-ink);
-  background: var(--ns-vermilion);
-  color: var(--ns-ink);
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  cursor: pointer;
-  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-.ns-reroll-btn:hover {
-  transform: scale(1.06);
 }
 
 .ns-spec-ledger {
@@ -825,7 +861,7 @@
   position: relative;
   width: 100%;
   background: var(--ns-ink);
-  padding: clamp(24px, 3vw, 44px) 0;
+  padding: clamp(22px, 3vw, 44px) 0;
   overflow: hidden;
   border-top: 3px solid var(--ns-vermilion);
   border-bottom: 3px solid var(--ns-vermilion);
@@ -833,7 +869,7 @@
 
 .ns-wave-svg {
   width: 100%;
-  height: clamp(130px, 16vw, 240px);
+  height: clamp(160px, 20vw, 290px);
   display: block;
   overflow: visible;
 }
@@ -909,8 +945,9 @@
 
 .ns-sweep-subhead {
   font-family: var(--ns-hand);
-  font-size: clamp(22px, 2.3vw, 34px);
-  line-height: 1.25;
+  font-size: clamp(28px, 2.8vw, 42px);
+  line-height: 1.12;
+  letter-spacing: 0.01em;
   margin: 0;
   color: var(--ns-slide-ink, #18110E);
 }
@@ -1321,12 +1358,13 @@
   position: relative;
   display: inline-flex;
   align-items: center;
-  padding: 12px 24px;
+  padding: 13px 26px;
   background: var(--ns-volt);
   color: var(--ns-ink);
   border-radius: 8px;
   font-family: var(--ns-hand);
-  font-size: clamp(18px, 1.9vw, 26px);
+  font-size: clamp(23px, 2.3vw, 32px);
+  line-height: 1.05;
   transform: rotate(calc(-4deg + (1 - var(--peel, 1)) * 14deg))
     scale(calc(0.88 + var(--peel, 1) * 0.12));
   opacity: calc(0.25 + var(--peel, 1) * 0.75);
@@ -1336,24 +1374,35 @@
 .ns-diag-down-arrow,
 .ns-diag-up-arrow {
   position: absolute;
-  width: clamp(220px, 24vw, 380px);
-  height: clamp(160px, 18vw, 280px);
+  width: clamp(380px, 44vw, 680px);
+  height: clamp(260px, 30vw, 460px);
   color: var(--ns-vermilion);
   pointer-events: none;
 }
 
 .ns-diag-down-arrow {
-  left: 118vw;
-  top: 98svh;
+  left: 108vw;
+  top: 84svh;
 }
 
 .ns-diag-up-arrow {
-  left: 280vw;
-  top: 94svh;
+  left: 266vw;
+  top: 82svh;
+}
+
+.ns-curve-down-arrow {
+  position: absolute;
+  left: 392vw;
+  top: 72svh;
+  width: clamp(260px, 30vw, 440px);
+  height: clamp(240px, 32svh, 360px);
+  color: var(--ns-vermilion);
+  pointer-events: none;
 }
 
 .ns-diag-down-arrow svg,
-.ns-diag-up-arrow svg {
+.ns-diag-up-arrow svg,
+.ns-curve-down-arrow svg {
   width: 100%;
   height: 100%;
   overflow: visible;
@@ -1534,7 +1583,8 @@
 .ns-footer-subline {
   margin: 10px 0 0;
   font-family: var(--ns-hand);
-  font-size: clamp(20px, 2vw, 28px);
+  font-size: clamp(24px, 2.4vw, 34px);
+  line-height: 1.12;
   color: var(--ns-vermilion);
 }
 
@@ -1654,47 +1704,27 @@
   top: 0;
   left: 0;
   border-radius: 50%;
-  background: var(--ball-bg);
-  color: var(--ball-fg);
-  border: 3px solid var(--ball-ring);
+  background: transparent;
+  border: none;
   display: grid;
   place-items: center;
   cursor: grab;
   user-select: none;
   will-change: transform;
-  box-shadow: 0 8px 18px rgba(24, 17, 14, 0.22);
+  box-shadow: none;
 }
 
 .ns-footer-ball:active {
   cursor: grabbing;
 }
 
-.ns-ball-ring {
-  width: 82%;
-  height: 82%;
-  border-radius: 50%;
-  border: 1.5px dashed currentColor;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  line-height: 0.96;
+.ns-roll-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  overflow: visible;
   pointer-events: none;
-}
-
-.ns-ball-main {
-  font-family: var(--ns-disp);
-  font-weight: 900;
-  font-size: clamp(13px, 1.5vw, 20px);
-  letter-spacing: 0.02em;
-}
-
-.ns-ball-sub {
-  font-family: ui-monospace, monospace;
-  font-size: clamp(8px, 0.72vw, 10px);
-  font-weight: 800;
-  opacity: 0.88;
+  filter: drop-shadow(0 8px 14px rgba(24, 17, 14, 0.24));
 }
 
 .ns-footer-legal {
@@ -1812,7 +1842,8 @@
 
   .ns-giant-hud,
   .ns-diag-down-arrow,
-  .ns-diag-up-arrow {
+  .ns-diag-up-arrow,
+  .ns-curve-down-arrow {
     display: none;
   }
 

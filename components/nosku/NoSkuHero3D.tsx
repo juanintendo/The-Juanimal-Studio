@@ -11,24 +11,57 @@ function smoothStep(edge0: number, edge1: number, x: number): number {
   return t * t * (3 - 2 * t);
 }
 
+function contrastInkForHex(hex: string): { ink: string; edgeHighlight: string } {
+  const clean = hex.replace("#", "");
+  if (clean.length !== 6) {
+    return { ink: "rgba(24, 17, 14, 0.72)", edgeHighlight: "rgba(255, 255, 255, 0.28)" };
+  }
+  const r = parseInt(clean.slice(0, 2), 16);
+  const g = parseInt(clean.slice(2, 4), 16);
+  const b = parseInt(clean.slice(4, 6), 16);
+  const lum = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+  if (lum < 0.44) {
+    return {
+      ink: "rgba(244, 239, 230, 0.82)",
+      edgeHighlight: "rgba(244, 239, 230, 0.26)",
+    };
+  }
+  return {
+    ink: "rgba(24, 17, 14, 0.72)",
+    edgeHighlight: "rgba(255, 255, 255, 0.34)",
+  };
+}
+
 interface HeroTapeCanvasProps {
   crateRef: React.RefObject<HTMLDivElement | null>;
   reduced: boolean;
-  resetKey?: number;
-  onCut?: () => void;
+  tapeColor?: string;
+  onSealProgress?: (p: number) => void;
 }
 
 export function HeroTapeCanvas({
   crateRef,
   reduced,
-  resetKey = 0,
-  onCut,
+  tapeColor = "#FF4D29",
+  onSealProgress,
 }: HeroTapeCanvasProps) {
   const stageRef = useRef<HTMLDivElement | null>(null);
+  const hitRef = useRef<HTMLDivElement | null>(null);
   const [fallback, setFallback] = useState(false);
+
+  const tapeColorRef = useRef(tapeColor);
+  const repaintFnRef = useRef<((hex: string) => void) | null>(null);
+  const onSealProgressRef = useRef(onSealProgress);
+  onSealProgressRef.current = onSealProgress;
+
+  useEffect(() => {
+    tapeColorRef.current = tapeColor;
+    repaintFnRef.current?.(tapeColor);
+  }, [tapeColor]);
 
   useEffect(() => {
     const stage = stageRef.current;
+    const hitEl = hitRef.current;
     if (!stage) return;
 
     let disposed = false;
@@ -56,15 +89,15 @@ export function HeroTapeCanvas({
 
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(34, 1, 0.1, 100);
-        camera.position.set(0, 0, 14.2);
+        camera.position.set(0, 0, 15.6);
 
         // Studio lighting rig
-        const hemi = new THREE.HemisphereLight(0xfff7ec, 0x3a241b, 1.38);
+        const hemi = new THREE.HemisphereLight(0xfff7ec, 0x3a241b, 1.42);
         scene.add(hemi);
         const key = new THREE.DirectionalLight(0xffffff, 1.65);
         key.position.set(4.5, 6.5, 9.0);
         scene.add(key);
-        const rim = new THREE.DirectionalLight(0xff8c66, 0.72);
+        const rim = new THREE.DirectionalLight(0xffb599, 0.65);
         rim.position.set(-5.5, -3.5, 4.5);
         scene.add(rim);
 
@@ -116,99 +149,109 @@ export function HeroTapeCanvas({
         grainBump.wrapS = THREE.RepeatWrapping;
         grainBump.wrapT = THREE.RepeatWrapping;
 
-        // 2. Outer tape roll texture (4 repeated registration tiles around circumference)
+        // 2. Color-synced textures (outer tape, ribbon, side annular caps)
         const tilesPerCircumference = 4;
         const outerTapeCanvas = document.createElement("canvas");
         outerTapeCanvas.width = 1024;
         outerTapeCanvas.height = 256;
-        const otCtx = outerTapeCanvas.getContext("2d");
-        if (otCtx) {
-          otCtx.fillStyle = "#FF4D29";
-          otCtx.fillRect(0, 0, 1024, 256);
-          const slotW = 1024 / tilesPerCircumference;
-          for (let i = 0; i < tilesPerCircumference; i++) {
-            const cx = i * slotW + slotW * 0.5;
-            const cy = 128;
 
-            // Registration edge ticks
-            otCtx.fillStyle = "rgba(24, 17, 14, 0.28)";
-            otCtx.fillRect(i * slotW, 10, slotW * 0.14, 18);
-            otCtx.fillRect(i * slotW, 228, slotW * 0.14, 18);
-            otCtx.fillRect(i * slotW, 0, 2, 256);
+        const ribbonCanvas = document.createElement("canvas");
+        ribbonCanvas.width = 256;
+        ribbonCanvas.height = 256;
 
-            // Micro-stencil rotated +90deg so after rotateZ(+PI/2) it reads upright in front view
-            otCtx.save();
-            otCtx.translate(cx, cy);
-            otCtx.rotate(Math.PI / 2);
-            otCtx.fillStyle = "rgba(24, 17, 14, 0.56)";
-            otCtx.font = "900 22px ui-monospace, Menlo, monospace";
-            otCtx.textAlign = "center";
-            otCtx.textBaseline = "middle";
-            otCtx.fillText("NO SKU // 000 ▼", 0, 0);
-            otCtx.restore();
-          }
-        }
+        const sideRingCanvas = document.createElement("canvas");
+        sideRingCanvas.width = 512;
+        sideRingCanvas.height = 512;
+
         const outerTapeTex = new THREE.CanvasTexture(outerTapeCanvas);
         outerTapeTex.wrapS = THREE.RepeatWrapping;
         outerTapeTex.wrapT = THREE.ClampToEdgeWrapping;
         outerTapeTex.colorSpace = THREE.SRGBColorSpace;
 
-        // 3. Matching 1:1 vertical texture for the unspooling ribbon
-        const ribbonCanvas = document.createElement("canvas");
-        ribbonCanvas.width = 256;
-        ribbonCanvas.height = 256;
-        const rCtx = ribbonCanvas.getContext("2d");
-        if (rCtx) {
-          rCtx.fillStyle = "#FF4D29";
-          rCtx.fillRect(0, 0, 256, 256);
-          rCtx.fillStyle = "rgba(24, 17, 14, 0.28)";
-          rCtx.fillRect(10, 0, 18, 36);
-          rCtx.fillRect(228, 0, 18, 36);
-          rCtx.fillRect(0, 0, 256, 2);
-
-          rCtx.fillStyle = "rgba(24, 17, 14, 0.56)";
-          rCtx.font = "900 22px ui-monospace, Menlo, monospace";
-          rCtx.textAlign = "center";
-          rCtx.textBaseline = "middle";
-          rCtx.fillText("NO SKU // 000 ▼", 128, 128);
-        }
         const ribbonTex = new THREE.CanvasTexture(ribbonCanvas);
         ribbonTex.wrapS = THREE.ClampToEdgeWrapping;
         ribbonTex.wrapT = THREE.RepeatWrapping;
         ribbonTex.colorSpace = THREE.SRGBColorSpace;
 
-        // 4. Side caps showing concentric wound layers
-        const sideRingCanvas = document.createElement("canvas");
-        sideRingCanvas.width = 512;
-        sideRingCanvas.height = 512;
-        const sCtx = sideRingCanvas.getContext("2d");
-        if (sCtx) {
-          sCtx.fillStyle = "#E83B18";
-          sCtx.fillRect(0, 0, 512, 512);
-          for (let r = 138; r < 252; r += 4) {
-            sCtx.beginPath();
-            sCtx.arc(256, 256, r, 0, Math.PI * 2);
-            sCtx.strokeStyle =
-              r % 8 === 0
-                ? "rgba(255, 198, 178, 0.32)"
-                : "rgba(92, 16, 4, 0.26)";
-            sCtx.lineWidth = 1.5;
-            sCtx.stroke();
-          }
-        }
         const sideRingTex = new THREE.CanvasTexture(sideRingCanvas);
         sideRingTex.colorSpace = THREE.SRGBColorSpace;
 
-        // Roll hierarchy: rollPivot handles framing pose, rollSpinGroup spins purely around X
+        const repaintTapeTextures = (hex: string) => {
+          const { ink, edgeHighlight } = contrastInkForHex(hex);
+
+          // Outer cylinder texture
+          const otCtx = outerTapeCanvas.getContext("2d");
+          if (otCtx) {
+            otCtx.fillStyle = hex;
+            otCtx.fillRect(0, 0, 1024, 256);
+            const slotW = 1024 / tilesPerCircumference;
+            for (let i = 0; i < tilesPerCircumference; i++) {
+              const cx = i * slotW + slotW * 0.5;
+              otCtx.fillStyle = ink;
+              otCtx.fillRect(i * slotW, 10, slotW * 0.12, 16);
+              otCtx.fillRect(i * slotW, 230, slotW * 0.12, 16);
+              otCtx.fillRect(i * slotW, 0, 2, 256);
+
+              otCtx.save();
+              otCtx.translate(cx, 128);
+              otCtx.rotate(Math.PI / 2);
+              otCtx.fillStyle = ink;
+              otCtx.font = "900 22px ui-monospace, Menlo, monospace";
+              otCtx.textAlign = "center";
+              otCtx.textBaseline = "middle";
+              otCtx.fillText("NO SKU // 000 ▼", 0, 0);
+              otCtx.restore();
+            }
+          }
+
+          // Vertical ribbon texture
+          const rCtx = ribbonCanvas.getContext("2d");
+          if (rCtx) {
+            rCtx.fillStyle = hex;
+            rCtx.fillRect(0, 0, 256, 256);
+            rCtx.fillStyle = ink;
+            rCtx.fillRect(10, 0, 16, 32);
+            rCtx.fillRect(230, 0, 16, 32);
+            rCtx.fillRect(0, 0, 256, 2);
+
+            rCtx.font = "900 22px ui-monospace, Menlo, monospace";
+            rCtx.textAlign = "center";
+            rCtx.textBaseline = "middle";
+            rCtx.fillText("NO SKU // 000 ▼", 128, 128);
+          }
+
+          // Side wound layers texture
+          const sCtx = sideRingCanvas.getContext("2d");
+          if (sCtx) {
+            sCtx.fillStyle = hex;
+            sCtx.fillRect(0, 0, 512, 512);
+            for (let r = 136; r < 252; r += 4) {
+              sCtx.beginPath();
+              sCtx.arc(256, 256, r, 0, Math.PI * 2);
+              sCtx.strokeStyle = r % 8 === 0 ? edgeHighlight : ink;
+              sCtx.lineWidth = r % 8 === 0 ? 1.2 : 0.9;
+              sCtx.stroke();
+            }
+          }
+
+          outerTapeTex.needsUpdate = true;
+          ribbonTex.needsUpdate = true;
+          sideRingTex.needsUpdate = true;
+        };
+
+        repaintTapeTextures(tapeColorRef.current);
+        repaintFnRef.current = repaintTapeTextures;
+
+        // Roll hierarchy: rollPivot handles framing pose + interactive orbit, rollSpinGroup spins around X
         const rollPivot = new THREE.Group();
         scene.add(rollPivot);
 
         const rollSpinGroup = new THREE.Group();
         rollPivot.add(rollSpinGroup);
 
-        const tapeWidth = 1.16;
-        const outerR = 1.46;
-        const innerR = 0.88;
+        const tapeWidth = 1.06;
+        const outerR = 1.32;
+        const innerR = 0.78;
         const patternPeriodWorld = (2 * Math.PI * outerR) / tilesPerCircumference;
 
         const coreGeo = new THREE.CylinderGeometry(
@@ -270,7 +313,7 @@ export function HeroTapeCanvas({
         const ringRight = new THREE.Mesh(ringGeoRight, ringMat);
         rollSpinGroup.add(ringLeft, ringRight);
 
-        // Dynamic 3D Unspooling Tape Ribbon
+        // Continuous Reversible 3D Tape Ribbon
         const segX = 8;
         const segY = 48;
         const ribbonGeo = new THREE.PlaneGeometry(tapeWidth, 1, segX, segY);
@@ -292,35 +335,39 @@ export function HeroTapeCanvas({
         const ribbonMesh = new THREE.Mesh(ribbonGeo, ribbonMat);
         scene.add(ribbonMesh);
 
-        // Layout & Synchronized Scroll State Machine
+        // Layout Metrics & Interactive Orbit State
         let stageW = 1000;
-        let stageH = 900;
+        let stageH = 920;
         let visibleHeightWorld = 8;
         let worldPerPx = 0.01;
         let rollHomeYWorld = 2.0;
-        let crateTopWorld = -1.2;
         let crateBottomWorld = -3.0;
 
-        const baseStubLen = 0.24;
+        const baseStubLen = 0.22;
         const restRotY = 32 * (Math.PI / 180);
 
-        let mode: "scrub" | "finale" | "done" = reduced ? "done" : "scrub";
         let isIntersecting = true;
         let smoothProg = 0;
         let unspoolLen = baseStubLen;
         let prevUnspool = baseStubLen;
         let smoothVel = 0;
-        let finaleCut = 0;
-        let finaleHome = 0;
-        let finaleStartTs = 0;
-        let finaleStartSpin = 0;
-        let cutCalled = false;
 
         let pointerNormX = 0;
         let pointerNormY = 0;
         let pointerActive = false;
-        let smoothTiltX = 0;
-        let smoothTiltY = 0;
+        let smoothHoverTiltX = 0;
+        let smoothHoverTiltY = 0;
+
+        // Free drag orbit around the 3D roll with inertia
+        let dragging = false;
+        let dragPointerId = -1;
+        let lastDragX = 0;
+        let lastDragY = 0;
+        let dragRotX = 0;
+        let dragRotY = 0;
+        let dragVelX = 0;
+        let dragVelY = 0;
+        let userSpinBonus = 0;
 
         const computeLayoutMetrics = () => {
           const rect = stage.getBoundingClientRect();
@@ -334,59 +381,47 @@ export function HeroTapeCanvas({
           visibleHeightWorld = 2 * Math.tan(vFov / 2) * camera.position.z;
           worldPerPx = visibleHeightWorld / stageH;
 
-          // Suspend roll cleanly in upper clear runway above crate
-          const rollPxFromTop = Math.min(stageH * 0.17, 175);
+          // Generous headroom on desktop so top silhouette curve of cylinder is never clipped
+          const rollPxFromTop =
+            stageH < 520 ? Math.round(stageH * 0.34) : Math.max(210, stageH * 0.22);
           rollHomeYWorld =
             visibleHeightWorld / 2 - rollPxFromTop * worldPerPx;
 
+          if (hitEl) {
+            hitEl.style.top = `${Math.round(rollPxFromTop)}px`;
+          }
+
           if (crateRef.current) {
             const cRect = crateRef.current.getBoundingClientRect();
-            const crateTopInStage = cRect.top - rect.top;
             const crateCenterInStage =
               cRect.top - rect.top + cRect.height * 0.5;
-            crateTopWorld =
-              visibleHeightWorld / 2 - crateTopInStage * worldPerPx;
             crateBottomWorld =
               visibleHeightWorld / 2 - crateCenterInStage * worldPerPx;
           } else {
-            crateTopWorld = rollHomeYWorld - 2.4;
-            crateBottomWorld = rollHomeYWorld - 4.0;
+            crateBottomWorld = rollHomeYWorld - 4.2;
           }
         };
 
-        /**
-         * Updates both the 3D vertex strip curving off the roll tangent and exact 1:1
-         * UVs synced to rollSpinGroup.rotation.x = unspoolDelta / outerR.
-         */
         const updateRibbonGeometry = (
           startY: number,
           totalDropLen: number,
-          cutGap: number,
           unspoolDelta: number,
           velAmp: number,
           timeSec: number,
-          pinToPlaneZ: boolean
+          extraZShift: number
         ) => {
           const pos = ribbonGeo.attributes.position;
           const uv = ribbonGeo.attributes.uv;
-          const totalDrop = Math.max(0.18, totalDropLen);
-          const detachedDrop = Math.max(0, cutGap);
-          const actualTopY = startY - detachedDrop;
-          const activeLen = Math.max(0.12, totalDrop - detachedDrop);
+          const activeLen = Math.max(0.14, totalDropLen);
 
           for (let i = 0; i < pos.count; i++) {
             const origX = baseRibbonPos[i * 3];
-            const origY = baseRibbonPos[i * 3 + 1]; // +0.5 (top) -> -0.5 (bottom)
-            const t = 0.5 - origY; // 0 at top -> 1 at bottom
+            const origY = baseRibbonPos[i * 3 + 1];
+            const t = 0.5 - origY; // 0 at roll takeoff -> 1 at crate bottom
 
-            const worldY = actualTopY - t * activeLen;
-
-            // Top attaches seamlessly tangent to the front (+Z = outerR) face when pinned to roll
-            const baseZ = pinToPlaneZ
-              ? 0.16
-              : 0.16 + Math.pow(1 - t, 1.85) * (outerR - 0.16 + 0.018);
-
-            // Subtle wave ripple scaled solely by active scroll speed (calm when paused)
+            const worldY = startY - t * activeLen;
+            // Ribbon leaves front tangent (+Z = outerR) and lays flush onto crate seam (z = 0.16)
+            const baseZ = 0.16 + Math.pow(1 - t, 1.85) * (outerR - 0.16 + 0.018) + extraZShift * (1 - t);
             const ripple =
               velAmp > 0.002
                 ? Math.sin(t * 7.0 - timeSec * 5.2) * velAmp * t * (1 - t)
@@ -394,8 +429,7 @@ export function HeroTapeCanvas({
 
             pos.setXYZ(i, origX, worldY, baseZ + ripple);
 
-            // Exact 1:1 linear arc UV phase continuity off the rotating roll tangent
-            const distFromTop = detachedDrop + t * activeLen;
+            const distFromTop = t * activeLen;
             const uWidth = (origX + tapeWidth / 2) / tapeWidth;
             const vLength = (unspoolDelta - distFromTop) / patternPeriodWorld;
             uv.setXY(i, uWidth, vLength);
@@ -408,7 +442,7 @@ export function HeroTapeCanvas({
 
         computeLayoutMetrics();
 
-        const onPointerMove = (e: PointerEvent) => {
+        const onGlobalPointerMove = (e: PointerEvent) => {
           const r = stage.getBoundingClientRect();
           pointerActive = true;
           pointerNormX = clamp(
@@ -421,9 +455,51 @@ export function HeroTapeCanvas({
             -1,
             1
           );
+
+          if (dragging && e.pointerId === dragPointerId) {
+            const dx = e.clientX - lastDragX;
+            const dy = e.clientY - lastDragY;
+            lastDragX = e.clientX;
+            lastDragY = e.clientY;
+            dragVelY = clamp(dx * 0.012, -0.35, 0.35);
+            dragVelX = clamp(dy * 0.012, -0.35, 0.35);
+            dragRotY += dragVelY;
+            dragRotX = clamp(dragRotX + dragVelX, -1.1, 1.1);
+            userSpinBonus += dy * 0.01;
+          }
         };
 
-        window.addEventListener("pointermove", onPointerMove, { passive: true });
+        const onGlobalPointerUp = (e: PointerEvent) => {
+          if (!dragging || e.pointerId !== dragPointerId) return;
+          dragging = false;
+          dragPointerId = -1;
+          if (hitEl) hitEl.style.cursor = "grab";
+        };
+
+        const onHitDown = (e: PointerEvent) => {
+          e.preventDefault();
+          dragging = true;
+          dragPointerId = e.pointerId;
+          lastDragX = e.clientX;
+          lastDragY = e.clientY;
+          dragVelX = 0;
+          dragVelY = 0;
+          if (hitEl) {
+            hitEl.style.cursor = "grabbing";
+            try {
+              hitEl.setPointerCapture?.(e.pointerId);
+            } catch {
+              // noop
+            }
+          }
+        };
+
+        window.addEventListener("pointermove", onGlobalPointerMove, {
+          passive: true,
+        });
+        window.addEventListener("pointerup", onGlobalPointerUp);
+        window.addEventListener("pointercancel", onGlobalPointerUp);
+        hitEl?.addEventListener("pointerdown", onHitDown);
 
         const ro = new ResizeObserver(() => {
           computeLayoutMetrics();
@@ -454,140 +530,90 @@ export function HeroTapeCanvas({
             rollPivot.position.set(0, rollHomeYWorld, 0);
             rollPivot.rotation.set(0.22, restRotY, -0.1);
             rollSpinGroup.rotation.x = 0;
-            updateRibbonGeometry(rollHomeYWorld, 1.85, 0, 1.85, 0, 0, false);
+            updateRibbonGeometry(rollHomeYWorld, 1.85, 1.85, 0, 0, 0);
+            onSealProgressRef.current?.(0);
             renderer.render(scene, camera);
             return;
           }
 
-          const targetSpan = Math.max(1.8, rollHomeYWorld - crateBottomWorld);
-
-          if (mode === "scrub") {
-            // Track bidirectional scroll progress toward the crate seam
-            let rawProg = 0;
-            if (crateRef.current) {
-              const cRect = crateRef.current.getBoundingClientRect();
-              const vh = window.innerHeight || 900;
-              const startBottom = vh * 1.15;
-              const endTop = vh * 0.24;
-              rawProg = clamp(
-                (startBottom - cRect.top) / Math.max(240, startBottom - endTop),
-                0,
-                1
-              );
-            } else {
-              const stageTop = stage.getBoundingClientRect().top + window.scrollY;
-              const localScroll = Math.max(0, window.scrollY - stageTop + 160);
-              rawProg = clamp(localScroll / Math.max(360, stageH * 0.45), 0, 1);
-            }
-
-            smoothProg += (rawProg - smoothProg) * clamp(1 - Math.exp(-10 * dt), 0, 1);
-
-            // Pivot cleanly from 3/4 intro (rotY = 32deg) to DEAD FRONTAL (rotY = 0deg) right as it unspools!
-            const frontT = smoothStep(0, 0.24, smoothProg);
-            const rotY = restRotY * (1 - frontT);
-            const rotZ = -0.1 * (1 - frontT);
-            const rotX = 0.22 * (1 - frontT) + 0.12 * frontT;
-
-            rollPivot.position.set(0, rollHomeYWorld, 0);
-            rollPivot.rotation.set(rotX, rotY, rotZ);
-
-            // Synchronized 1:1 roll spin + unspool length
-            const unspoolProg = smoothStep(0.04, 1.0, smoothProg);
-            unspoolLen = baseStubLen + (targetSpan - baseStubLen) * unspoolProg;
-            const unspoolDelta = Math.max(0, unspoolLen - baseStubLen);
-
-            // Positive rotation around X moves the front +Z cylinder surface DOWNWARD (-Y) at 1:1 speed
-            rollSpinGroup.rotation.x = unspoolDelta / outerR;
-
-            const rawVel = Math.abs(unspoolLen - prevUnspool) / dt;
-            prevUnspool = unspoolLen;
-            smoothVel += (clamp(rawVel * 0.025, 0, 0.08) - smoothVel) * clamp(1 - Math.exp(-8 * dt), 0, 1);
-
-            updateRibbonGeometry(
-              rollHomeYWorld,
-              unspoolLen,
+          // Continuous reversible scroll tracking toward the crate
+          let rawProg = 0;
+          if (crateRef.current) {
+            const cRect = crateRef.current.getBoundingClientRect();
+            const vh = window.innerHeight || 900;
+            const startBottom = vh * 1.12;
+            const endTop = vh * 0.22;
+            rawProg = clamp(
+              (startBottom - cRect.top) / Math.max(240, startBottom - endTop),
               0,
-              unspoolDelta,
-              smoothVel,
-              timeSec,
-              false
+              1
             );
-
-            if (smoothProg >= 0.965) {
-              mode = "finale";
-              finaleStartTs = now;
-              finaleStartSpin = unspoolDelta / outerR;
-              if (!cutCalled) {
-                cutCalled = true;
-                onCut?.();
-              }
-            }
-          } else if (mode === "finale") {
-            const elapsed = (now - finaleStartTs) / 1000;
-            finaleCut = smoothStep(0, 0.48, elapsed);
-            finaleHome = smoothStep(0.25, 0.98, elapsed);
-
-            // Return smoothly from dead-frontal (0deg) back to 3/4 hero pose (32deg)
-            const rotY = restRotY * finaleHome;
-            const rotZ = -0.14 * finaleHome;
-            const rotX = 0.12 + 0.14 * finaleHome;
-
-            rollPivot.position.set(
-              Math.sin(finaleHome * Math.PI) * 0.14,
-              rollHomeYWorld + finaleHome * 0.18,
-              0
-            );
-            rollPivot.rotation.set(rotX, rotY, rotZ);
-            rollSpinGroup.rotation.x = finaleStartSpin;
-
-            // Snap cut strip down onto crate seam
-            const totalDetachedLen = Math.max(0.9, targetSpan);
-            const cutDetach = finaleCut * Math.max(0.8, rollHomeYWorld - crateTopWorld);
-            const finalDelta = Math.max(0, totalDetachedLen - baseStubLen);
-
-            updateRibbonGeometry(
-              rollHomeYWorld,
-              totalDetachedLen,
-              cutDetach,
-              finalDelta,
-              0,
-              timeSec,
-              false
-            );
-
-            if (elapsed >= 1.02) {
-              mode = "done";
-            }
           } else {
-            // Done: organic micro-bob + gentle pointer-driven 3D parallax tilt
-            const targetX = pointerActive ? pointerNormY * 0.2 : 0;
-            const targetY = pointerActive ? pointerNormX * 0.24 : 0;
-            const damp = 1 - Math.exp(-4.5 * dt);
-            smoothTiltX += (targetX - smoothTiltX) * damp;
-            smoothTiltY += (targetY - smoothTiltY) * damp;
-
-            const bobY = Math.sin(timeSec * 1.45) * 0.09;
-            const driftX = Math.cos(timeSec * 0.85) * 0.06;
-            rollPivot.position.set(driftX, rollHomeYWorld + 0.18 + bobY, 0);
-            rollPivot.rotation.set(
-              0.26 + smoothTiltX + Math.sin(timeSec * 1.1) * 0.04,
-              restRotY + smoothTiltY,
-              -0.14 - smoothTiltY * 0.3
-            );
-            rollSpinGroup.rotation.x = finaleStartSpin + Math.sin(timeSec * 0.9) * 0.05;
-
-            // Cut piece stays cleanly sealing the empty crate center
-            const sealedLen = Math.max(0.95, crateTopWorld - crateBottomWorld + 0.35);
-            updateRibbonGeometry(
-              crateTopWorld + 0.08,
-              sealedLen,
-              0,
-              sealedLen,
-              0,
-              timeSec,
-              true
-            );
+            const stageTop = stage.getBoundingClientRect().top + window.scrollY;
+            const localScroll = Math.max(0, window.scrollY - stageTop + 160);
+            rawProg = clamp(localScroll / Math.max(360, stageH * 0.45), 0, 1);
           }
+
+          smoothProg += (rawProg - smoothProg) * clamp(1 - Math.exp(-10 * dt), 0, 1);
+          onSealProgressRef.current?.(smoothProg);
+
+          // Pivot cleanly 32deg -> 0deg frontal during initial unspool, staying 100% connected
+          const frontT = smoothStep(0, 0.22, smoothProg);
+          const baseRotY = restRotY * (1 - frontT);
+          const baseRotZ = -0.1 * (1 - frontT);
+          const baseRotX = 0.22 * (1 - frontT) + 0.1 * frontT;
+
+          // Interactive mouse hover + free drag orbit inertia
+          const hoverTargetX = pointerActive ? pointerNormY * 0.12 : 0;
+          const hoverTargetY = pointerActive ? pointerNormX * 0.14 : 0;
+          const hDamp = 1 - Math.exp(-4.5 * dt);
+          smoothHoverTiltX += (hoverTargetX - smoothHoverTiltX) * hDamp;
+          smoothHoverTiltY += (hoverTargetY - smoothHoverTiltY) * hDamp;
+
+          if (!dragging) {
+            dragRotY += dragVelY;
+            dragRotX = clamp(dragRotX + dragVelX, -1.1, 1.1);
+            const inertiaDecay = Math.exp(-5 * dt);
+            dragVelX *= inertiaDecay;
+            dragVelY *= inertiaDecay;
+
+            // Gentle spring return when not dragging so it settles naturally while still allowing free spins
+            const relax = Math.exp(-1.8 * dt);
+            dragRotX *= relax;
+            dragRotY *= relax;
+            userSpinBonus *= relax;
+          }
+
+          const bobY = Math.sin(timeSec * 1.4) * 0.06;
+          rollPivot.position.set(0, rollHomeYWorld + bobY, 0);
+          rollPivot.rotation.set(
+            baseRotX + smoothHoverTiltX * 0.5 + dragRotX,
+            baseRotY + smoothHoverTiltY * 0.7 + dragRotY,
+            baseRotZ - dragRotY * 0.15
+          );
+
+          // Exact 1:1 synchronized unspooling length & X-spin
+          const targetSpan = Math.max(1.85, rollHomeYWorld - crateBottomWorld);
+          const unspoolProg = smoothStep(0.04, 0.96, smoothProg);
+          unspoolLen = baseStubLen + (targetSpan - baseStubLen) * unspoolProg;
+          const unspoolDelta = Math.max(0, unspoolLen - baseStubLen);
+
+          rollSpinGroup.rotation.x = unspoolDelta / outerR + userSpinBonus;
+
+          const rawVel = Math.abs(unspoolLen - prevUnspool) / dt;
+          prevUnspool = unspoolLen;
+          smoothVel +=
+            (clamp(rawVel * 0.025, 0, 0.075) - smoothVel) *
+            clamp(1 - Math.exp(-8 * dt), 0, 1);
+
+          updateRibbonGeometry(
+            rollHomeYWorld + bobY,
+            unspoolLen,
+            unspoolDelta,
+            smoothVel,
+            timeSec,
+            dragRotX * 0.25
+          );
 
           renderer.render(scene, camera);
         };
@@ -595,10 +621,14 @@ export function HeroTapeCanvas({
         raf = requestAnimationFrame(tick);
 
         cleanupFns.push(
-          () => window.removeEventListener("pointermove", onPointerMove),
+          () => window.removeEventListener("pointermove", onGlobalPointerMove),
+          () => window.removeEventListener("pointerup", onGlobalPointerUp),
+          () => window.removeEventListener("pointercancel", onGlobalPointerUp),
+          () => hitEl?.removeEventListener("pointerdown", onHitDown),
           () => ro.disconnect(),
           () => io.disconnect(),
           () => {
+            repaintFnRef.current = null;
             coreGeo.dispose();
             coreMat.dispose();
             coreTex.dispose();
@@ -631,14 +661,36 @@ export function HeroTapeCanvas({
       if (raf) cancelAnimationFrame(raf);
       cleanupFns.forEach((fn) => fn());
     };
-  }, [crateRef, onCut, reduced, resetKey]);
+  }, [crateRef, reduced]);
 
   return (
     <div ref={stageRef} className="ns-hero-tape" aria-hidden="true">
+      <div
+        ref={hitRef}
+        className="ns-hero-tape-hit"
+        title="Drag to rotate 3D tape roll"
+      />
       {fallback && (
         <svg viewBox="0 0 220 280" className="ns-hero-tape-fallback">
-          <rect x="64" y="24" width="92" height="92" rx="18" fill="#FF4D29" stroke="#18110E" strokeWidth="4" />
-          <rect x="86" y="102" width="48" height="150" rx="6" fill="#FF4D29" opacity="0.9" />
+          <rect
+            x="64"
+            y="24"
+            width="92"
+            height="92"
+            rx="18"
+            fill={tapeColor}
+            stroke="#18110E"
+            strokeWidth="4"
+          />
+          <rect
+            x="86"
+            y="102"
+            width="48"
+            height="150"
+            rx="6"
+            fill={tapeColor}
+            opacity="0.9"
+          />
         </svg>
       )}
     </div>
@@ -688,7 +740,6 @@ export function StickyNoteWebGL({ reduced, noteLines }: StickyNoteWebGLProps) {
         dir.position.set(2.8, 3.6, 4.5);
         scene.add(dir);
 
-        // Offscreen sticky note canvas
         const canvas = document.createElement("canvas");
         canvas.width = 768;
         canvas.height = 768;
@@ -704,7 +755,6 @@ export function StickyNoteWebGL({ reduced, noteLines }: StickyNoteWebGLProps) {
           ctx.fillStyle = grad;
           ctx.fillRect(0, 0, 768, 768);
 
-          // Fine archival grid
           ctx.strokeStyle = "rgba(24, 17, 14, 0.065)";
           ctx.lineWidth = 1.5;
           for (let g = 48; g < 768; g += 48) {
@@ -718,7 +768,6 @@ export function StickyNoteWebGL({ reduced, noteLines }: StickyNoteWebGLProps) {
             ctx.stroke();
           }
 
-          // Translucent vermilion tape strip along top edge
           ctx.save();
           ctx.translate(384, 38);
           ctx.rotate(-0.025);
@@ -728,20 +777,18 @@ export function StickyNoteWebGL({ reduced, noteLines }: StickyNoteWebGLProps) {
           ctx.strokeRect(-165, -26, 330, 52);
           ctx.restore();
 
-          // Handwritten copy
           ctx.fillStyle = "#18110E";
-          ctx.font =
-            "400 54px 'Nothing You Could Do', 'Segoe Script', cursive";
+          ctx.font = "400 58px 'Caveat Brush', cursive";
           ctx.textBaseline = "top";
           noteLines.forEach((line, idx) => {
             ctx.save();
-            ctx.translate(72, 148 + idx * 124);
+            ctx.translate(72, 142 + idx * 124);
             ctx.rotate((idx % 2 === 0 ? -1 : 1) * 0.012);
             ctx.fillText(line, 0, 0);
             ctx.restore();
           });
 
-          ctx.fillStyle = "rgba(24,17,14,0.45)";
+          ctx.fillStyle = "rgba(24,17,14,0.48)";
           ctx.font = "700 22px monospace";
           ctx.fillText("REF // EMPTY-000", 72, 686);
         };
@@ -751,7 +798,6 @@ export function StickyNoteWebGL({ reduced, noteLines }: StickyNoteWebGLProps) {
         const tex = new THREE.CanvasTexture(canvas);
         tex.colorSpace = THREE.SRGBColorSpace;
 
-        // Repaint cleanly as soon as Nothing You Could Do finishes loading
         if (typeof document !== "undefined" && document.fonts?.ready) {
           document.fonts.ready.then(() => {
             if (!disposed) {

@@ -20,115 +20,95 @@ interface NoSkuPhysicsFooterProps {
   bindPoke?: (el: HTMLElement | null) => void;
 }
 
-interface BallSpec {
+interface RollSpec {
   id: string;
-  label: string;
-  sub?: string;
+  rimText: string;
   bg: string;
   fg: string;
-  ring: string;
   radiusVw: number;
   homeXFrac: number;
   homeYFrac: number;
 }
 
-const BALL_SPECS: BallSpec[] = [
+const ROLL_SPECS: RollSpec[] = [
   {
     id: "nosku",
-    label: "NO SKU",
-    sub: "#000",
+    rimText: "NO SKU // 000  •  EMPTY BY DESIGN  •  NO SKU // 000  •  ",
     bg: "#FF4D29",
-    fg: "#F4EFE6",
-    ring: "#18110E",
-    radiusVw: 5.4,
+    fg: "#18110E",
+    radiusVw: 5.8,
     homeXFrac: 0.11,
     homeYFrac: 0.34,
   },
   {
-    id: "zero-prod",
-    label: "00%",
-    sub: "PROD",
+    id: "tactile",
+    rimText: "00% PRODUCT  •  100% PROOF  •  00% PRODUCT  •  100% PROOF  •  ",
     bg: "#1F4BFF",
     fg: "#F4EFE6",
-    ring: "#18110E",
-    radiusVw: 4.5,
+    radiusVw: 4.9,
     homeXFrac: 0.22,
     homeYFrac: 0.25,
   },
   {
-    id: "proof",
-    label: "100%",
-    sub: "PROOF",
+    id: "kinetic",
+    rimText: "IT FINDS US  •  NO CHASE  •  IT FINDS US  •  NO CHASE  •  ",
     bg: "#D4FF2B",
     fg: "#18110E",
-    ring: "#18110E",
-    radiusVw: 5.0,
+    radiusVw: 5.4,
     homeXFrac: 0.33,
     homeYFrac: 0.38,
   },
   {
-    id: "finds-us",
-    label: "IT FINDS",
-    sub: "US",
+    id: "loud",
+    rimText: "PURE FLEX  •  ZERO INVENTORY  •  PURE FLEX  •  ZERO SKU  •  ",
     bg: "#FF2E88",
     fg: "#F4EFE6",
-    ring: "#18110E",
-    radiusVw: 5.1,
+    radiusVw: 5.5,
     homeXFrac: 0.44,
     homeYFrac: 0.28,
   },
   {
-    id: "no-chase",
-    label: "NO",
-    sub: "CHASE",
+    id: "weird",
+    rimText: "60 FPS CRAFT  •  ANTI-TEMPLATE  •  60 FPS CRAFT  •  SWISS  •  ",
     bg: "#FFB800",
     fg: "#18110E",
-    ring: "#18110E",
-    radiusVw: 4.4,
+    radiusVw: 4.8,
     homeXFrac: 0.55,
     homeYFrac: 0.36,
   },
   {
-    id: "fps",
-    label: "60 FPS",
-    sub: "CRAFT",
+    id: "bone",
+    rimText: "BOX #000  •  HANDLE WITH CARE  •  BOX #000  •  EMPTY CRATE  •  ",
     bg: "#F4EFE6",
     fg: "#18110E",
-    ring: "#18110E",
-    radiusVw: 4.7,
+    radiusVw: 5.1,
     homeXFrac: 0.66,
     homeYFrac: 0.26,
   },
   {
-    id: "flex",
-    label: "PURE",
-    sub: "FLEX",
-    bg: "#18110E",
+    id: "ink",
+    rimText: "JUANIMAL LAB  •  NO SKU™  •  JUANIMAL LAB  •  NO SKU™  •  ",
+    bg: "#14161A",
     fg: "#FF4D29",
-    ring: "#F4EFE6",
-    radiusVw: 5.2,
+    radiusVw: 5.6,
     homeXFrac: 0.77,
     homeYFrac: 0.35,
   },
   {
-    id: "box000",
-    label: "BOX",
-    sub: "#000",
+    id: "kraft",
+    rimText: "CARDBOARD  •  NO SKU // 000  •  CARDBOARD  •  SEAL IT  •  ",
     bg: "#C8A27A",
     fg: "#18110E",
-    ring: "#18110E",
-    radiusVw: 4.5,
+    radiusVw: 4.9,
     homeXFrac: 0.87,
     homeYFrac: 0.28,
   },
   {
-    id: "juanimal",
-    label: "JUANIMAL",
-    sub: "LAB",
+    id: "vermilion2",
+    rimText: "THROW ME  •  BOUNCE ME  •  PEEL ME  •  NO PRODUCT YET  •  ",
     bg: "#FF4D29",
-    fg: "#18110E",
-    ring: "#18110E",
-    radiusVw: 4.9,
+    fg: "#F4EFE6",
+    radiusVw: 5.2,
     homeXFrac: 0.93,
     homeYFrac: 0.42,
   },
@@ -187,11 +167,11 @@ export function NoSkuPhysicsFooter({
     let pointerVy = 0;
     let lastPointerTs = 0;
 
-    const computeRadius = (spec: BallSpec) => {
+    const computeRadius = (spec: RollSpec) => {
       const vwPx = (window.innerWidth || width) / 100;
       const base = spec.radiusVw * vwPx;
-      const minR = width < 700 ? 28 : 38;
-      const maxR = width < 700 ? 52 : 76;
+      const minR = width < 700 ? 32 : 44;
+      const maxR = width < 700 ? 58 : 84;
       return clamp(base, minR, maxR);
     };
 
@@ -200,7 +180,7 @@ export function NoSkuPhysicsFooter({
       height = arena.clientHeight || 380;
       const floorY = Math.max(80, height - 10);
 
-      bodies = BALL_SPECS.map((spec, idx) => {
+      bodies = ROLL_SPECS.map((spec, idx) => {
         const r = computeRadius(spec);
         if (instantRest) {
           const x = clamp(spec.homeXFrac * width, r + 8, width - r - 8);
@@ -211,7 +191,7 @@ export function NoSkuPhysicsFooter({
             vx: 0,
             vy: 0,
             r,
-            angle: (idx % 2 === 0 ? -1 : 1) * (6 + idx * 3),
+            angle: (idx % 2 === 0 ? -1 : 1) * (12 + idx * 14),
             omega: 0,
             released: true,
             releaseDelay: 0,
@@ -496,7 +476,7 @@ export function NoSkuPhysicsFooter({
       height = nextH;
       const floorY = Math.max(80, height - 10);
       bodies.forEach((b, i) => {
-        b.r = computeRadius(BALL_SPECS[i]);
+        b.r = computeRadius(ROLL_SPECS[i]);
         b.mass = b.r * b.r;
         b.x = clamp(b.x, b.r + 6, Math.max(b.r + 6, width - b.r - 6));
         b.y = clamp(b.y, b.r + 6, Math.max(b.r + 6, floorY - b.r));
@@ -613,41 +593,134 @@ export function NoSkuPhysicsFooter({
         </div>
       </div>
 
-      {/* Interactive 2D Physics Playground */}
+      {/* Interactive 2D Physics Playground of Hollow Adhesive Rolls */}
       <div
         ref={arenaRef}
         className="ns-footer-bottom"
-        aria-label="Interactive physics sticker balls playground"
+        aria-label="Interactive physics adhesive tape rolls playground"
       >
         <div className="ns-footer-watermark" aria-hidden="true">
           NO SKU // 000 — THROW &amp; BOUNCE
         </div>
 
         <div className="ns-footer-balls">
-          {BALL_SPECS.map((ball, idx) => (
-            <div
-              key={ball.id}
-              ref={(el) => {
-                ballElsRef.current[idx] = el;
-              }}
-              data-ball-idx={idx}
-              role="img"
-              aria-label={`${ball.label} ${ball.sub ?? ""} draggable ball`}
-              className="ns-footer-ball"
-              style={
-                {
-                  "--ball-bg": ball.bg,
-                  "--ball-fg": ball.fg,
-                  "--ball-ring": ball.ring,
-                } as React.CSSProperties
-              }
-            >
-              <span className="ns-ball-ring">
-                <span className="ns-ball-main">{ball.label}</span>
-                {ball.sub && <span className="ns-ball-sub">{ball.sub}</span>}
-              </span>
-            </div>
-          ))}
+          {ROLL_SPECS.map((roll, idx) => {
+            const pathId = `ns-roll-rim-${roll.id}-${idx}`;
+            return (
+              <div
+                key={roll.id}
+                ref={(el) => {
+                  ballElsRef.current[idx] = el;
+                }}
+                data-ball-idx={idx}
+                role="img"
+                aria-label={`${roll.rimText.trim()} draggable tape roll`}
+                className="ns-footer-ball"
+              >
+                <svg
+                  viewBox="0 0 200 200"
+                  className="ns-roll-svg"
+                  aria-hidden="true"
+                >
+                  <defs>
+                    <path
+                      id={pathId}
+                      d="M 100,28 A 72,72 0 1,1 99.9,28 Z"
+                    />
+                  </defs>
+
+                  {/* Outer wound tape band (r = 48..96) with transparent core hole */}
+                  <circle
+                    cx="100"
+                    cy="100"
+                    r="72"
+                    fill="none"
+                    stroke={roll.bg}
+                    strokeWidth="48"
+                  />
+
+                  {/* Subtle wound layer rings */}
+                  <circle
+                    cx="100"
+                    cy="100"
+                    r="86"
+                    fill="none"
+                    stroke={roll.fg}
+                    strokeOpacity="0.16"
+                    strokeWidth="1.5"
+                  />
+                  <circle
+                    cx="100"
+                    cy="100"
+                    r="58"
+                    fill="none"
+                    stroke={roll.fg}
+                    strokeOpacity="0.18"
+                    strokeWidth="1.5"
+                  />
+
+                  {/* Outer dark border */}
+                  <circle
+                    cx="100"
+                    cy="100"
+                    r="96"
+                    fill="none"
+                    stroke="#18110E"
+                    strokeWidth="3.5"
+                  />
+
+                  {/* Glossy specular studio arc */}
+                  <path
+                    d="M 38 76 A 68 68 0 0 1 128 38"
+                    fill="none"
+                    stroke="rgba(255,255,255,0.44)"
+                    strokeWidth="10"
+                    strokeLinecap="round"
+                  />
+
+                  {/* Printed typography curving along the tape border */}
+                  <text
+                    fill={roll.fg}
+                    fontSize="13.2"
+                    fontWeight="800"
+                    fontFamily="ui-monospace, Menlo, monospace"
+                    letterSpacing="0.09em"
+                    dominantBaseline="central"
+                  >
+                    <textPath href={`#${pathId}`} startOffset="0%">
+                      {roll.rimText}
+                    </textPath>
+                  </text>
+
+                  {/* Inner corrugated Kraft cardboard core (r = 40..48), hole center r < 40 stays transparent */}
+                  <circle
+                    cx="100"
+                    cy="100"
+                    r="44"
+                    fill="none"
+                    stroke="#CFA97E"
+                    strokeWidth="8"
+                  />
+                  <circle
+                    cx="100"
+                    cy="100"
+                    r="48"
+                    fill="none"
+                    stroke="#18110E"
+                    strokeWidth="2.5"
+                  />
+                  <circle
+                    cx="100"
+                    cy="100"
+                    r="40"
+                    fill="none"
+                    stroke="#18110E"
+                    strokeWidth="2.5"
+                  />
+                </svg>
+              </div>
+            );
+          })}
         </div>
       </div>
 

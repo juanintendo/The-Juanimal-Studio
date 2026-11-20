@@ -14,6 +14,11 @@ function clamp(v: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, v));
 }
 
+function smoothStep(edge0: number, edge1: number, x: number): number {
+  const t = clamp((x - edge0) / (edge1 - edge0), 0, 1);
+  return t * t * (3 - 2 * t);
+}
+
 function distPt(a: { x: number; y: number }, b: { x: number; y: number }): number {
   return Math.hypot(b.x - a.x, b.y - a.y);
 }
@@ -30,8 +35,8 @@ interface SlideSpec {
   subhead: string;
   tags: Array<{ label: string; rot: number }>;
   description: string;
-  image?: string;
-  imageAlt?: string;
+  image: string;
+  imageAlt: string;
 }
 
 interface LocalizedCopy {
@@ -51,14 +56,12 @@ interface LocalizedCopy {
   heroStampIdle: string;
   heroStampPressed: string;
   heroLines: [string, string];
-  heroSubcap: string;
   stickyNoteLines: string[];
   handNoteLeft: string;
   crateCaptionLeft: string;
   crateCaptionRightPending: string;
   crateCaptionRightSealed: string;
   crateSealedBanner: string;
-  rerollTape: string;
   ledgerTitle: string;
   ledgerRows: Array<[string, string]>;
   waveHead: string;
@@ -136,9 +139,7 @@ const COPY_NS: Record<"en" | "es", LocalizedCopy> = {
     heroBadge: "PROTOTYPE #000 • NO PRODUCT INSIDE",
     heroStampIdle: "PEELING CORNER • PRESS",
     heroStampPressed: "STUCK FLAT • NICE",
-    heroLines: ["THERE IS NO PRODUCT YET.", "JUST WATCH WHAT WE CAN DO."],
-    heroSubcap:
-      "Scroll to pivot the Three.js roll frontal and unspool tape straight down onto an empty box. Poke any headline. Throw the stickers in the footer. Zero inventory — 100% proof.",
+    heroLines: ["THERE IS NO PRODUCT YET.", "WATCH WHAT WE CAN DO."],
     stickyNoteLines: [
       "note to self:",
       "still no SKU.",
@@ -148,16 +149,15 @@ const COPY_NS: Record<"en" | "es", LocalizedCopy> = {
     handNoteLeft:
       "we built an entire launch flagship for an empty cardboard box.",
     crateCaptionLeft: "BOX #000 // ARCHIVAL KRAFT",
-    crateCaptionRightPending: "SCROLL DOWN TO SEAL CRATE ↓",
-    crateCaptionRightSealed: "SEALED WITH PURE SHOWOFF ✓",
+    crateCaptionRightPending: "SCROLL DOWN TO FOLD & SEAL CRATE ↓",
+    crateCaptionRightSealed: "SEALED BY SCROLL • SCROLL UP TO REOPEN ↑",
     crateSealedBanner: "NO SKU // SEALED EMPTY",
-    rerollTape: "RE-ROLL TAPE",
     ledgerTitle: "MANIFEST // SKU #000",
     ledgerRows: [
       ["Physical Units", "000 in stock"],
       ["Warehouse", "None / Localhost"],
       ["Render Engine", "Three.js + 60fps DOM"],
-      ["Interaction", "Elastic Poke + 2D Physics"],
+      ["Interaction", "Free Orbit + 2D Physics"],
       ["Mission", "Let the product find us"],
     ],
     waveHead: "THERE IS NO PRODUCT YET",
@@ -203,7 +203,7 @@ const COPY_NS: Record<"en" | "es", LocalizedCopy> = {
           { label: "GRAB & THROW", rot: 2 },
         ],
         description:
-          "Sticky notes bend away from your cursor, SVG curve masks sweep across the viewport, and footer stickers bounce with weight.",
+          "Sticky notes bend away from your cursor, SVG curve masks sweep across the viewport, and footer hollow rolls bounce with real mass.",
         image: "/images/nosku/specimen-tactile.png",
         imageAlt:
           "Electric cobalt industrial tape strips peeling off kraft grid paper",
@@ -225,7 +225,10 @@ const COPY_NS: Record<"en" | "es", LocalizedCopy> = {
           { label: "DAMPED INERTIA", rot: -2 },
         ],
         description:
-          "No canned video loops masquerading as interactivity: scroll couples 1:1 to cylinder rotation, ribbons flex with velocity, and balls throw on release.",
+          "No canned video loops masquerading as interactivity: scroll couples 1:1 to cylinder rotation, flaps fold cleanly shut, and rolls throw on release.",
+        image: "/images/nosku/specimen-kinetic.png",
+        imageAlt:
+          "Acid chartreuse adhesive tape slings suspending a brushed steel sphere in tension",
       },
       {
         id: "loud",
@@ -245,6 +248,9 @@ const COPY_NS: Record<"en" | "es", LocalizedCopy> = {
         ],
         description:
           "Oversized type that reacts letter-by-letter to pointer distance — dipping down cleanly on slide changes and rebounding back.",
+        image: "/images/nosku/specimen-loud.png",
+        imageAlt:
+          "Radial sunburst of serrated hot-magenta gaffer tape layered on corrugated kraft square",
       },
       {
         id: "weird",
@@ -264,6 +270,9 @@ const COPY_NS: Record<"en" | "es", LocalizedCopy> = {
         ],
         description:
           "Vertical scroll detours horizontally and cuts diagonally along an arc-length-parameterized canvas right after this deck.",
+        image: "/images/nosku/specimen-weird.png",
+        imageAlt:
+          "Golden amber translucent tape twisted into a floating Mobius sculpture above grid paper",
       },
       {
         id: "next",
@@ -332,7 +341,8 @@ const COPY_NS: Record<"en" | "es", LocalizedCopy> = {
     modalClose: "KEEP PLAYING",
     footer: {
       headline: "THE PRODUCT FINDS US.",
-      subline: "Go ahead — grab a sticker ball and throw it across the tray.",
+      subline:
+        "Go ahead — grab any hollow tape roll and throw it across the tray.",
       dropAgain: "DROP AGAIN",
       replayPeel: "REPLAY PEEL",
       claimBox: "CLAIM BOX #000",
@@ -389,9 +399,7 @@ const COPY_NS: Record<"en" | "es", LocalizedCopy> = {
     heroBadge: "PROTOTIPO #000 • CERO PRODUCTO ADENTRO",
     heroStampIdle: "ESQUINA DESPEGADA • TOCA",
     heroStampPressed: "BIEN PEGADA • LISTO",
-    heroLines: ["AÚN NO HAY PRODUCTO.", "SOLO MIRA LO QUE HACEMOS."],
-    heroSubcap:
-      "Haz scroll para girar el rollo Three.js de frente y desenrollar cinta 1:1 directo hasta sellar la caja vacía. Empuja cualquier titular con el mouse.",
+    heroLines: ["AÚN NO HAY PRODUCTO.", "MIRA LO QUE HACEMOS."],
     stickyNoteLines: [
       "nota mental:",
       "cero producto aún.",
@@ -401,16 +409,15 @@ const COPY_NS: Record<"en" | "es", LocalizedCopy> = {
     handNoteLeft:
       "construimos una web insignia entera para una caja de cartón vacía.",
     crateCaptionLeft: "CAJA #000 // KRAFT DE ARCHIVO",
-    crateCaptionRightPending: "BAJA PARA SELLAR LA CAJA ↓",
-    crateCaptionRightSealed: "SELLADA A PURO SHOWOFF ✓",
+    crateCaptionRightPending: "BAJA PARA PLEGAR Y SELLAR ↓",
+    crateCaptionRightSealed: "SELLADA AL SCROLL • SUBE PARA ABRIR ↑",
     crateSealedBanner: "NO SKU // SELLADA VACÍA",
-    rerollTape: "RE-ENROLLAR CINTA",
     ledgerTitle: "MANIFIESTO // SKU #000",
     ledgerRows: [
       ["Unidades Físicas", "000 en bodega"],
       ["Bodega", "Ninguna / Localhost"],
       ["Motor 3D", "Three.js + DOM 60fps"],
-      ["Interacción", "Poke Elástico + Física 2D"],
+      ["Interacción", "Órbita Libre + Física 2D"],
       ["Regla", "El producto nos encuentra"],
     ],
     waveHead: "AÚN NO EXISTE NINGÚN PRODUCTO",
@@ -455,7 +462,7 @@ const COPY_NS: Record<"en" | "es", LocalizedCopy> = {
           { label: "AGARRA Y LANZA", rot: 2 },
         ],
         description:
-          "Notas adheribles que se curvan con tu cursor, barridos de pintura SVG y stickers en el footer con física y peso real.",
+          "Notas adheribles que se curvan con tu cursor, barridos de pintura SVG y rollos huecos en el footer con física y peso real.",
         image: "/images/nosku/specimen-tactile.png",
         imageAlt: "Cinta azul cobalto despegándose sobre grilla kraft",
       },
@@ -476,7 +483,10 @@ const COPY_NS: Record<"en" | "es", LocalizedCopy> = {
           { label: "INERCIA SUAVE", rot: -2 },
         ],
         description:
-          "Nada de videos falsos haciéndose pasar por interacción: el scroll gira el cilindro 1:1, la cinta flexiona con la velocidad y las bolas se lanzan.",
+          "Nada de videos falsos haciéndose pasar por interacción: el scroll gira el cilindro 1:1, pliega la caja al bajar y lanza cada rollo al soltar.",
+        image: "/images/nosku/specimen-kinetic.png",
+        imageAlt:
+          "Cintas chartreuse tensadas suspendiendo una esfera de acero cromado en el aire",
       },
       {
         id: "loud",
@@ -496,6 +506,9 @@ const COPY_NS: Record<"en" | "es", LocalizedCopy> = {
         ],
         description:
           "Letras gigantes que esquivan tu puntero una por una — hundiéndose al cambiar de lámina y rebotando con carácter.",
+        image: "/images/nosku/specimen-loud.png",
+        imageAlt:
+          "Explosión radial de tiras rasgadas de cinta magenta sobre cartón kraft",
       },
       {
         id: "weird",
@@ -515,6 +528,9 @@ const COPY_NS: Record<"en" | "es", LocalizedCopy> = {
         ],
         description:
           "Justo abajo, el scroll vertical gira en horizontal y viaja en diagonal sobre un lienzo continuo con esquinas suavizadas.",
+        image: "/images/nosku/specimen-weird.png",
+        imageAlt:
+          "Cinta translúcida ámbar dorado flotando en un bucle de Möbius imposible sobre retícula",
       },
       {
         id: "next",
@@ -584,7 +600,7 @@ const COPY_NS: Record<"en" | "es", LocalizedCopy> = {
     footer: {
       headline: "EL PRODUCTO NOS ENCUENTRA.",
       subline:
-        "Dale sin miedo — agarra cualquiera de las bolas y lánzala por la bandeja.",
+        "Dale sin miedo — agarra cualquiera de los rollos huecos y lánzalo por la bandeja.",
       dropAgain: "SOLTAR DE NUEVO",
       replayPeel: "REPETIR INTRO",
       claimBox: "RECLAMAR CAJA #000",
@@ -606,83 +622,6 @@ const PRELOADER_COLORS = [
   "#14161A",
 ];
 
-function KineticSlideArtwork({ id, ink }: { id: string; ink: string }) {
-  if (id === "kinetic") {
-    return (
-      <svg viewBox="0 0 360 450" className="ns-key-svg" aria-hidden="true">
-        <rect width="360" height="450" fill="#D4FF2B" />
-        <g stroke="#18110E" strokeWidth="4" fill="none">
-          <circle cx="180" cy="198" r="132" strokeDasharray="12 8" />
-          <circle cx="180" cy="198" r="88" />
-          <path d="M 180 66 L 180 330 M 48 198 L 312 198" strokeWidth="2.5" opacity="0.45" />
-          <circle cx="180" cy="198" r="34" fill="#FF4D29" />
-          <circle cx="268" cy="198" r="18" fill="#18110E" />
-          <circle cx="118" cy="136" r="14" fill="#1F4BFF" />
-          <path d="M 52 368 Q 116 320 180 368 T 308 368" strokeWidth="5" />
-        </g>
-        <text
-          x="180"
-          y="416"
-          textAnchor="middle"
-          fill="#18110E"
-          fontFamily="monospace"
-          fontWeight="800"
-          fontSize="14"
-        >
-          1:1 SPRING &amp; ORBITAL PHYSICS
-        </text>
-      </svg>
-    );
-  }
-  if (id === "loud") {
-    return (
-      <svg viewBox="0 0 360 450" className="ns-key-svg" aria-hidden="true">
-        <rect width="360" height="450" fill="#FF2E88" />
-        <g transform="translate(180 220)">
-          {Array.from({ length: 12 }).map((_, i) => (
-            <line
-              key={i}
-              x1="0"
-              y1="0"
-              x2={Math.cos((i * Math.PI) / 6) * 175}
-              y2={Math.sin((i * Math.PI) / 6) * 175}
-              stroke="#18110E"
-              strokeWidth="6"
-            />
-          ))}
-          <circle r="86" fill="#F4EFE6" stroke="#18110E" strokeWidth="5" />
-          <text
-            x="0"
-            y="14"
-            textAnchor="middle"
-            fill="#18110E"
-            fontFamily="sans-serif"
-            fontWeight="900"
-            fontSize="44"
-          >
-            POKE!
-          </text>
-        </g>
-      </svg>
-    );
-  }
-  return (
-    <svg viewBox="0 0 360 450" className="ns-key-svg" aria-hidden="true">
-      <rect width="360" height="450" fill="#FFB800" />
-      <g stroke="#18110E" strokeWidth="5" fill="none">
-        <path
-          d="M 48 92 L 306 92 L 96 225 L 308 225 L 62 358 L 312 358"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-        <polygon points="292,340 326,358 292,376" fill={ink} />
-        <circle cx="96" cy="225" r="24" fill="#FF4D29" />
-        <circle cx="306" cy="92" r="20" fill="#F4EFE6" />
-      </g>
-    </svg>
-  );
-}
-
 export function NoSkuShowcase() {
   const { lang, setLang } = useLanguage();
   const reduced = usePrefersReducedMotion();
@@ -697,10 +636,9 @@ export function NoSkuShowcase() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [stampPressed, setStampPressed] = useState(false);
   const [crateSealed, setCrateSealed] = useState(false);
-  const [tapeResetKey, setTapeResetKey] = useState(0);
   const [claimOpen, setClaimOpen] = useState(false);
 
-  // Orbital slider states: separated background sweep vs headline swap for zero color flash
+  // Orbital slider states
   const [bgPrevIdx, setBgPrevIdx] = useState(0);
   const [bgNextIdx, setBgNextIdx] = useState(0);
   const [displayIdx, setDisplayIdx] = useState(0);
@@ -711,6 +649,7 @@ export function NoSkuShowcase() {
 
   // DOM Refs
   const crateRef = useRef<HTMLDivElement | null>(null);
+  const crateSealedRef = useRef(false);
   const waveSectionRef = useRef<HTMLElement | null>(null);
   const wavePathRef = useRef<SVGPathElement | null>(null);
   const waveTextPathRef = useRef<SVGTextPathElement | null>(null);
@@ -720,6 +659,7 @@ export function NoSkuShowcase() {
   const giantCanvasRef = useRef<HTMLDivElement | null>(null);
   const downArrowLineRef = useRef<SVGPathElement | null>(null);
   const upArrowLineRef = useRef<SVGPathElement | null>(null);
+  const curveDownArrowRef = useRef<SVGPathElement | null>(null);
   const hudStopRef = useRef<HTMLSpanElement | null>(null);
   const hudCoordRef = useRef<HTMLSpanElement | null>(null);
   const orbitalTimersRef = useRef<number[]>([]);
@@ -730,6 +670,23 @@ export function NoSkuShowcase() {
   const bindPoke = useCallback((el: HTMLElement | null) => {
     if (el) {
       pokeTargetsRef.current.add(el);
+    }
+  }, []);
+
+  // Live 60fps Crate Folding & Sealing progress synced reversibly to HeroTapeCanvas scroll
+  const handleSealProgress = useCallback((p: number) => {
+    const el = crateRef.current;
+    if (el) {
+      const flapT = smoothStep(0.62, 0.9, p);
+      el.style.setProperty("--seal-p", p.toFixed(4));
+      el.style.setProperty("--flap-t", flapT.toFixed(4));
+    }
+    if (!crateSealedRef.current && p >= 0.88) {
+      crateSealedRef.current = true;
+      setCrateSealed(true);
+    } else if (crateSealedRef.current && p < 0.84) {
+      crateSealedRef.current = false;
+      setCrateSealed(false);
     }
   }, []);
 
@@ -760,7 +717,7 @@ export function NoSkuShowcase() {
     setPreloaderKey((k) => k + 1);
   }, []);
 
-  // Reusable Elastic Character Poke Engine (fixed fontSize lookup + resize invalidation)
+  // Reusable Elastic Character Poke Engine
   useEffect(() => {
     if (reduced) return;
     const finePointer = window.matchMedia(
@@ -870,7 +827,9 @@ export function NoSkuShowcase() {
     };
   }, [lang, reduced]);
 
-  // Wave Marquee Band: SVG textPath driven by scroll velocity
+  // Seamless Wave Marquee Band with exact unitLen modular wrap & normal-offset alternating badges
+  const waveUnitText = `${copy.waveHead}   •   ${copy.waveTail}   •   `;
+
   useEffect(() => {
     const section = waveSectionRef.current;
     const pathEl = wavePathRef.current;
@@ -885,30 +844,67 @@ export function NoSkuShowcase() {
     let raf = 0;
     let lastTs = performance.now();
 
-    const loopLen = 960;
-    const totalLen = pathEl.getTotalLength();
+    const totalLen = pathEl.getTotalLength() || 4840;
+    let unitLen = 1100;
+
+    const measureUnit = () => {
+      try {
+        const measured = textEl.getSubStringLength(0, waveUnitText.length);
+        if (Number.isFinite(measured) && measured > 200) {
+          unitLen = measured;
+        }
+      } catch {
+        // Keep safe fallback unitLen if fonts not ready
+      }
+    };
+
+    measureUnit();
+    if (typeof document !== "undefined" && document.fonts?.ready) {
+      document.fonts.ready.then(measureUnit);
+    }
+
+    // Badge rail traverses visible window [minDist..maxDist] cleanly offscreen before wrapping
+    const minBadgeDist = totalLen * 0.27;
+    const maxBadgeDist = totalLen * 0.73;
+    const badgeWindow = Math.max(400, maxBadgeDist - minBadgeDist);
 
     const placeBadges = (baseOff: number) => {
-      const span = totalLen || 1900;
-      const spacing = span / 3;
+      const spacing = badgeWindow / copy.waveBadges.length;
       badgeRefs.current.forEach((g, idx) => {
         if (!g) return;
-        const raw = ((baseOff + idx * spacing + 260) % span + span) % span;
-        if (raw < 40 || raw > span - 40) {
-          g.style.opacity = "0";
-          return;
-        }
-        const pt = pathEl.getPointAtLength(raw);
-        const p1 = pathEl.getPointAtLength(Math.max(0, raw - 8));
-        const p2 = pathEl.getPointAtLength(Math.min(span, raw + 8));
-        const deg = (Math.atan2(p2.y - p1.y, p2.x - p1.x) * 180) / Math.PI;
+        const posInWindow =
+          (((baseOff + idx * spacing) % badgeWindow) + badgeWindow) %
+          badgeWindow;
+        const dist = minBadgeDist + posInWindow;
+
+        const pt = pathEl.getPointAtLength(dist);
+        const p1 = pathEl.getPointAtLength(Math.max(0, dist - 8));
+        const p2 = pathEl.getPointAtLength(Math.min(totalLen, dist + 8));
+        const tx = p2.x - p1.x;
+        const ty = p2.y - p1.y;
+        const tLen = Math.hypot(tx, ty) || 1;
+        const nx = -ty / tLen;
+        const ny = tx / tLen;
+        const deg = (Math.atan2(ty, tx) * 180) / Math.PI;
+
+        // Alternate badges cleanly ABOVE (-58px) and BELOW (+58px) along path normal
+        const sideOffset = idx % 2 === 0 ? -58 : 58;
+        const bx = pt.x + nx * sideOffset;
+        const by = pt.y + ny * sideOffset;
+
+        // Soft fade well outside the SVG [0..1600] viewBox
+        const edgeFade = Math.min(
+          clamp(posInWindow / 180, 0, 1),
+          clamp((badgeWindow - posInWindow) / 180, 0, 1)
+        );
+
         g.setAttribute(
           "transform",
-          `translate(${pt.x.toFixed(1)} ${pt.y.toFixed(1)}) rotate(${deg.toFixed(
+          `translate(${bx.toFixed(1)} ${by.toFixed(1)}) rotate(${deg.toFixed(
             1
           )})`
         );
-        g.style.opacity = "1";
+        g.style.opacity = edgeFade.toFixed(2);
       });
     };
 
@@ -927,22 +923,30 @@ export function NoSkuShowcase() {
         const ease =
           Math.abs(targetScale - 0.9) > Math.abs(timeScale - 0.9) ? 0.14 : 0.04;
         timeScale += (targetScale - timeScale) * ease;
-        offset -= 95 * timeScale * dt;
-        if (offset < -loopLen) offset += loopLen;
-        if (offset > 0) offset -= loopLen;
+        offset -= 98 * timeScale * dt;
       }
 
-      tpEl.setAttribute("startOffset", `${offset.toFixed(1)}`);
+      // Exact modulo wrap against measured text unit length: 0 micro-stutter
+      const wrappedTextOffset =
+        (((offset % unitLen) + unitLen) % unitLen) - unitLen;
+      tpEl.setAttribute("startOffset", `${wrappedTextOffset.toFixed(2)}`);
       placeBadges(offset);
+
       raf = requestAnimationFrame(tick);
     };
 
     placeBadges(0);
 
+    const onResize = () => {
+      measureUnit();
+    };
+    window.addEventListener("resize", onResize);
+
     const io = new IntersectionObserver(
       ([entry]) => {
         visible = entry.isIntersecting;
         if (visible && !raf) {
+          measureUnit();
           lastTs = performance.now();
           lastScrollY = window.scrollY;
           raf = requestAnimationFrame(tick);
@@ -954,11 +958,12 @@ export function NoSkuShowcase() {
 
     return () => {
       if (raf) cancelAnimationFrame(raf);
+      window.removeEventListener("resize", onResize);
       io.disconnect();
     };
-  }, [lang, reduced]);
+  }, [copy.waveBadges.length, lang, reduced, waveUnitText]);
 
-  // Orbital Switcher with flash-free Curved Paint Wipe + Dipping Typography
+  // Orbital Switcher with flash-free Curved Paint Wipe + Color Sync to Hero Roll
   const triggerSlideChange = useCallback(
     (nextIndex: number) => {
       const normalized =
@@ -1017,7 +1022,7 @@ export function NoSkuShowcase() {
     return () => window.removeEventListener("keydown", onKey);
   }, [bgNextIdx, claimOpen, menuOpen, triggerSlideChange]);
 
-  // 2D Multi-Directional Arc-Length Parameterized Bézier Camera (zero-rerender 60fps HUD)
+  // 2D Multi-Directional Arc-Length Parameterized Bézier Camera + Exit Down Curve
   useEffect(() => {
     const track = giantTrackRef.current;
     const canvas = giantCanvasRef.current;
@@ -1047,8 +1052,8 @@ export function NoSkuShowcase() {
         { x: -toPxX(42), y: -toPxY(42) },
         { x: -toPxX(152), y: -toPxY(114) },
         { x: -toPxX(198), y: -toPxY(114) },
-        { x: -toPxX(312), y: -toPxY(34) },
-        { x: -toPxX(364), y: -toPxY(34) },
+        { x: -toPxX(308), y: -toPxY(34) },
+        { x: -toPxX(338), y: -toPxY(34) },
       ];
 
       const smoothPts: Pt[] = [];
@@ -1121,15 +1126,22 @@ export function NoSkuShowcase() {
 
     const downLine = downArrowLineRef.current;
     const upLine = upArrowLineRef.current;
-    const downLen = downLine ? downLine.getTotalLength() : 400;
-    const upLen = upLine ? upLine.getTotalLength() : 400;
+    const curveDownLine = curveDownArrowRef.current;
+    const downLen = downLine ? downLine.getTotalLength() : 620;
+    const upLen = upLine ? upLine.getTotalLength() : 620;
+    const curveDownLen = curveDownLine ? curveDownLine.getTotalLength() : 540;
+
     if (downLine) {
-      downLine.style.strokeDasharray = `${downLen} ${downLen + 4}`;
+      downLine.style.strokeDasharray = `${downLen} ${downLen + 6}`;
       downLine.style.strokeDashoffset = `${downLen}`;
     }
     if (upLine) {
-      upLine.style.strokeDasharray = `${upLen} ${upLen + 4}`;
+      upLine.style.strokeDasharray = `${upLen} ${upLen + 6}`;
       upLine.style.strokeDashoffset = `${upLen}`;
+    }
+    if (curveDownLine) {
+      curveDownLine.style.strokeDasharray = `${curveDownLen} ${curveDownLen + 6}`;
+      curveDownLine.style.strokeDashoffset = `${curveDownLen}`;
     }
 
     const props = Array.from(
@@ -1149,12 +1161,19 @@ export function NoSkuShowcase() {
       )}px, 0)`;
 
       if (downLine) {
-        const pDown = clamp((smoothP - 0.25) / 0.2, 0, 1);
+        const pDown = clamp((smoothP - 0.22) / 0.22, 0, 1);
         downLine.style.strokeDashoffset = `${(downLen * (1 - pDown)).toFixed(1)}`;
       }
       if (upLine) {
-        const pUp = clamp((smoothP - 0.56) / 0.2, 0, 1);
+        const pUp = clamp((smoothP - 0.52) / 0.22, 0, 1);
         upLine.style.strokeDashoffset = `${(upLen * (1 - pUp)).toFixed(1)}`;
+      }
+      if (curveDownLine) {
+        const pCurve = clamp((smoothP - 0.74) / 0.24, 0, 1);
+        curveDownLine.style.strokeDashoffset = `${(
+          curveDownLen *
+          (1 - pCurve)
+        ).toFixed(1)}`;
       }
 
       props.forEach((el, idx) => {
@@ -1206,8 +1225,9 @@ export function NoSkuShowcase() {
   }, [lang, reduced]);
 
   const currentSlide = copy.slides[displayIdx];
+  const activeColorSlide = copy.slides[bgNextIdx];
   const prevBgColor = copy.slides[bgPrevIdx].bg;
-  const nextBgColor = copy.slides[bgNextIdx].bg;
+  const nextBgColor = activeColorSlide.bg;
 
   const handleMenuLinkClick = (scrollTarget?: string) => {
     setMenuOpen(false);
@@ -1404,7 +1424,7 @@ export function NoSkuShowcase() {
       </nav>
 
       <main id="main">
-        {/* 3. Hero with Parabolic Poke Headlines + Frontal 1:1 3D Roll + Empty Crate */}
+        {/* 3. Hero with Parabolic Poke Headlines + Interactive Draggable Color-Sync 3D Roll + Reversible Folding Crate */}
         <section className="ns-hero" id="ns-hero">
           <div className="ns-hero-wrapper">
             <div className="ns-hero-top ns-arc-cut">
@@ -1455,19 +1475,17 @@ export function NoSkuShowcase() {
                   );
                 })}
               </h1>
-
-              <p className="ns-hero-subcap">{copy.heroSubcap}</p>
             </div>
 
             {/* 3D Unspooling Tape Roll suspended cleanly in open runway into crate */}
             <HeroTapeCanvas
               crateRef={crateRef}
               reduced={reduced}
-              resetKey={tapeResetKey}
-              onCut={() => setCrateSealed(true)}
+              tapeColor={nextBgColor}
+              onSealProgress={handleSealProgress}
             />
 
-            {/* Lower Kraft Corridor: 3D Curling Sticky Note + Empty Crate + Ledger */}
+            {/* Lower Kraft Corridor: 3D Curling Sticky Note + Reversible Folding Crate + Ledger */}
             <div className="ns-hero-bottom">
               <div className="ns-note-column">
                 <StickyNoteWebGL
@@ -1477,13 +1495,26 @@ export function NoSkuShowcase() {
                 <p className="ns-hand-note">{copy.handNoteLeft}</p>
               </div>
 
-              <div ref={crateRef} className="ns-crate-stage">
+              <div
+                ref={crateRef}
+                className="ns-crate-stage"
+                style={
+                  {
+                    "--active-tape-bg": nextBgColor,
+                    "--active-tape-ink": activeColorSlide.ink,
+                  } as React.CSSProperties
+                }
+              >
                 <div className="ns-crate-frame">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src="/images/nosku/crate-empty.png"
                     alt="Empty open kraft cardboard crate stamped NO SKU // 000"
                   />
+                  {/* Reversible 3D corrugated folding box flaps */}
+                  <div className="ns-crate-flap is-left" aria-hidden="true" />
+                  <div className="ns-crate-flap is-right" aria-hidden="true" />
+
                   <div
                     className={`ns-crate-seal-banner ${
                       crateSealed ? "is-sealed" : ""
@@ -1494,20 +1525,11 @@ export function NoSkuShowcase() {
                 </div>
                 <div className="ns-crate-caption">
                   <span>{copy.crateCaptionLeft}</span>
-                  {crateSealed ? (
-                    <button
-                      type="button"
-                      className="ns-reroll-btn"
-                      onClick={() => {
-                        setCrateSealed(false);
-                        setTapeResetKey((k) => k + 1);
-                      }}
-                    >
-                      {copy.rerollTape}
-                    </button>
-                  ) : (
-                    <span>{copy.crateCaptionRightPending}</span>
-                  )}
+                  <span>
+                    {crateSealed
+                      ? copy.crateCaptionRightSealed
+                      : copy.crateCaptionRightPending}
+                  </span>
                 </div>
               </div>
 
@@ -1526,14 +1548,14 @@ export function NoSkuShowcase() {
           </div>
         </section>
 
-        {/* 4. Scroll-Velocity Wave Marquee Band */}
+        {/* 4. Seamless Scroll-Velocity Wave Marquee Band + Non-Occluding Alternating Badges */}
         <section
           ref={waveSectionRef}
           className="ns-wave-band"
           aria-hidden="true"
         >
           <svg
-            viewBox="0 0 1600 220"
+            viewBox="0 0 1600 280"
             preserveAspectRatio="xMidYMid slice"
             className="ns-wave-svg"
           >
@@ -1541,13 +1563,13 @@ export function NoSkuShowcase() {
               <path
                 ref={wavePathRef}
                 id="ns-wave-path"
-                d="M -200 120 Q 200 35 600 120 T 1400 120 T 2200 120 T 3000 120"
+                d="M -1600 140 Q -1200 72 -800 140 T 0 140 T 800 140 T 1600 140 T 2400 140 T 3200 140"
               />
             </defs>
 
             <text ref={waveTextRef} className="ns-wave-text">
               <textPath ref={waveTextPathRef} href="#ns-wave-path" startOffset="0">
-                {`${copy.waveHead}   •   ${copy.waveTail}   •   ${copy.waveHead}   •   ${copy.waveTail}   •   ${copy.waveHead}   •   ${copy.waveTail}   •   `}
+                {waveUnitText.repeat(8)}
               </textPath>
             </text>
 
@@ -1559,7 +1581,7 @@ export function NoSkuShowcase() {
                 }}
                 className="ns-band-badge"
               >
-                <rect x="-56" y="-17" width="112" height="34" rx="17" />
+                <rect x="-58" y="-17" width="116" height="34" rx="17" />
                 <text x="0" y="1">
                   {badgeText}
                 </text>
@@ -1568,7 +1590,7 @@ export function NoSkuShowcase() {
           </svg>
         </section>
 
-        {/* 5. Orbital 6-Specimen Selector + Curved Paint Wipe */}
+        {/* 5. Orbital 6-Specimen Selector (All 6 With Bespoke Studio Photography) */}
         <section
           className="ns-orbital"
           id="ns-orbital"
@@ -1641,7 +1663,7 @@ export function NoSkuShowcase() {
               </div>
             </div>
 
-            {/* Center Monolithic Word + Taped Card */}
+            {/* Center Monolithic Word + Taped Photo Specimen Card */}
             <div className="ns-orbital-middle">
               <div className="ns-orbital-archetype">
                 <span className="ns-archetype-kicker">
@@ -1663,20 +1685,17 @@ export function NoSkuShowcase() {
               </div>
 
               <div className="ns-key-card">
-                <span className="ns-key-card-tape" aria-hidden="true" />
+                <span
+                  className="ns-key-card-tape"
+                  style={{ background: currentSlide.tagBg }}
+                  aria-hidden="true"
+                />
                 <div className="ns-key-card-media">
-                  {currentSlide.image ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={currentSlide.image}
-                      alt={currentSlide.imageAlt ?? currentSlide.word}
-                    />
-                  ) : (
-                    <KineticSlideArtwork
-                      id={currentSlide.id}
-                      ink={currentSlide.ink}
-                    />
-                  )}
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={currentSlide.image}
+                    alt={currentSlide.imageAlt}
+                  />
                 </div>
               </div>
             </div>
@@ -1729,7 +1748,7 @@ export function NoSkuShowcase() {
           </div>
         </section>
 
-        {/* 6. 2D Multi-Directional Camera Canvas (giant-pinning) */}
+        {/* 6. 2D Multi-Directional Camera Canvas + Thick Vector Arrows + Curved Exit Down Arrow */}
         <section ref={giantTrackRef} className="ns-giant" id="ns-giant">
           <div className="ns-giant-sticky">
             <div className="ns-giant-hud" aria-hidden="true">
@@ -1773,15 +1792,15 @@ export function NoSkuShowcase() {
                 </span>
               </div>
 
-              {/* Diagonal Down-Right Self-Drawing Vector Arrow */}
+              {/* Thick Diagonal Down-Right Self-Drawing Vector Arrow */}
               <div className="ns-diag-down-arrow" aria-hidden="true">
-                <svg viewBox="0 0 320 220">
+                <svg viewBox="0 0 460 300">
                   <path
                     ref={downArrowLineRef}
-                    d="M 16 18 C 110 72, 198 134, 294 196 M 258 198 L 298 199 L 284 162"
+                    d="M 18 22 C 155 102, 285 188, 424 274 M 372 276 L 428 278 L 408 224"
                     fill="none"
                     stroke="currentColor"
-                    strokeWidth="6"
+                    strokeWidth="16"
                     strokeLinecap="round"
                     strokeLinejoin="round"
                   />
@@ -1814,15 +1833,15 @@ export function NoSkuShowcase() {
                 </span>
               </div>
 
-              {/* Diagonal Up-Right Self-Drawing Vector Arrow */}
+              {/* Thick Diagonal Up-Right Self-Drawing Vector Arrow */}
               <div className="ns-diag-up-arrow" aria-hidden="true">
-                <svg viewBox="0 0 320 220">
+                <svg viewBox="0 0 460 300">
                   <path
                     ref={upArrowLineRef}
-                    d="M 18 198 C 118 148, 206 86, 296 22 M 260 20 L 300 20 L 288 58"
+                    d="M 22 274 C 165 202, 294 118, 426 28 M 374 26 L 430 26 L 414 82"
                     fill="none"
                     stroke="currentColor"
-                    strokeWidth="6"
+                    strokeWidth="16"
                     strokeLinecap="round"
                     strokeLinejoin="round"
                   />
@@ -1853,6 +1872,21 @@ export function NoSkuShowcase() {
                 <span className="ns-giant-tape-prop">
                   {copy.giantRows[2].prop}
                 </span>
+              </div>
+
+              {/* Smooth Curved Downward Exit Arrow Guiding Straight Into Manifesto */}
+              <div className="ns-curve-down-arrow" aria-hidden="true">
+                <svg viewBox="0 0 360 320">
+                  <path
+                    ref={curveDownArrowRef}
+                    d="M 14 56 L 210 56 C 280 56, 296 106, 296 292 M 264 258 L 296 298 L 328 258"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="16"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
               </div>
             </div>
           </div>
@@ -1895,7 +1929,7 @@ export function NoSkuShowcase() {
         </section>
       </main>
 
-      {/* 8. Physics Bouncing Sticker Balls Footer */}
+      {/* 8. Physics Playground Footer With Hollow Top-Down Adhesive Rolls */}
       <NoSkuPhysicsFooter
         copy={copy.footer}
         onReplayPeel={handleReplayPreloader}

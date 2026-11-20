@@ -1,8 +1,8 @@
 import type { ReactNode } from "react";
 import {
   Barlow_Condensed,
+  Caveat_Brush,
   Inter_Tight,
-  Nothing_You_Could_Do,
 } from "next/font/google";
 import "./nosku.css";
 
@@ -20,7 +20,7 @@ const interTight = Inter_Tight({
   display: "swap",
 });
 
-const nothingYouCouldDo = Nothing_You_Could_Do({
+const caveatBrush = Caveat_Brush({
   weight: "400",
   subsets: ["latin"],
   variable: "--ns-font-hand",
@@ -30,7 +30,7 @@ const nothingYouCouldDo = Nothing_You_Could_Do({
 export default function NoSkuLayout({ children }: { children: ReactNode }) {
   return (
     <div
-      className={`${barlowCondensed.variable} ${interTight.variable} ${nothingYouCouldDo.variable} ns-font-root`}
+      className={`${barlowCondensed.variable} ${interTight.variable} ${caveatBrush.variable} ns-font-root`}
     >
       {children}
     </div>
