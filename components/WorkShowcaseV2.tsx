@@ -254,6 +254,27 @@ export function WorkShowcaseV2() {
 
               {/* Media Stage obeying Framing Contract: 100% object-fit: contain inside .cel-frame */}
               <div ref={isIoa ? reelRef : undefined} className="wsv2-media">
+                {item.id === "voyager-kids" && (
+                  <div className="wsv2-saulbass-stage">
+                    <div className="cel-frame">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src="/images/voyager/cover.png"
+                        alt="How to Talk to Kids About Voyager 1 wax-crayon front cover featuring Maca the Scarlet Macaw"
+                        loading="lazy"
+                      />
+                    </div>
+                    <div className="cel-frame">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src="/images/voyager/spread-03-jupiter.png"
+                        alt="Wax-crayon picture book spread of Voyager 1 and Maca the Scarlet Macaw beside swirled Jupiter"
+                        loading="lazy"
+                      />
+                    </div>
+                  </div>
+                )}
+
                 {item.id === "no-sku" && (
                   <div className="wsv2-saulbass-stage">
                     <div className="cel-frame">

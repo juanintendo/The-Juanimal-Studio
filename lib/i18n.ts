@@ -293,16 +293,16 @@ export const COPY = {
       ],
     },
     stats: [
-      { count: 9, label: "Live case studies across SaaS, film & games" },
+      { count: 10, label: "Live case studies across SaaS, film & games" },
       { count: 12, label: "Classical animation principles checked per frame" },
       { count: 11, label: "Proprietary agent production skills in our pipeline" },
       { count: 2, label: "Native launch languages (English & Spanish)" },
     ],
     work: {
-      eyebrow: "Selected Work (9 Shipped & Framed Uncropped)",
+      eyebrow: "Selected Work (10 Shipped & Framed Uncropped)",
       title: "Motion, code & launched systems",
       filters: [
-        { id: "all", label: "All (9)" },
+        { id: "all", label: "All (10)" },
         { id: "launch", label: "Launch Kits & SaaS" },
         { id: "code", label: "Code Motion & Web" },
         { id: "animation", label: "Animation & Games" },
@@ -312,6 +312,27 @@ export const COPY = {
       watchFilm: "Watch Full Film",
       closeModal: "Close",
       items: [
+        {
+          id: "voyager-kids",
+          category: "code",
+          title: "Voyager 1 for Kids",
+          meta: "Portfolio Web Concept #03 • 3D Three.js Crayon Storybook • 2026",
+          intro: "A bending wax-crayon 3D picture book starring Maca the Scarlet Macaw.",
+          paragraphs: [
+            "Inspired by sculptural WebGL hardcover picture books, this bilingual cosmic guide invites kids and parents to turn thick, arc-length-preserving cotton-paper pages through 1977's Voyager 1 mission.",
+            "Pairs wax-crayon illustrations of Maca the Scarlet Macaw with real NASA Golden Record diagrams, interactive audio track explorer cards, Pale Blue Dot storytelling, and drag-to-turn 3D physics.",
+          ],
+          facts: [
+            { label: "3D Engine", value: "Three.js Vertex-Bending Hardcover Leaves" },
+            { label: "Art Style", value: "Wax Crayon & Pastel on Cotton Paper" },
+            { label: "Star Guide", value: "Maca the Scarlet Macaw + Golden Record" },
+            { label: "Status", value: "Live Prototype (/work/voyager-kids, EN/ES)" },
+          ],
+          primaryHref: "/work/voyager-kids",
+          primaryLabel: "Open 3D Storybook →",
+          secondaryHref: "/contact",
+          secondaryLabel: "Commission Interactive Story →",
+        },
         {
           id: "no-sku",
           category: "code",
@@ -946,16 +967,16 @@ export const COPY = {
       ],
     },
     stats: [
-      { count: 9, label: "Casos reales en SaaS, cine y videojuegos" },
+      { count: 10, label: "Casos reales en SaaS, cine y videojuegos" },
       { count: 12, label: "Principios clásicos revisados en cada frame" },
       { count: 11, label: "Skills propietarios de producción en nuestro pipeline" },
       { count: 2, label: "Idiomas nativos de lanzamiento (Inglés y Español)" },
     ],
     work: {
-      eyebrow: "Trabajo Seleccionado (9 Reales · Cero Rostros Recortados)",
+      eyebrow: "Trabajo Seleccionado (10 Reales · Cero Rostros Recortados)",
       title: "Motion, código y sistemas publicados",
       filters: [
-        { id: "all", label: "Todos (9)" },
+        { id: "all", label: "Todos (10)" },
         { id: "launch", label: "Launch Kits & SaaS" },
         { id: "code", label: "Code Motion & Web" },
         { id: "animation", label: "Animación & Juegos" },
@@ -965,6 +986,27 @@ export const COPY = {
       watchFilm: "Ver Corto Completo",
       closeModal: "Cerrar",
       items: [
+        {
+          id: "voyager-kids",
+          category: "code",
+          title: "Voyager 1 Para Niños",
+          meta: "Portafolio Web #03 • Libro 3D Three.js en Crayón • 2026",
+          intro: "Un libro ilustrado 3D de tapa dura protagonizado por Maca la Guacamaya Roja.",
+          paragraphs: [
+            "Inspirado en libros esculturales WebGL, esta guía bilingüe invita a niños y padres a doblar hojas de papel algodón en 3D siguiendo la misión espacial de la Voyager 1.",
+            "Combina ilustraciones en crayón de cera con Maca la Guacamaya Roja, diagramas reales del Disco de Oro de la NASA, modal interactivo del disco y arrastre físico de páginas.",
+          ],
+          facts: [
+            { label: "Motor 3D", value: "Three.js Hojas Flexibles de Tapa Dura" },
+            { label: "Arte", value: "Crayón de Cera y Pastel sobre Algodón" },
+            { label: "Guía Estrella", value: "Maca la Guacamaya Roja + Disco de Oro" },
+            { label: "Estado", value: "Prototipo Vivo (/work/voyager-kids, EN/ES)" },
+          ],
+          primaryHref: "/work/voyager-kids",
+          primaryLabel: "Abrir Libro 3D →",
+          secondaryHref: "/contact",
+          secondaryLabel: "Encargar Historia Interactiva →",
+        },
         {
           id: "no-sku",
           category: "code",
