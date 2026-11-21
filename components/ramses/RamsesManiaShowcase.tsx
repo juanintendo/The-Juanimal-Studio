@@ -427,7 +427,10 @@ export function RamsesManiaShowcase() {
 
       <header className="rm-topbar">
         <div className="rm-topbar-left">
-          <Link href="/" className="rm-back-btn">
+          <Link
+            href="https://the-juanimal-studio-git-v3-signature-director-juanimal-design.vercel.app"
+            className="rm-back-btn"
+          >
             <span aria-hidden="true">←</span>
             <span>{ui.backStudio}</span>
           </Link>
@@ -535,7 +538,7 @@ export function RamsesManiaShowcase() {
               lang={lang}
               onPlaySfx={playComicSfx}
               onViewBoard={() => setOverviewMode(true)}
-              backHref="/"
+              backHref="https://the-juanimal-studio-git-v3-signature-director-juanimal-design.vercel.app"
               backLabel={ui.backStudio}
             />
           </div>
