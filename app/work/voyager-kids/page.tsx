@@ -3,7 +3,7 @@ import { VoyagerBookShowcase } from "@/components/voyager/VoyagerBookShowcase";
 
 export const metadata: Metadata = {
   title:
-    "How to Talk to Kids About Voyager 1 — Illustrated 3D Crayon Book — The Juanimal Studio",
+    "Voyager 1 — Illustrated 3D Crayon Storybook — The Juanimal Studio",
   description:
     "Portfolio Web Concept #03: interactive Three.js bending 3D picture book in textured wax-crayon illustration style starring Guaca the Macaw & Voyager 1 (EN / ES).",
 };

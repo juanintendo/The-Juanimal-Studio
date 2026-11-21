@@ -285,37 +285,13 @@
   transform: translateY(0);
 }
 
-/* Front Cover Enter CTA */
-.vg-cover-cta-wrap {
-  position: absolute;
-  bottom: 24px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 20;
+/* Mobile Tablet / Laptop Viewing Recommendation Pill (hidden on desktop) */
+.vg-device-hint {
+  display: none;
 }
 
-.vg-enter-btn {
-  appearance: none;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  padding: 12px 26px;
-  border-radius: 999px;
-  border: 2px solid #fff7e6;
-  background: linear-gradient(135deg, #e84a3a 0%, #f4a236 100%);
-  color: #fff7e6;
-  font-family: var(--vg-serif);
-  font-size: 16px;
-  font-weight: 700;
-  letter-spacing: 0.01em;
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.45);
-  transition: transform 0.22s ease, box-shadow 0.22s ease;
-}
-
-.vg-enter-btn:hover {
-  transform: translateY(-2px) scale(1.03);
-  box-shadow: 0 16px 34px rgba(0, 0, 0, 0.56);
+.vg-label-compact {
+  display: none;
 }
 
 /* Optional Guaca Fact & Parent Spark Dock (bottom-right above margin) */
@@ -469,8 +445,18 @@
 }
 
 .vg-maca-badge {
-  font-size: 19px;
-  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+}
+
+.vg-maca-badge-img {
+  width: 28px;
+  height: 28px;
+  display: block;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.45));
 }
 
 .vg-maca-label {
@@ -516,10 +502,20 @@
 }
 
 .vg-maca-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   font-family: var(--vg-crayon);
   font-size: 18px;
   color: #ffd166;
   letter-spacing: 0.02em;
+}
+
+.vg-maca-tag-img {
+  width: 26px;
+  height: 26px;
+  display: block;
+  object-fit: contain;
 }
 
 .vg-maca-close {
@@ -1072,6 +1068,52 @@
     display: none;
   }
 
+  .vg-device-hint {
+    position: fixed;
+    left: 50%;
+    transform: translateX(-50%);
+    top: 82px;
+    z-index: 35;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    max-width: calc(100vw - 24px);
+    padding: 6px 10px 6px 12px;
+    border-radius: 999px;
+    background: rgba(14, 18, 42, 0.86);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 209, 102, 0.34);
+    color: rgba(255, 247, 230, 0.92);
+    font-size: 11.5px;
+    font-weight: 600;
+    line-height: 1.2;
+    box-shadow: 0 8px 20px rgba(3, 5, 14, 0.48);
+  }
+
+  .vg-device-hint-icon {
+    width: 15px;
+    height: 15px;
+    flex: 0 0 auto;
+    color: #ffd166;
+  }
+
+  .vg-device-hint-close {
+    appearance: none;
+    border: none;
+    background: rgba(255, 247, 230, 0.12);
+    color: #fff7e6;
+    width: 20px;
+    height: 20px;
+    border-radius: 999px;
+    font-size: 13px;
+    line-height: 1;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+  }
+
   .vg-book-stage {
     inset: 80px 0 132px 0;
   }
@@ -1162,5 +1204,206 @@
   .vg-record-svg {
     width: 170px;
     height: 170px;
+  }
+}
+
+/* Mobile Landscape: maximize 3D book & split Guaca bottom-left / Golden Record bottom-right */
+@media (max-width: 960px) and (max-height: 540px) and (orientation: landscape) {
+  .vg-topbar {
+    min-height: 44px;
+    padding: 6px 14px 2px;
+  }
+
+  .vg-hand-logo-img {
+    height: 36px;
+  }
+
+  .vg-back-btn {
+    padding: 4px 10px;
+    font-size: 11.5px;
+  }
+
+  .vg-back-btn span:last-child {
+    display: none;
+  }
+
+  .vg-lang-btn {
+    padding: 3px 8px;
+    font-size: 11px;
+  }
+
+  .vg-device-hint {
+    position: fixed;
+    left: 50%;
+    transform: translateX(-50%);
+    top: 44px;
+    z-index: 35;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    max-width: calc(100vw - 24px);
+    padding: 4px 8px 4px 10px;
+    border-radius: 999px;
+    background: rgba(14, 18, 42, 0.86);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 209, 102, 0.34);
+    color: rgba(255, 247, 230, 0.92);
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1.2;
+    box-shadow: 0 8px 20px rgba(3, 5, 14, 0.48);
+  }
+
+  .vg-device-hint-icon {
+    width: 14px;
+    height: 14px;
+    flex: 0 0 auto;
+    color: #ffd166;
+  }
+
+  .vg-device-hint-close {
+    appearance: none;
+    border: none;
+    background: rgba(255, 247, 230, 0.12);
+    color: #fff7e6;
+    width: 18px;
+    height: 18px;
+    border-radius: 999px;
+    font-size: 12px;
+    line-height: 1;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+  }
+
+  .vg-book-stage {
+    inset: 38px 0 48px 0;
+  }
+
+  .vg-crayon-arrow.is-prev {
+    left: 4px;
+  }
+
+  .vg-crayon-arrow.is-next {
+    right: 4px;
+  }
+
+  .vg-crayon-arrow-svg {
+    width: 44px;
+    height: 28px;
+  }
+
+  .vg-crayon-arrow-label {
+    display: none;
+  }
+
+  .vg-maca-dock {
+    left: 10px;
+    right: 10px;
+    bottom: 8px;
+    align-items: flex-start;
+    pointer-events: none;
+    gap: 6px;
+  }
+
+  .vg-maca-actions {
+    width: 100%;
+    justify-content: space-between;
+    align-items: flex-end;
+    flex-wrap: nowrap;
+    pointer-events: none;
+  }
+
+  .vg-dock-pill {
+    pointer-events: auto;
+    padding: 6px 12px;
+    font-size: 11.5px;
+  }
+
+  .vg-dock-pill.vg-maca-hero-pill {
+    order: 1;
+    min-height: 36px;
+    padding: 6px 12px;
+    font-size: 11.5px;
+    gap: 6px;
+  }
+
+  .vg-dock-pill.vg-record-trigger-pill {
+    order: 2;
+    margin-left: auto;
+    min-height: 36px;
+    padding: 6px 12px;
+    font-size: 11.5px;
+  }
+
+  .vg-maca-badge-img {
+    width: 20px;
+    height: 20px;
+  }
+
+  .vg-label-full {
+    display: none;
+  }
+
+  .vg-label-compact {
+    display: inline;
+  }
+
+  .vg-maca-popover {
+    pointer-events: auto;
+    width: min(390px, 58vw);
+    max-height: calc(100dvh - 100px);
+    overflow-y: auto;
+    padding: 14px 16px;
+    border-radius: 18px;
+  }
+
+  .vg-maca-tag {
+    font-size: 15px;
+  }
+
+  .vg-maca-fact-text,
+  .vg-maca-prompt-text {
+    font-size: 13px;
+    line-height: 1.45;
+  }
+
+  .vg-page nav.vg-medallion-nav {
+    bottom: 4px;
+    gap: 7px;
+    padding: 6px 10px 2px;
+    max-width: calc(100vw - 260px);
+  }
+
+  .vg-medallion-btn {
+    width: 16px;
+    height: 16px;
+  }
+
+  .vg-medallion-btn.is-active {
+    width: 38px;
+    height: 38px;
+    transform: translateY(-3px);
+  }
+
+  .vg-medallion-arc-svg {
+    width: 66px;
+    height: 66px;
+  }
+
+  .vg-medallion-arc-text {
+    font-size: 11px;
+  }
+
+  .vg-extra-resources {
+    top: 6px;
+    bottom: 10px;
+    right: 10px;
+    left: auto;
+    width: min(340px, 46vw);
+    max-height: none;
+    padding: 14px 16px;
   }
 }

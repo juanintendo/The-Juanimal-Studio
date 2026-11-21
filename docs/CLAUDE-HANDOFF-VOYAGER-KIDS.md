@@ -10,7 +10,7 @@
 
 ## 1. Project Context & Creative Direction
 
-**Voyager 1 Storybook** (*"How to Talk to Kids About Voyager 1"*) is Portfolio Showcase #03 in Juanimal Studio's v3 signature director series. Inspired by the rounded wax-crayon board-book warmth of `howtotalktowhitekidsaboutracism.com`, it turns NASA's 1977 Voyager 1 interstellar mission into an interactive **bilingual (EN / ES) 3D hardcover picture book** starring **Guaca the Macaw** (*Guaca la Guacamaya Roja*).
+**Voyager 1 Storybook** is Portfolio Showcase #03 in Juanimal Studio's v3 signature director series. Inspired by the rounded wax-crayon board-book warmth of `howtotalktowhitekidsaboutracism.com`, it turns NASA's 1977 Voyager 1 interstellar mission into an interactive **bilingual (EN / ES) 3D hardcover picture book** starring **Guaca the Macaw** (*Guaca la Guacamaya Roja*).
 
 Rather than placing flat HTML captions over static artwork, every chapter lives inside a **panoramic 1.95:1 rounded board-book spread** composed of 5 independent depth-separated layers inside WebGL:
 - A tactile **Three.js 3D hardcover book** whose cover closes cleanly, whose flexible cotton-paper leaves bend realistically with arc-length preservation (`VoyagerBook3D.tsx`), and whose layers float and respond to desktop mouse motion or mobile device gyroscope tilt.

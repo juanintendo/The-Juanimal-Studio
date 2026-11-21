@@ -260,7 +260,7 @@ export function WorkShowcaseV2() {
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src="/images/voyager/cover.png"
-                        alt="How to Talk to Kids About Voyager 1 wax-crayon front cover featuring Guaca the Macaw"
+                        alt="Voyager 1 wax-crayon front cover featuring Guaca the Macaw"
                         loading="lazy"
                       />
                     </div>
