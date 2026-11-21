@@ -19,18 +19,19 @@ interface BoardPanelSlot {
   y: number;
   rotZ: number;
   hasFg: boolean;
+  fgMode: "none" | "crown" | "char";
   num: string;
 }
 
 const BOARD_SLOTS: BoardPanelSlot[] = [
-  { x: -7.65, y: 2.38, rotZ: -0.022, hasFg: true, num: "01" },
-  { x: -2.55, y: 2.18, rotZ: 0.018, hasFg: false, num: "02" },
-  { x: 2.55, y: 2.38, rotZ: -0.016, hasFg: false, num: "03" },
-  { x: 7.65, y: 2.16, rotZ: 0.024, hasFg: false, num: "04" },
-  { x: -7.55, y: -2.26, rotZ: 0.020, hasFg: false, num: "05" },
-  { x: -2.50, y: -2.44, rotZ: -0.022, hasFg: true, num: "06" },
-  { x: 2.58, y: -2.24, rotZ: 0.018, hasFg: true, num: "07" },
-  { x: 7.65, y: -2.42, rotZ: -0.016, hasFg: false, num: "08" },
+  { x: -9.30, y: 2.50, rotZ: -0.018, hasFg: true, fgMode: "crown", num: "01" },
+  { x: -3.10, y: 2.34, rotZ: 0.015, hasFg: false, fgMode: "none", num: "02" },
+  { x: 3.10, y: 2.50, rotZ: -0.014, hasFg: false, fgMode: "none", num: "03" },
+  { x: 9.30, y: 2.32, rotZ: 0.018, hasFg: false, fgMode: "none", num: "04" },
+  { x: -9.22, y: -2.38, rotZ: 0.016, hasFg: false, fgMode: "none", num: "05" },
+  { x: -3.06, y: -2.54, rotZ: -0.018, hasFg: true, fgMode: "char", num: "06" },
+  { x: 3.12, y: -2.36, rotZ: 0.015, hasFg: true, fgMode: "char", num: "07" },
+  { x: 9.30, y: -2.52, rotZ: -0.014, hasFg: false, fgMode: "none", num: "08" },
 ];
 
 function createComicSparkleTexture(fillHex: string): THREE.CanvasTexture {
@@ -139,28 +140,40 @@ const PANEL_VERT = `
     vUv = uv;
     vec3 pos = position;
     float arch = sin(uv.x * 3.14159265);
-    pos.z += arch * uVelocity * 0.16;
-    pos.z += sin(uv.y * 3.14159265 + uTime * 2.1) * 0.012 * uMotionScale;
+    pos.z += arch * uVelocity * 0.14;
+    pos.z += (0.5 + 0.5 * sin(uv.y * 3.14159265 + uTime * 2.1)) * 0.010 * uMotionScale;
     gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
   }
 `;
 
-const PANEL_FRAG = `
+/** Build synchronized B&W-halftone -> pop-color shockwave shader for BG and FG planes. */
+function makeComicFragmentShader(isFg: boolean): string {
+  const bwUniform = isFg ? "uFgBwTex" : "uBwTex";
+  const colorUniform = isFg ? "uFgColorTex" : "uColorTex";
+  const alphaGuard = isFg
+    ? `
+    float alpha = max(bwCol.a, colTex.a);
+    if (alpha < 0.04) discard;`
+    : "";
+  const alphaOut = isFg ? "alpha * (1.0 - dimFactor)" : "1.0";
+
+  return `
   varying vec2 vUv;
-  uniform sampler2D uBwTex;
-  uniform sampler2D uColorTex;
+  uniform sampler2D ${bwUniform};
+  uniform sampler2D ${colorUniform};
   uniform float uReveal;
   uniform vec2 uWaveOrigin;
   uniform float uTime;
   uniform vec2 uHoverUv;
   uniform float uHoverStrength;
   uniform float uBeatPulse;
+  uniform float uDim;
 
   void main() {
     vec2 zoomCenter = vec2(0.5);
     vec2 sampleUv = mix(vUv, zoomCenter + (vUv - zoomCenter) * (1.0 - uBeatPulse * 0.022), uBeatPulse);
-    vec4 bwCol = texture2D(uBwTex, sampleUv);
-    vec4 colTex = texture2D(uColorTex, sampleUv);
+    vec4 bwCol = texture2D(${bwUniform}, sampleUv);
+    vec4 colTex = texture2D(${colorUniform}, sampleUv);${alphaGuard}
 
     vec2 d = (vUv - uWaveOrigin) * vec2(1.3333, 1.0);
     float dist = length(d);
@@ -192,26 +205,17 @@ const PANEL_FRAG = `
     baseRgb = mix(baseRgb, waveHue, clamp(bandOuter * 0.85, 0.0, 0.85));
     baseRgb += sunGold * (uBeatPulse * 0.06);
 
-    gl_FragColor = vec4(baseRgb, 1.0);
+    float dimFactor = clamp(uDim * 0.65, 0.0, 0.72);
+    vec3 paper = vec3(0.980, 0.973, 0.957);
+    baseRgb = mix(baseRgb, paper, dimFactor);
+
+    gl_FragColor = vec4(baseRgb, ${alphaOut});
   }
 `;
+}
 
-const FG_FRAG = `
-  varying vec2 vUv;
-  uniform sampler2D uFgTex;
-  uniform float uReveal;
-  uniform float uBeatPulse;
-
-  void main() {
-    vec4 tx = texture2D(uFgTex, vUv);
-    if (tx.a < 0.03) discard;
-    float luma = dot(tx.rgb, vec3(0.299, 0.587, 0.114));
-    vec3 mono = mix(vec3(0.98, 0.97, 0.95), vec3(0.086, 0.078, 0.125), smoothstep(0.92, 0.18, luma));
-    vec3 col = mix(mono, tx.rgb, smoothstep(0.12, 0.65, uReveal));
-    col += vec3(0.973, 0.580, 0.753) * (uBeatPulse * 0.05);
-    gl_FragColor = vec4(col, tx.a);
-  }
-`;
+const PANEL_FRAG = makeComicFragmentShader(false);
+const FG_FRAG = makeComicFragmentShader(true);
 
 export default function RamsesComicStage3D({
   activePanel,
@@ -346,20 +350,24 @@ export default function RamsesComicStage3D({
 
     const borderGeo = new THREE.PlaneGeometry(panelW + 0.22, panelH + 0.22);
     const artGeo = new THREE.PlaneGeometry(panelW, panelH, 24, 16);
-    const fgGeo = new THREE.PlaneGeometry(panelW * 1.07, panelH * 1.07);
+    const fgGeo = new THREE.PlaneGeometry(panelW, panelH, 24, 16);
     createdGeos.push(borderGeo, artGeo, fgGeo);
 
-    const shadowMat = new THREE.MeshBasicMaterial({ color: 0x161420 });
-    const borderMat = new THREE.MeshBasicMaterial({ color: 0x161420 });
-    createdMats.push(shadowMat, borderMat);
+    const INK_COLOR = new THREE.Color(0x161420);
+    const DIM_COLOR = new THREE.Color(0xe3dfd6);
 
     interface PanelRig {
       idx: number;
       group: THREE.Group;
+      shadowMesh: THREE.Mesh;
+      borderMesh: THREE.Mesh;
       hitMesh: THREE.Mesh;
       fgMesh: THREE.Mesh | null;
+      shadowMat: THREE.MeshBasicMaterial;
+      borderMat: THREE.MeshBasicMaterial;
       revealVal: number;
       hoverStrength: number;
+      dimVal: number;
       uniforms: {
         uBwTex: { value: THREE.Texture };
         uColorTex: { value: THREE.Texture };
@@ -369,13 +377,13 @@ export default function RamsesComicStage3D({
         uHoverUv: { value: THREE.Vector2 };
         uHoverStrength: { value: number };
         uBeatPulse: { value: number };
+        uDim: { value: number };
         uVelocity: { value: number };
         uMotionScale: { value: number };
       };
       fgUniforms: {
-        uFgTex: { value: THREE.Texture };
-        uReveal: { value: number };
-        uBeatPulse: { value: number };
+        uFgBwTex: { value: THREE.Texture };
+        uFgColorTex: { value: THREE.Texture };
       } | null;
     }
 
@@ -413,13 +421,17 @@ export default function RamsesComicStage3D({
       group.rotation.z = slot.rotZ;
       boardGroup.add(group);
 
-      // Offset bold #161420 drop shadow + outer ink panel border
-      const shadowMesh = new THREE.Mesh(borderGeo, shadowMat);
-      shadowMesh.position.set(0.14, -0.14, -0.07);
+      // Per-panel offset shadow + outer ink panel border so unfocused neighbors dim cleanly
+      const pShadowMat = new THREE.MeshBasicMaterial({ color: 0x161420 });
+      const pBorderMat = new THREE.MeshBasicMaterial({ color: 0x161420 });
+      createdMats.push(pShadowMat, pBorderMat);
+
+      const shadowMesh = new THREE.Mesh(borderGeo, pShadowMat);
+      shadowMesh.position.set(0.13, -0.13, -0.06);
       group.add(shadowMesh);
 
-      const borderMesh = new THREE.Mesh(borderGeo, borderMat);
-      borderMesh.position.set(0, 0, -0.03);
+      const borderMesh = new THREE.Mesh(borderGeo, pBorderMat);
+      borderMesh.position.set(0, 0, -0.025);
       group.add(borderMesh);
 
       const isFinalCard = idx === 7;
@@ -432,6 +444,7 @@ export default function RamsesComicStage3D({
         uHoverUv: { value: new THREE.Vector2(0.5, 0.5) },
         uHoverStrength: { value: 0 },
         uBeatPulse: { value: 0 },
+        uDim: { value: 0 },
         uVelocity: { value: 0 },
         uMotionScale: { value: 1 },
       };
@@ -444,6 +457,7 @@ export default function RamsesComicStage3D({
       createdMats.push(panelMat);
 
       const artMesh = new THREE.Mesh(artGeo, panelMat);
+      artMesh.position.set(0, 0, 0);
       artMesh.userData = { panelIdx: idx };
       group.add(artMesh);
       hitTargets.push(artMesh);
@@ -452,17 +466,22 @@ export default function RamsesComicStage3D({
       let fgUniforms: PanelRig["fgUniforms"] = null;
       if (slot.hasFg) {
         fgUniforms = {
-          uFgTex: { value: emptyFgTex },
-          uReveal: { value: 0 },
-          uBeatPulse: { value: 0 },
+          uFgBwTex: { value: emptyFgTex },
+          uFgColorTex: { value: emptyFgTex },
         };
         const fgMat = new THREE.ShaderMaterial({
           vertexShader: PANEL_VERT,
           fragmentShader: FG_FRAG,
           uniforms: {
             ...fgUniforms,
-            uVelocity: uniforms.uVelocity,
+            uReveal: uniforms.uReveal,
+            uWaveOrigin: uniforms.uWaveOrigin,
             uTime: uniforms.uTime,
+            uHoverUv: uniforms.uHoverUv,
+            uHoverStrength: uniforms.uHoverStrength,
+            uBeatPulse: uniforms.uBeatPulse,
+            uDim: uniforms.uDim,
+            uVelocity: uniforms.uVelocity,
             uMotionScale: uniforms.uMotionScale,
           },
           transparent: true,
@@ -470,45 +489,68 @@ export default function RamsesComicStage3D({
         });
         createdMats.push(fgMat);
         fgMesh = new THREE.Mesh(fgGeo, fgMat);
-        fgMesh.position.set(0, 0.04, 0.28);
+        fgMesh.position.set(0, 0, 0.16);
         group.add(fgMesh);
       }
 
       panelRigs.push({
         idx,
         group,
+        shadowMesh,
+        borderMesh,
         hitMesh: artMesh,
         fgMesh,
+        shadowMat: pShadowMat,
+        borderMat: pBorderMat,
         revealVal: isFinalCard ? 1 : 0,
         hoverStrength: 0,
+        dimVal: 0,
         uniforms,
         fgUniforms,
       });
 
       if (!isFinalCard) {
-        loadTex(`/images/ramses/panels/panel-${slot.num}-bw.png`)
-          .then((tex) => {
-            uniforms.uBwTex.value = tex;
-          })
-          .catch(() => {});
-
-        loadTex(`/images/ramses/panels/panel-${slot.num}-color.png`)
-          .then((tex) => {
-            uniforms.uColorTex.value = tex;
-          })
-          .catch(() => {});
-
         if (slot.hasFg && fgUniforms) {
-          loadTex(`/images/ramses/panels/panel-${slot.num}-fg.png`)
+          loadTex(`/images/ramses/panels/panel-${slot.num}-bg-bw.png`)
             .then((tex) => {
-              if (fgUniforms) fgUniforms.uFgTex.value = tex;
+              uniforms.uBwTex.value = tex;
+            })
+            .catch(() => {});
+
+          loadTex(`/images/ramses/panels/panel-${slot.num}-bg-color.png`)
+            .then((tex) => {
+              uniforms.uColorTex.value = tex;
+            })
+            .catch(() => {});
+
+          loadTex(`/images/ramses/panels/panel-${slot.num}-fg-bw.png`)
+            .then((tex) => {
+              if (fgUniforms) fgUniforms.uFgBwTex.value = tex;
+            })
+            .catch(() => {});
+
+          loadTex(`/images/ramses/panels/panel-${slot.num}-fg-color.png`)
+            .then((tex) => {
+              if (fgUniforms) fgUniforms.uFgColorTex.value = tex;
+            })
+            .catch(() => {});
+        } else {
+          loadTex(`/images/ramses/panels/panel-${slot.num}-bw.png`)
+            .then((tex) => {
+              uniforms.uBwTex.value = tex;
+            })
+            .catch(() => {});
+
+          loadTex(`/images/ramses/panels/panel-${slot.num}-color.png`)
+            .then((tex) => {
+              uniforms.uColorTex.value = tex;
             })
             .catch(() => {});
         }
       }
     });
 
-    // Helper: compute exact camera target pose based on aspect ratios so panels fit Desktop, Portrait, and Mobile Landscape cleanly
+    // Helper: compute exact camera target pose inside unobstructed .rm-stage band
     const computeCameraTarget = (
       w: number,
       h: number,
@@ -521,13 +563,13 @@ export default function RamsesComicStage3D({
       const halfTanH = halfTanV * aspect;
 
       if (isOverview) {
-        const boardW = 20.6;
-        const boardH = 9.2;
-        const zH = (boardH * 1.18) / (2 * halfTanV);
-        const zW = (boardW * 1.12) / (2 * halfTanH);
+        const boardW = 24.4;
+        const boardH = 9.4;
+        const zH = (boardH * 1.14) / (2 * halfTanV);
+        const zW = (boardW * 1.09) / (2 * halfTanH);
         return {
           x: 0,
-          y: -0.05,
+          y: 0,
           z: Math.max(zH, zW),
           rotZ: 0,
           fov,
@@ -535,16 +577,17 @@ export default function RamsesComicStage3D({
       }
 
       const slot = BOARD_SLOTS[panelIdx] ?? BOARD_SLOTS[0];
-      const isCompactLand = aspect >= 1 && h < 520;
-      const marginH = isCompactLand ? 1.38 : aspect < 1 ? 1.56 : 1.44;
-      const marginW = isCompactLand ? 1.24 : aspect < 1 ? 1.18 : 1.36;
+      const arrowGutterPx = w >= 900 ? 236 : 108;
+      const usableFracW = Math.max(0.54, (w - arrowGutterPx) / Math.max(1, w));
+      const marginW = Math.max(1.16, 1.08 / usableFracW);
+      const marginH = 1.15;
       const zH = (panelH * marginH) / (2 * halfTanV);
       const zW = (panelW * marginW) / (2 * halfTanH);
       return {
         x: slot.x,
-        y: slot.y - (isCompactLand ? 0.14 : 0.22),
+        y: slot.y,
         z: Math.max(zH, zW),
-        rotZ: slot.rotZ * 0.35,
+        rotZ: slot.rotZ * 0.25,
         fov,
       };
     };
@@ -655,6 +698,13 @@ export default function RamsesComicStage3D({
     };
     window.addEventListener("resize", onResize);
     window.addEventListener("orientationchange", onOrientationChange);
+    const resizeObserver =
+      typeof ResizeObserver !== "undefined"
+        ? new ResizeObserver(() => {
+            onResize();
+          })
+        : null;
+    resizeObserver?.observe(container);
 
     let camX = initTarget.x;
     let camY = initTarget.y;
@@ -754,14 +804,33 @@ export default function RamsesComicStage3D({
         rig.uniforms.uVelocity.value = reducedRef.current ? 0 : camVel;
         rig.uniforms.uMotionScale.value = mScale;
 
-        // Overview scale & active highlight lift
+        // Overview scale, active isolation dimming, explicit renderOrder & synchronized FG motion
         const slot = BOARD_SLOTS[i];
-        const targetZ =
-          overviewRef.current && isHovered
-            ? 0.42
-            : activePanelRef.current === i && !overviewRef.current
-              ? 0.25
-              : 0;
+        const targetDim = overviewRef.current
+          ? 0
+          : activePanelRef.current === 7
+            ? i === 7
+              ? 0.58
+              : 0.90
+            : activePanelRef.current === i
+              ? 0
+              : 0.82;
+        rig.dimVal = THREE.MathUtils.lerp(
+          rig.dimVal,
+          targetDim,
+          Math.min(1, dt * 7)
+        );
+        rig.uniforms.uDim.value = rig.dimVal;
+        rig.borderMat.color.copy(INK_COLOR).lerp(DIM_COLOR, rig.dimVal * 0.72);
+        rig.shadowMat.color.copy(INK_COLOR).lerp(DIM_COLOR, rig.dimVal * 0.72);
+
+        const targetZ = overviewRef.current
+          ? isHovered
+            ? 0.35
+            : 0
+          : activePanelRef.current === i
+            ? 0.20
+            : -0.65;
         rig.group.position.z = THREE.MathUtils.lerp(
           rig.group.position.z,
           targetZ,
@@ -773,12 +842,34 @@ export default function RamsesComicStage3D({
         );
         rig.group.rotation.z = slot.rotZ + (i === 5 ? discoPulse * 0.015 : 0);
 
-        if (rig.fgMesh && rig.fgUniforms) {
-          rig.fgUniforms.uReveal.value = rig.revealVal;
-          rig.fgUniforms.uBeatPulse.value = i === 5 ? discoPulse : 0;
-          const pScale = reducedRef.current ? 0 : 0.10;
-          rig.fgMesh.position.x = pointerNormX * pScale;
-          rig.fgMesh.position.y = 0.04 + pointerNormY * pScale + (i === 5 ? discoPulse * 0.04 : 0);
+        const isPriority = overviewRef.current
+          ? isHovered
+          : activePanelRef.current === i;
+        const baseOrder = isPriority ? 20 : 10;
+        rig.shadowMesh.renderOrder = baseOrder;
+        rig.borderMesh.renderOrder = baseOrder + 1;
+        rig.hitMesh.renderOrder = baseOrder + 2;
+
+        if (rig.fgMesh) {
+          rig.fgMesh.renderOrder = baseOrder + 3;
+          const pScaleX = reducedRef.current
+            ? 0
+            : overviewRef.current
+              ? 0.015
+              : 0.055;
+          const pScaleY = reducedRef.current
+            ? 0
+            : overviewRef.current
+              ? 0.01
+              : 0.032;
+          rig.fgMesh.position.x = pointerNormX * pScaleX;
+          if (slot.fgMode === "crown") {
+            const crownBob = reducedRef.current ? 0 : Math.sin(tSec * 2.6) * 0.035;
+            rig.fgMesh.position.y = pointerNormY * pScaleY + crownBob;
+          } else {
+            rig.fgMesh.position.y =
+              pointerNormY * pScaleY + (i === 5 ? discoPulse * 0.035 : 0);
+          }
         }
       }
 
@@ -795,6 +886,7 @@ export default function RamsesComicStage3D({
       disposed = true;
       cancelAnimationFrame(rafId);
       if (orientTimer) clearTimeout(orientTimer);
+      resizeObserver?.disconnect();
       renderer.domElement.removeEventListener("pointermove", onPointerMove);
       renderer.domElement.removeEventListener("pointerdown", onPointerDown);
       renderer.domElement.removeEventListener("pointerup", onPointerUp);

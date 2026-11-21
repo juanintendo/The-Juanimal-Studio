@@ -492,6 +492,21 @@ export function RamsesManiaShowcase() {
         </div>
       </header>
 
+      {overviewMode ? (
+        <div className="rm-overview-banner" role="note">
+          <span>{ui.overviewHint}</span>
+          {coloredCount < 7 ? (
+            <button
+              type="button"
+              className="rm-mini-action"
+              onClick={handleColorAll}
+            >
+              {ui.colorAllBtn}
+            </button>
+          ) : null}
+        </div>
+      ) : null}
+
       <main className="rm-stage">
         <RamsesComicStage3D
           activePanel={activePanel}
@@ -511,21 +526,6 @@ export function RamsesManiaShowcase() {
             role="status"
           >
             {stampBanner.text}
-          </div>
-        ) : null}
-
-        {overviewMode ? (
-          <div className="rm-overview-banner" role="note">
-            <span>{ui.overviewHint}</span>
-            {coloredCount < 7 ? (
-              <button
-                type="button"
-                className="rm-mini-action"
-                onClick={handleColorAll}
-              >
-                {ui.colorAllBtn}
-              </button>
-            ) : null}
           </div>
         ) : null}
 
@@ -568,68 +568,68 @@ export function RamsesManiaShowcase() {
             ) : null}
           </>
         ) : null}
-
-        {!overviewMode && activePanel < 7 ? (
-          <section
-            className={`rm-speech-dock ${isCurrentRevealed ? "is-colored" : ""}`}
-            aria-live="polite"
-          >
-            <div className="rm-speech-bubble">
-              <div className="rm-speech-head">
-                <span className="rm-speech-tag">{activeBeat.tag[lang]}</span>
-                <span className="rm-speech-speaker">{activeBeat.speaker[lang]}</span>
-              </div>
-              <p className="rm-speech-line">{activeBeat.line[lang]}</p>
-              {!isCurrentRevealed ? (
-                <p className="rm-peek-hint">{ui.peekTip}</p>
-              ) : null}
-            </div>
-
-            <div className="rm-panel-controls">
-              {activePanel === 2 ? (
-                <div className="rm-valve-widget">
-                  <div className="rm-valve-readout">
-                    <span>{ui.valveLabel}</span>
-                    <strong>{valveTemp}°C</strong>
-                  </div>
-                  <input
-                    type="range"
-                    min={19}
-                    max={35}
-                    step={1}
-                    value={valveTemp}
-                    onChange={(e) => {
-                      const next = Number(e.target.value);
-                      setValveTemp(next);
-                      playComicSfx("valve");
-                      if (next >= 30) {
-                        triggerPanelColor(2, { x: 0.54, y: 0.45 });
-                        flashStamp(activeBeat.onomatopoeia[lang], "gold");
-                      }
-                    }}
-                    className="rm-valve-slider"
-                    aria-label={ui.valveLabel}
-                  />
-                </div>
-              ) : null}
-
-              <button
-                type="button"
-                className={`rm-comic-btn is-${activeBeat.accent}`}
-                onClick={() => runPanelInteraction(activePanel)}
-              >
-                {activePanel === 1
-                  ? `${activeBeat.actionLabel[lang]} (${wrinkleRubs}/3)`
-                  : activePanel === 5 && discoPlaying
-                    ? ui.discoPlayingBtn
-                    : activePanel === 4 && isCurrentRevealed
-                      ? ui.blindsOpenBtn
-                      : activeBeat.actionLabel[lang]}
-              </button>
-            </div>
-          </section>
-        ) : null}
       </main>
+
+      {!overviewMode && activePanel < 7 ? (
+        <section
+          className={`rm-speech-dock ${isCurrentRevealed ? "is-colored" : ""}`}
+          aria-live="polite"
+        >
+          <div className="rm-speech-bubble">
+            <div className="rm-speech-head">
+              <span className="rm-speech-tag">{activeBeat.tag[lang]}</span>
+              <span className="rm-speech-speaker">{activeBeat.speaker[lang]}</span>
+            </div>
+            <p className="rm-speech-line">{activeBeat.line[lang]}</p>
+            {!isCurrentRevealed ? (
+              <p className="rm-peek-hint">{ui.peekTip}</p>
+            ) : null}
+          </div>
+
+          <div className="rm-panel-controls">
+            {activePanel === 2 ? (
+              <div className="rm-valve-widget">
+                <div className="rm-valve-readout">
+                  <span>{ui.valveLabel}</span>
+                  <strong>{valveTemp}°C</strong>
+                </div>
+                <input
+                  type="range"
+                  min={19}
+                  max={35}
+                  step={1}
+                  value={valveTemp}
+                  onChange={(e) => {
+                    const next = Number(e.target.value);
+                    setValveTemp(next);
+                    playComicSfx("valve");
+                    if (next >= 30) {
+                      triggerPanelColor(2, { x: 0.54, y: 0.45 });
+                      flashStamp(activeBeat.onomatopoeia[lang], "gold");
+                    }
+                  }}
+                  className="rm-valve-slider"
+                  aria-label={ui.valveLabel}
+                />
+              </div>
+            ) : null}
+
+            <button
+              type="button"
+              className={`rm-comic-btn is-${activeBeat.accent}`}
+              onClick={() => runPanelInteraction(activePanel)}
+            >
+              {activePanel === 1
+                ? `${activeBeat.actionLabel[lang]} (${wrinkleRubs}/3)`
+                : activePanel === 5 && discoPlaying
+                  ? ui.discoPlayingBtn
+                  : activePanel === 4 && isCurrentRevealed
+                    ? ui.blindsOpenBtn
+                    : activeBeat.actionLabel[lang]}
+            </button>
+          </div>
+        </section>
+      ) : null}
 
       <nav className="rm-bottom-bar" aria-label="Comic panels navigation">
         <div className="rm-meter-pill">

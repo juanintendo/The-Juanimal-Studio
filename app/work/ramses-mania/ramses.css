@@ -15,6 +15,8 @@
   width: 100%;
   height: 100dvh;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
   background: #faf8f4;
   color: #161420;
   font-family: var(--rm-ui);
@@ -50,23 +52,16 @@
 
 /* Topbar */
 .rm-topbar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  min-height: 76px;
+  position: relative;
+  flex: 0 0 auto;
+  min-height: 60px;
   z-index: 40;
   display: grid;
   grid-template-columns: 1fr auto 1fr;
   align-items: center;
-  padding: 12px 22px 8px;
-  pointer-events: none;
-  background: linear-gradient(
-    180deg,
-    rgba(250, 248, 244, 0.94) 0%,
-    rgba(250, 248, 244, 0.65) 70%,
-    rgba(250, 248, 244, 0) 100%
-  );
+  padding: 10px 20px 6px;
+  pointer-events: auto;
+  background: transparent;
 }
 
 .rm-topbar-left,
@@ -191,8 +186,11 @@
 
 /* Main Spatial WebGL Stage */
 .rm-stage {
-  position: absolute;
-  inset: 72px 0 68px 0;
+  position: relative;
+  flex: 1 1 0;
+  min-height: 0;
+  width: 100%;
+  overflow: hidden;
   z-index: 2;
 }
 
@@ -234,33 +232,33 @@
 @keyframes rmStampPop {
   0% {
     opacity: 0;
-    transform: translate(-50%, -40%) scale(0.55) rotate(-8deg);
+    transform: translateY(8px) scale(0.6) rotate(-7deg);
   }
   25% {
     opacity: 1;
-    transform: translate(-50%, -50%) scale(1.12) rotate(-4deg);
+    transform: scale(1.06) rotate(-3deg);
   }
   82% {
     opacity: 1;
-    transform: translate(-50%, -52%) scale(1) rotate(-3deg);
+    transform: scale(1) rotate(-3deg);
   }
   100% {
     opacity: 0;
-    transform: translate(-50%, -62%) scale(0.92) rotate(-2deg);
+    transform: translateY(-8px) scale(0.94) rotate(-2deg);
   }
 }
 
 .rm-stamp-burst {
-  position: fixed;
-  top: 24%;
-  left: 50%;
+  position: absolute;
+  top: 14px;
+  right: 24px;
   z-index: 48;
   pointer-events: none;
-  padding: 10px 24px;
+  padding: 8px 18px;
   border: 3px solid #161420;
-  box-shadow: 6px 6px 0 #161420;
+  box-shadow: 5px 5px 0 #161420;
   font-family: var(--rm-disp);
-  font-size: clamp(22px, 3vw, 34px);
+  font-size: clamp(18px, 2.2vw, 26px);
   font-weight: 800;
   letter-spacing: 0.02em;
   color: #161420;
@@ -279,15 +277,15 @@
 
 /* Overview Tip */
 .rm-overview-banner {
-  position: fixed;
-  top: 84px;
-  left: 50%;
-  transform: translateX(-50%);
+  position: relative;
+  flex: 0 0 auto;
+  align-self: center;
+  margin: 2px auto 6px;
   z-index: 36;
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  padding: 8px 16px;
+  padding: 7px 16px;
   border-radius: 999px;
   background: #ffffff;
   border: 2.5px solid #161420;
@@ -312,7 +310,7 @@
 /* Left/Right Comic Page Arrows */
 .rm-nav-arrow {
   position: absolute;
-  top: 44%;
+  top: 50%;
   transform: translateY(-50%);
   z-index: 25;
   appearance: none;
@@ -347,23 +345,22 @@
 
 /* Comic Speech Bubble + Interactive Action Dock */
 .rm-speech-dock {
-  position: fixed;
-  left: 50%;
-  bottom: 72px;
-  transform: translateX(-50%);
+  position: relative;
+  flex: 0 0 auto;
+  margin: 6px auto 4px;
   z-index: 34;
-  width: min(880px, calc(100vw - 32px));
+  width: min(880px, calc(100vw - 28px));
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   justify-content: space-between;
   gap: 14px;
-  pointer-events: none;
+  pointer-events: auto;
 }
 
 .rm-speech-bubble {
   flex: 1 1 auto;
   pointer-events: auto;
-  padding: 13px 18px;
+  padding: 10px 16px;
   border-radius: 18px;
   background: #ffffff;
   border: 2.5px solid #161420;
@@ -404,15 +401,15 @@
 .rm-speech-line {
   margin: 0;
   font-family: var(--rm-comic);
-  font-size: 18px;
+  font-size: clamp(14.5px, 1.45vw, 17px);
   line-height: 1.24;
   color: #161420;
 }
 
 .rm-peek-hint {
-  margin: 5px 0 0;
+  margin: 3px 0 0;
   font-family: var(--rm-mono);
-  font-size: 11px;
+  font-size: 10.5px;
   color: #5c5772;
 }
 
@@ -492,7 +489,7 @@
 /* Panel 08 Playable Finale Overlay */
 .rm-finale-layer {
   position: absolute;
-  inset: 14px 74px 14px 74px;
+  inset: 8px 110px 8px 110px;
   z-index: 28;
   display: flex;
   align-items: center;
@@ -504,9 +501,10 @@
   pointer-events: auto;
   width: min(760px, 100%);
   max-height: 100%;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
-  padding: 16px 20px 18px;
+  padding: 14px 18px;
   border-radius: 22px;
   background: #faf8f4;
   border: 3px solid #161420;
@@ -573,9 +571,11 @@
 
 .rm-game-canvas-wrap {
   position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
   width: 100%;
   aspect-ratio: 720 / 390;
-  max-height: 52dvh;
+  max-height: 100%;
   border-radius: 14px;
   overflow: hidden;
   border: 2.5px solid #161420;
@@ -632,12 +632,14 @@
 
 /* Bottom Navigation Bar & Thermal Meter */
 .rm-page nav.rm-bottom-bar {
-  position: fixed;
-  bottom: 12px;
-  left: 50%;
-  transform: translateX(-50%);
+  position: relative;
+  flex: 0 0 auto;
+  margin: 4px auto 10px;
   top: auto;
+  left: auto;
   right: auto;
+  bottom: auto;
+  transform: none;
   width: min(920px, calc(100vw - 24px));
   z-index: 36;
   display: flex;
@@ -727,8 +729,8 @@
 /* Mobile Portrait */
 @media (max-width: 900px) {
   .rm-topbar {
-    padding: 10px 12px 6px;
-    min-height: 62px;
+    padding: 8px 12px 4px;
+    min-height: 52px;
   }
 
   .rm-back-btn span:last-child {
@@ -749,13 +751,30 @@
     font-size: 11px;
   }
 
-  .rm-stage {
-    inset: 60px 0 64px 0;
+  .rm-stamp-burst {
+    top: 10px;
+    right: 12px;
+    padding: 6px 12px;
+    font-size: 15px;
+  }
+
+  .rm-overview-banner {
+    padding: 6px 12px;
+    font-size: 11.5px;
+    margin: 2px auto 4px;
   }
 
   .rm-nav-arrow {
-    top: 34%;
-    padding: 8px 11px;
+    top: 50%;
+    padding: 8px 10px;
+  }
+
+  .rm-nav-arrow.is-prev {
+    left: 6px;
+  }
+
+  .rm-nav-arrow.is-next {
+    right: 6px;
   }
 
   .rm-arrow-txt {
@@ -763,22 +782,32 @@
   }
 
   .rm-speech-dock {
-    bottom: 66px;
+    margin: 4px auto 4px;
+    width: calc(100vw - 20px);
     flex-direction: column;
     align-items: stretch;
-    gap: 8px;
+    gap: 6px;
+  }
+
+  .rm-speech-bubble {
+    padding: 9px 12px;
   }
 
   .rm-speech-line {
-    font-size: 15.5px;
+    font-size: 14px;
   }
 
   .rm-panel-controls {
     justify-content: center;
   }
 
+  .rm-comic-btn {
+    padding: 9px 16px;
+    font-size: 13.5px;
+  }
+
   .rm-finale-layer {
-    inset: 8px 12px 10px 12px;
+    inset: 4px 48px;
   }
 
   .rm-game-card {
@@ -786,12 +815,21 @@
   }
 
   .rm-game-title {
-    font-size: 19px;
+    font-size: 18px;
+  }
+
+  .rm-game-canvas-wrap {
+    aspect-ratio: auto;
+    min-height: 250px;
+  }
+
+  .rm-game-desc {
+    font-size: 14.5px;
   }
 
   .rm-page nav.rm-bottom-bar {
-    bottom: 8px;
-    padding: 6px 10px;
+    margin: 2px auto 8px;
+    padding: 5px 10px;
     gap: 6px;
   }
 
@@ -815,8 +853,8 @@
 /* Mobile Landscape */
 @media (max-width: 960px) and (max-height: 540px) and (orientation: landscape) {
   .rm-topbar {
-    min-height: 44px;
-    padding: 5px 12px;
+    min-height: 40px;
+    padding: 4px 12px;
   }
 
   .rm-brand-badge {
@@ -828,22 +866,69 @@
     font-size: 13px;
   }
 
-  .rm-stage {
-    inset: 44px 0 46px 0;
+  .rm-stamp-burst {
+    top: 8px;
+    right: 12px;
+    padding: 5px 10px;
+    font-size: 14px;
   }
 
-  .rm-speech-dock {
-    bottom: 48px;
-    flex-direction: row;
-    align-items: flex-end;
+  .rm-nav-arrow.is-prev {
+    left: 8px;
   }
 
-  .rm-speech-bubble {
+  .rm-nav-arrow.is-next {
+    right: 8px;
+  }
+
+  .rm-finale-layer {
+    inset: 4px 52px;
+  }
+
+  .rm-game-card {
     padding: 8px 12px;
   }
 
+  .rm-game-head {
+    margin-bottom: 6px;
+  }
+
+  .rm-game-title {
+    font-size: 16px;
+  }
+
+  .rm-game-canvas-wrap {
+    aspect-ratio: auto;
+    min-height: 148px;
+  }
+
+  .rm-game-overlay {
+    padding: 10px;
+    gap: 8px;
+  }
+
+  .rm-game-desc {
+    font-size: 13px;
+  }
+
+  .rm-speech-dock {
+    margin: 3px auto 2px;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .rm-speech-bubble {
+    padding: 6px 11px;
+  }
+
+  .rm-speech-head {
+    margin-bottom: 2px;
+  }
+
   .rm-speech-line {
-    font-size: 14px;
+    font-size: 13px;
+    line-height: 1.2;
   }
 
   .rm-peek-hint {
@@ -851,12 +936,12 @@
   }
 
   .rm-comic-btn {
-    padding: 8px 14px;
-    font-size: 12.5px;
+    padding: 7px 12px;
+    font-size: 12px;
   }
 
   .rm-page nav.rm-bottom-bar {
-    bottom: 5px;
+    margin: 2px auto 5px;
     padding: 4px 10px;
   }
 
