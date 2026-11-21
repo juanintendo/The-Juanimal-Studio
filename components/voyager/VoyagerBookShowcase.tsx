@@ -721,11 +721,13 @@ export function VoyagerBookShowcase() {
                 ) : null}
                 <button
                   type="button"
-                  className={`vg-dock-pill ${macaOpen ? "is-open" : ""}`}
+                  className={`vg-dock-pill vg-maca-hero-pill ${macaOpen ? "is-open" : ""}`}
                   onClick={() => setMacaOpen((v) => !v)}
                   aria-expanded={macaOpen}
                 >
-                  🦜 {ui.macaTrigger}
+                  <span className="vg-maca-badge" aria-hidden="true">🦜</span>
+                  <span className="vg-maca-label">{ui.macaTrigger}</span>
+                  <span className="vg-maca-sparkle" aria-hidden="true">✦</span>
                 </button>
               </div>
             </div>

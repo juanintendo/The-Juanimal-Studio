@@ -337,6 +337,33 @@
   justify-content: flex-end;
 }
 
+@property --vg-glow-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
+@keyframes vgGlowSpin {
+  0% {
+    --vg-glow-angle: 0deg;
+  }
+  100% {
+    --vg-glow-angle: 360deg;
+  }
+}
+
+@keyframes vgGlowBreathe {
+  0%,
+  100% {
+    opacity: 0.48;
+    transform: scale(0.99);
+  }
+  50% {
+    opacity: 0.78;
+    transform: scale(1.03);
+  }
+}
+
 .vg-dock-pill {
   appearance: none;
   cursor: pointer;
@@ -350,7 +377,7 @@
   font-size: 13px;
   font-weight: 700;
   box-shadow: 0 10px 24px rgba(4, 6, 16, 0.55);
-  transition: transform 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
+  transition: transform 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.25s ease;
 }
 
 .vg-dock-pill:hover {
@@ -369,14 +396,114 @@
   border-color: #fff7e6;
 }
 
+.vg-dock-pill.vg-maca-hero-pill {
+  position: relative;
+  isolation: isolate;
+  min-height: 52px;
+  padding: 13px 22px;
+  font-size: 15.5px;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  border: 2px solid transparent;
+  background:
+    linear-gradient(145deg, rgba(22, 27, 60, 0.96), rgba(14, 18, 42, 0.96)) padding-box,
+    conic-gradient(
+      from var(--vg-glow-angle),
+      #a8e6e2,
+      #c7b8ff,
+      #ffd6a5,
+      #f9c6d3,
+      #9bd4f8,
+      #a8e6e2
+    ) border-box;
+  box-shadow:
+    0 12px 30px rgba(4, 7, 20, 0.62),
+    0 0 22px rgba(168, 230, 226, 0.22);
+  animation: vgGlowSpin 9s linear infinite;
+}
+
+.vg-dock-pill.vg-maca-hero-pill::before {
+  content: "";
+  position: absolute;
+  inset: -5px;
+  border-radius: inherit;
+  z-index: -1;
+  background: conic-gradient(
+    from var(--vg-glow-angle),
+    #a8e6e2,
+    #c7b8ff,
+    #ffd6a5,
+    #f9c6d3,
+    #9bd4f8,
+    #a8e6e2
+  );
+  filter: blur(13px);
+  animation:
+    vgGlowSpin 9s linear infinite,
+    vgGlowBreathe 5.2s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.vg-dock-pill.vg-maca-hero-pill:hover {
+  transform: translateY(-2px) scale(1.015);
+  box-shadow:
+    0 14px 34px rgba(4, 7, 20, 0.68),
+    0 0 28px rgba(199, 184, 255, 0.34);
+}
+
+.vg-dock-pill.vg-maca-hero-pill.is-open {
+  background:
+    linear-gradient(145deg, rgba(164, 52, 58, 0.95), rgba(112, 34, 56, 0.96)) padding-box,
+    conic-gradient(
+      from var(--vg-glow-angle),
+      #ffd6a5,
+      #f9c6d3,
+      #c7b8ff,
+      #a8e6e2,
+      #ffd6a5
+    ) border-box;
+}
+
+.vg-maca-badge {
+  font-size: 19px;
+  line-height: 1;
+}
+
+.vg-maca-label {
+  white-space: nowrap;
+}
+
+.vg-maca-sparkle {
+  font-size: 14px;
+  color: #ffd6a5;
+  opacity: 0.92;
+}
+
 .vg-maca-popover {
-  width: min(360px, 88vw);
-  padding: 16px 18px;
-  border-radius: 20px;
-  background: rgba(15, 19, 44, 0.94);
-  backdrop-filter: blur(14px);
-  border: 1.5px solid rgba(255, 209, 102, 0.5);
-  box-shadow: 0 18px 44px rgba(3, 5, 14, 0.72);
+  position: relative;
+  width: min(440px, 90vw);
+  padding: 22px 24px;
+  border-radius: 24px;
+  border: 2px solid transparent;
+  background:
+    linear-gradient(160deg, rgba(17, 22, 50, 0.96), rgba(12, 16, 38, 0.97)) padding-box,
+    conic-gradient(
+      from var(--vg-glow-angle),
+      #a8e6e2,
+      #c7b8ff,
+      #ffd6a5,
+      #f9c6d3,
+      #9bd4f8,
+      #a8e6e2
+    ) border-box;
+  backdrop-filter: blur(16px);
+  box-shadow:
+    0 22px 52px rgba(3, 5, 14, 0.78),
+    0 0 30px rgba(168, 230, 226, 0.20);
+  animation: vgGlowSpin 12s linear infinite;
   color: #fff7e6;
 }
 
@@ -384,12 +511,12 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
 }
 
 .vg-maca-tag {
   font-family: var(--vg-crayon);
-  font-size: 16px;
+  font-size: 18px;
   color: #ffd166;
   letter-spacing: 0.02em;
 }
@@ -399,40 +526,52 @@
   background: rgba(255, 247, 230, 0.1);
   border: none;
   color: #fff7e6;
-  width: 26px;
-  height: 26px;
+  width: 28px;
+  height: 28px;
   border-radius: 999px;
-  font-size: 17px;
+  font-size: 18px;
   line-height: 1;
   cursor: pointer;
 }
 
 .vg-maca-fact-text {
-  font-size: 13.5px;
-  line-height: 1.5;
+  font-size: 14.5px;
+  line-height: 1.56;
   color: #f6eedc;
   margin: 0;
 }
 
 .vg-maca-divider {
   height: 1px;
-  margin: 12px 0 10px;
-  background: rgba(255, 247, 230, 0.15);
+  margin: 14px 0 12px;
+  background: rgba(255, 247, 230, 0.16);
 }
 
 .vg-maca-prompt-eyebrow {
-  margin: 0 0 4px;
+  margin: 0 0 6px;
   font-family: var(--vg-crayon);
-  font-size: 14px;
+  font-size: 15.5px;
   color: #98dce6;
 }
 
 .vg-maca-prompt-text {
   margin: 0;
   font-family: var(--vg-serif);
-  font-size: 13.5px;
-  line-height: 1.48;
+  font-size: 14.5px;
+  line-height: 1.56;
   color: #fff7e6;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vg-dock-pill.vg-maca-hero-pill,
+  .vg-dock-pill.vg-maca-hero-pill::before,
+  .vg-maca-popover {
+    animation: none;
+  }
+
+  .vg-dock-pill.vg-maca-hero-pill::before {
+    opacity: 0.56;
+  }
 }
 
 /* Allegorical Illustrated Bottom Chapter Medallion Bar */
@@ -836,6 +975,12 @@
 
   .vg-maca-actions {
     justify-content: center;
+  }
+
+  .vg-dock-pill.vg-maca-hero-pill {
+    min-height: 46px;
+    padding: 11px 18px;
+    font-size: 14.5px;
   }
 
   .vg-page nav.vg-medallion-nav {

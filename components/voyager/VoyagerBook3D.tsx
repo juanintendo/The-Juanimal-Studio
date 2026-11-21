@@ -132,6 +132,8 @@ interface ParallaxUniformBundle {
   uHalfSide: { value: number };
   uGutterShade: { value: number };
   uParallax: { value: THREE.Vector2 };
+  uTime: { value: number };
+  uMotionScale: { value: number };
   uLayer1: { value: THREE.Texture };
   uLayer2: { value: THREE.Texture };
   uLayer3: { value: THREE.Texture };
@@ -154,6 +156,8 @@ function createParallaxPageMaterial(opts: {
   emptyTex: THREE.Texture;
   alphaMap: THREE.Texture;
   sharedParallax: { value: THREE.Vector2 };
+  sharedTime: { value: number };
+  sharedMotionScale: { value: number };
   halfSide: number; // -1 = full cover, 0 = spread left half, 1 = spread right half
   gutterShade: number; // 0 = cover, 1 = spread
   roughness: number;
@@ -162,14 +166,16 @@ function createParallaxPageMaterial(opts: {
     uHalfSide: { value: opts.halfSide },
     uGutterShade: { value: opts.gutterShade },
     uParallax: opts.sharedParallax,
+    uTime: opts.sharedTime,
+    uMotionScale: opts.sharedMotionScale,
     uLayer1: { value: opts.emptyTex },
     uLayer2: { value: opts.emptyTex },
     uLayer3: { value: opts.emptyTex },
     uLayer4: { value: opts.emptyTex },
-    uMove1: { value: new THREE.Vector2(0.24, 0.16) },
-    uMove2: { value: new THREE.Vector2(0.48, 0.30) },
-    uMove3: { value: new THREE.Vector2(0.85, 0.52) },
-    uMove4: { value: new THREE.Vector2(0.08, 0.05) },
+    uMove1: { value: new THREE.Vector2(0.34, 0.24) },
+    uMove2: { value: new THREE.Vector2(0.52, 0.34) },
+    uMove3: { value: new THREE.Vector2(0.95, 0.62) },
+    uMove4: { value: new THREE.Vector2(0.10, 0.06) },
   };
 
   const mat = new THREE.MeshStandardMaterial({
@@ -180,11 +186,13 @@ function createParallaxPageMaterial(opts: {
     metalness: 0.02,
   });
 
-  mat.customProgramCacheKey = () => "vg-parallax-page-v2";
+  mat.customProgramCacheKey = () => "vg-parallax-page-v3";
   mat.onBeforeCompile = (shader) => {
     shader.uniforms.uHalfSide = uniforms.uHalfSide;
     shader.uniforms.uGutterShade = uniforms.uGutterShade;
     shader.uniforms.uParallax = uniforms.uParallax;
+    shader.uniforms.uTime = uniforms.uTime;
+    shader.uniforms.uMotionScale = uniforms.uMotionScale;
     shader.uniforms.uLayer1 = uniforms.uLayer1;
     shader.uniforms.uLayer2 = uniforms.uLayer2;
     shader.uniforms.uLayer3 = uniforms.uLayer3;
@@ -203,6 +211,8 @@ function createParallaxPageMaterial(opts: {
           uniform float uHalfSide;
           uniform float uGutterShade;
           uniform vec2 uParallax;
+          uniform float uTime;
+          uniform float uMotionScale;
           uniform sampler2D uLayer1;
           uniform sampler2D uLayer2;
           uniform sampler2D uLayer3;
@@ -224,19 +234,31 @@ function createParallaxPageMaterial(opts: {
 
           vec4 comp = texture2D(map, baseUv);
 
-          vec2 uv1 = baseUv + uParallax * uMove1;
+          vec2 float1 = vec2(sin(uTime * 0.72) * 0.0022, cos(uTime * 0.56) * 0.0036) * uMotionScale;
+          vec2 float2 = vec2(cos(uTime * 0.48 + 1.1) * 0.0018, sin(uTime * 0.62 + 0.7) * 0.0024) * uMotionScale;
+          vec2 float3 = vec2(sin(uTime * 0.85 + 2.0) * 0.0026, cos(uTime * 0.68 + 0.4) * 0.0040) * uMotionScale;
+
+          vec2 uv1 = baseUv + uParallax * uMove1 + float1;
+          vec2 uv1S = uv1 + vec2(-0.0045, 0.0075) - uParallax * 0.14;
+          if (uv1S.x >= 0.0 && uv1S.x <= 1.0 && uv1S.y >= 0.0 && uv1S.y <= 1.0) {
+            comp.rgb *= (1.0 - texture2D(uLayer1, uv1S).a * 0.24);
+          }
           if (uv1.x >= 0.0 && uv1.x <= 1.0 && uv1.y >= 0.0 && uv1.y <= 1.0) {
             vec4 c1 = texture2D(uLayer1, uv1);
             comp.rgb = mix(comp.rgb, c1.rgb, c1.a);
           }
 
-          vec2 uv2 = baseUv + uParallax * uMove2;
+          vec2 uv2 = baseUv + uParallax * uMove2 + float2;
           if (uv2.x >= 0.0 && uv2.x <= 1.0 && uv2.y >= 0.0 && uv2.y <= 1.0) {
             vec4 c2 = texture2D(uLayer2, uv2);
             comp.rgb = mix(comp.rgb, c2.rgb, c2.a);
           }
 
-          vec2 uv3 = baseUv + uParallax * uMove3;
+          vec2 uv3 = baseUv + uParallax * uMove3 + float3;
+          vec2 uv3S = uv3 + vec2(-0.006, 0.009) - uParallax * 0.22;
+          if (uv3S.x >= 0.0 && uv3S.x <= 1.0 && uv3S.y >= 0.0 && uv3S.y <= 1.0) {
+            comp.rgb *= (1.0 - texture2D(uLayer3, uv3S).a * 0.20);
+          }
           if (uv3.x >= 0.0 && uv3.x <= 1.0 && uv3.y >= 0.0 && uv3.y <= 1.0) {
             vec4 c3 = texture2D(uLayer3, uv3);
             comp.rgb = mix(comp.rgb, c3.rgb, c3.a);
@@ -403,6 +425,8 @@ export default function VoyagerBook3D({
     bookWrapper.add(deskShadowMesh);
 
     const sharedParallax = { value: new THREE.Vector2(0, 0) };
+    const sharedTime = { value: 0 };
+    const sharedMotionScale = { value: 1 };
 
     interface LeafBundle {
       group: THREE.Group;
@@ -454,6 +478,8 @@ export default function VoyagerBook3D({
         emptyTex,
         alphaMap: rightCornerAlpha,
         sharedParallax,
+        sharedTime,
+        sharedMotionScale,
         halfSide: isCoverFront ? -1.0 : 1.0,
         gutterShade: isCoverFront ? 0.0 : 1.0,
         roughness: isCoverFront ? 0.64 : 0.80,
@@ -464,6 +490,8 @@ export default function VoyagerBook3D({
         emptyTex,
         alphaMap: leftCornerAlpha,
         sharedParallax,
+        sharedTime,
+        sharedMotionScale,
         halfSide: isCoverBack ? -1.0 : 0.0,
         gutterShade: isCoverBack ? 0.0 : 1.0,
         roughness: isCoverBack ? 0.64 : 0.80,
@@ -720,8 +748,12 @@ export default function VoyagerBook3D({
       parallaxX += (goalX * factor - parallaxX) * Math.min(1, dt * 5.2);
       parallaxY += (goalY * factor - parallaxY) * Math.min(1, dt * 5.2);
 
-      // Drive shader-space 2.5D parallax inside every open page surface!
-      sharedParallax.value.set(parallaxX * 0.022, -parallaxY * 0.018);
+      // Drive shader-space 2.5D parallax & living bedtime float inside every open page surface
+      sharedParallax.value.set(parallaxX * 0.034, -parallaxY * 0.026);
+      sharedMotionScale.value = factor;
+      if (!reducedRef.current) {
+        sharedTime.value += dt;
+      }
 
       for (let i = 0; i < leaves.length; i += 1) {
         const leaf = leaves[i];
