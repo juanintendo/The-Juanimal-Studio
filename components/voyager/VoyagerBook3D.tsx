@@ -3,25 +3,23 @@
 import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 
+export interface VoyagerLayerSet {
+  bg: string;
+  letters: Record<"en" | "es", string>;
+  mid: string;
+  fg: string;
+  text: Record<"en" | "es", string>;
+  thumb: string;
+}
+
 export interface VoyagerSpreadSpec {
   id: string;
-  image: string;
+  layers: VoyagerLayerSet;
   navLabel: Record<"en" | "es", string>;
-  thumbPos: string;
   title: Record<"en" | "es", string>;
-  displayTop: Record<"en" | "es", string>;
-  displayMain: Record<"en" | "es", string>;
   story: Record<"en" | "es", string>;
   macaFact: Record<"en" | "es", string>;
   parentPrompt: Record<"en" | "es", string>;
-  accentColor: string;
-  lightPaper?: boolean;
-  textSide: "left" | "right";
-  textAnchor: {
-    x: number;
-    y: number;
-    align: "left" | "center" | "right";
-  };
 }
 
 interface VoyagerBook3DProps {
@@ -31,12 +29,9 @@ interface VoyagerBook3DProps {
   reduced: boolean;
   gyroActive?: boolean;
   spreads: VoyagerSpreadSpec[];
-  coverImage: string;
-  backCoverImage: string;
-  coverTopLine: string;
+  coverLayers: VoyagerLayerSet;
+  backCoverLayers: VoyagerLayerSet;
   coverMainTitle: string;
-  coverTagline: string;
-  backColophon: string;
 }
 
 function drawRoundedRectPath(
@@ -67,7 +62,7 @@ function drawRoundedRectPath(
 
 function createCornerAlphaTexture(outerSide: "left" | "right"): THREE.CanvasTexture {
   const size = 512;
-  const radius = 56;
+  const radius = 62;
   const canvas = document.createElement("canvas");
   canvas.width = size;
   canvas.height = size;
@@ -106,7 +101,7 @@ function createDeskShadowTexture(): THREE.CanvasTexture {
       w * 0.49
     );
     grad.addColorStop(0, "rgba(4, 6, 15, 0.72)");
-    grad.addColorStop(0.55, "rgba(4, 6, 15, 0.42)");
+    grad.addColorStop(0.55, "rgba(4, 6, 15, 0.40)");
     grad.addColorStop(1, "rgba(4, 6, 15, 0)");
     ctx.fillStyle = grad;
     ctx.fillRect(0, 0, w, h);
@@ -117,452 +112,155 @@ function createDeskShadowTexture(): THREE.CanvasTexture {
   return tex;
 }
 
-function wrapLines(
-  ctx: CanvasRenderingContext2D,
-  text: string,
-  maxWidth: number
-): string[] {
-  const paragraphs = text.split("\n");
-  const lines: string[] = [];
-  for (const para of paragraphs) {
-    const words = para.trim().split(/\s+/).filter(Boolean);
-    if (words.length === 0) continue;
-    let current = words[0];
-    for (let i = 1; i < words.length; i += 1) {
-      const candidate = `${current} ${words[i]}`;
-      if (ctx.measureText(candidate).width <= maxWidth) {
-        current = candidate;
-      } else {
-        lines.push(current);
-        current = words[i];
-      }
-    }
-    lines.push(current);
-  }
-  return lines;
+function createEmptyTexture(): THREE.DataTexture {
+  const tex = new THREE.DataTexture(new Uint8Array([0, 0, 0, 0]), 1, 1, THREE.RGBAFormat);
+  tex.minFilter = THREE.LinearFilter;
+  tex.magFilter = THREE.LinearFilter;
+  tex.generateMipmaps = false;
+  tex.needsUpdate = true;
+  return tex;
 }
 
-function addPaperTextureNoise(
-  ctx: CanvasRenderingContext2D,
-  w: number,
-  h: number,
-  alpha = 0.025
-) {
-  ctx.save();
-  ctx.globalAlpha = alpha;
-  for (let i = 0; i < 1600; i += 1) {
-    const x = (i * 97.3) % w;
-    const y = (i * 53.7) % h;
-    ctx.fillStyle = i % 2 === 0 ? "#241914" : "#fffbf0";
-    ctx.fillRect(x, y, 2, 2);
-  }
-  ctx.restore();
+function createSolidTexture(r: number, g: number, b: number): THREE.DataTexture {
+  const tex = new THREE.DataTexture(new Uint8Array([r, g, b, 255]), 1, 1, THREE.RGBAFormat);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.needsUpdate = true;
+  return tex;
 }
 
-function paintFrontCoverCanvas(
-  img: HTMLImageElement,
-  topLine: string,
-  mainTitle: string,
-  tagline: string
-): HTMLCanvasElement {
-  const canvas = document.createElement("canvas");
-  canvas.width = 1024;
-  canvas.height = 1164;
-  const ctx = canvas.getContext("2d");
-  if (!ctx) return canvas;
-
-  const iw = img.naturalWidth || 896;
-  const ih = img.naturalHeight || 1200;
-  const trimX = Math.round(iw * 0.036);
-  const trimY = Math.round(ih * 0.034);
-  ctx.drawImage(
-    img,
-    trimX,
-    trimY,
-    iw - trimX * 2,
-    ih - trimY * 2,
-    0,
-    0,
-    1024,
-    1164
-  );
-
-  const topGrad = ctx.createLinearGradient(0, 0, 0, 440);
-  topGrad.addColorStop(0, "rgba(15, 19, 43, 0.86)");
-  topGrad.addColorStop(0.55, "rgba(15, 19, 43, 0.42)");
-  topGrad.addColorStop(1, "rgba(15, 19, 43, 0)");
-  ctx.fillStyle = topGrad;
-  ctx.fillRect(0, 0, 1024, 440);
-
-  const botGrad = ctx.createLinearGradient(0, 910, 0, 1164);
-  botGrad.addColorStop(0, "rgba(15, 19, 43, 0)");
-  botGrad.addColorStop(0.55, "rgba(15, 19, 43, 0.62)");
-  botGrad.addColorStop(1, "rgba(15, 19, 43, 0.90)");
-  ctx.fillStyle = botGrad;
-  ctx.fillRect(0, 910, 1024, 254);
-
-  const spineGrad = ctx.createLinearGradient(0, 0, 34, 0);
-  spineGrad.addColorStop(0, "rgba(255, 240, 210, 0.28)");
-  spineGrad.addColorStop(0.32, "rgba(9, 11, 24, 0.46)");
-  spineGrad.addColorStop(1, "rgba(9, 11, 24, 0)");
-  ctx.fillStyle = spineGrad;
-  ctx.fillRect(0, 0, 34, 1164);
-
-  ctx.textAlign = "center";
-  ctx.save();
-  ctx.translate(520, 96);
-  ctx.rotate(-0.015);
-  ctx.font = '700 32px "Patrick Hand", "Comic Sans MS", cursive';
-  ctx.fillStyle = "#FFD166";
-  ctx.fillText(topLine.toUpperCase(), 0, 0);
-  ctx.restore();
-
-  ctx.save();
-  ctx.font = '700 108px "Caveat Brush", "Fraunces", Georgia, serif';
-  const titleLines = wrapLines(ctx, mainTitle, 840);
-  let ty = 204;
-  for (const line of titleLines) {
-    ctx.fillStyle = "rgba(8, 10, 24, 0.72)";
-    ctx.fillText(line, 520 + 5, ty + 6);
-    ctx.lineWidth = 6;
-    ctx.strokeStyle = "rgba(21, 18, 42, 0.75)";
-    ctx.strokeText(line, 520, ty);
-    ctx.fillStyle = "#F4A236";
-    ctx.fillText(line, 520 + 1.5, ty + 2);
-    ctx.fillStyle = "#FFF7E6";
-    ctx.fillText(line, 520, ty);
-    ty += 108;
-  }
-
-  ctx.strokeStyle = "#E84A3A";
-  ctx.lineWidth = 5;
-  ctx.lineCap = "round";
-  ctx.beginPath();
-  ctx.moveTo(300, ty - 72);
-  ctx.quadraticCurveTo(520, ty - 56, 740, ty - 74);
-  ctx.stroke();
-  ctx.restore();
-
-  ctx.save();
-  ctx.fillStyle = "rgba(255, 247, 230, 0.94)";
-  ctx.font = '600 30px "Fraunces", Georgia, serif';
-  ctx.fillText(tagline, 520, 1068);
-  ctx.restore();
-
-  addPaperTextureNoise(ctx, 1024, 1164, 0.03);
-  return canvas;
+interface ParallaxUniformBundle {
+  uHalfSide: { value: number };
+  uGutterShade: { value: number };
+  uParallax: { value: THREE.Vector2 };
+  uLayer1: { value: THREE.Texture };
+  uLayer2: { value: THREE.Texture };
+  uLayer3: { value: THREE.Texture };
+  uLayer4: { value: THREE.Texture };
+  uMove1: { value: THREE.Vector2 };
+  uMove2: { value: THREE.Vector2 };
+  uMove3: { value: THREE.Vector2 };
+  uMove4: { value: THREE.Vector2 };
 }
 
-function paintBackCoverCanvas(
-  img: HTMLImageElement,
-  colophon: string
-): HTMLCanvasElement {
-  const canvas = document.createElement("canvas");
-  canvas.width = 1024;
-  canvas.height = 1164;
-  const ctx = canvas.getContext("2d");
-  if (!ctx) return canvas;
-
-  const iw = img.naturalWidth || 896;
-  const ih = img.naturalHeight || 1200;
-  const trimX = Math.round(iw * 0.036);
-  const trimY = Math.round(ih * 0.034);
-  ctx.drawImage(
-    img,
-    trimX,
-    trimY,
-    iw - trimX * 2,
-    ih - trimY * 2,
-    0,
-    0,
-    1024,
-    1164
-  );
-
-  const spineGrad = ctx.createLinearGradient(990, 0, 1024, 0);
-  spineGrad.addColorStop(0, "rgba(9, 11, 24, 0)");
-  spineGrad.addColorStop(0.7, "rgba(9, 11, 24, 0.44)");
-  spineGrad.addColorStop(1, "rgba(255, 240, 210, 0.25)");
-  ctx.fillStyle = spineGrad;
-  ctx.fillRect(990, 0, 34, 1164);
-
-  ctx.save();
-  drawRoundedRectPath(ctx, 96, 868, 832, 184, [24, 24, 24, 24]);
-  ctx.fillStyle = "rgba(18, 22, 46, 0.86)";
-  ctx.fill();
-  ctx.lineWidth = 3;
-  ctx.strokeStyle = "rgba(244, 162, 54, 0.55)";
-  ctx.stroke();
-
-  ctx.textAlign = "center";
-  ctx.font = '500 28px "Fraunces", Georgia, serif';
-  ctx.fillStyle = "#FFF7E6";
-  const lines = wrapLines(ctx, colophon, 740);
-  let y = 930;
-  for (const line of lines.slice(0, 3)) {
-    ctx.fillText(line, 512, y);
-    y += 40;
-  }
-  ctx.restore();
-
-  addPaperTextureNoise(ctx, 1024, 1164, 0.025);
-  return canvas;
+interface LangSwappableMaterial {
+  uniforms: ParallaxUniformBundle;
+  layers: VoyagerLayerSet;
+  lettersTex: Partial<Record<"en" | "es", THREE.Texture>>;
+  textTex: Partial<Record<"en" | "es", THREE.Texture>>;
 }
 
-function paintHalfSpreadCanvas(
-  img: HTMLImageElement,
-  side: "left" | "right"
-): HTMLCanvasElement {
-  const canvas = document.createElement("canvas");
-  canvas.width = 1024;
-  canvas.height = 1164;
-  const ctx = canvas.getContext("2d");
-  if (!ctx) return canvas;
+function createParallaxPageMaterial(opts: {
+  fallbackBg: THREE.Texture;
+  emptyTex: THREE.Texture;
+  alphaMap: THREE.Texture;
+  sharedParallax: { value: THREE.Vector2 };
+  halfSide: number; // -1 = full cover, 0 = spread left half, 1 = spread right half
+  gutterShade: number; // 0 = cover, 1 = spread
+  roughness: number;
+}): { mat: THREE.MeshStandardMaterial; uniforms: ParallaxUniformBundle } {
+  const uniforms: ParallaxUniformBundle = {
+    uHalfSide: { value: opts.halfSide },
+    uGutterShade: { value: opts.gutterShade },
+    uParallax: opts.sharedParallax,
+    uLayer1: { value: opts.emptyTex },
+    uLayer2: { value: opts.emptyTex },
+    uLayer3: { value: opts.emptyTex },
+    uLayer4: { value: opts.emptyTex },
+    uMove1: { value: new THREE.Vector2(0.24, 0.16) },
+    uMove2: { value: new THREE.Vector2(0.48, 0.30) },
+    uMove3: { value: new THREE.Vector2(0.85, 0.52) },
+    uMove4: { value: new THREE.Vector2(0.08, 0.05) },
+  };
 
-  const iw = img.naturalWidth || 1376;
-  const ih = img.naturalHeight || 768;
-  const trimX = Math.round(iw * 0.041);
-  const trimY = Math.round(ih * 0.058);
-  const trimH = ih - trimY * 2;
-  const halfX = Math.floor(iw * 0.5);
-  const sx = side === "left" ? trimX : halfX;
-  const sw = side === "left" ? halfX - trimX : iw - halfX - trimX;
-
-  ctx.drawImage(img, sx, trimY, sw, trimH, 0, 0, 1024, 1164);
-
-  if (side === "left") {
-    const gutter = ctx.createLinearGradient(968, 0, 1024, 0);
-    gutter.addColorStop(0, "rgba(18, 13, 10, 0)");
-    gutter.addColorStop(0.62, "rgba(18, 13, 10, 0.14)");
-    gutter.addColorStop(1, "rgba(14, 10, 8, 0.34)");
-    ctx.fillStyle = gutter;
-    ctx.fillRect(968, 0, 56, 1164);
-
-    ctx.fillStyle = "rgba(255, 250, 238, 0.18)";
-    ctx.fillRect(1022, 0, 2, 1164);
-  } else {
-    const gutter = ctx.createLinearGradient(0, 0, 56, 0);
-    gutter.addColorStop(0, "rgba(14, 10, 8, 0.34)");
-    gutter.addColorStop(0.38, "rgba(18, 13, 10, 0.14)");
-    gutter.addColorStop(1, "rgba(18, 13, 10, 0)");
-    ctx.fillStyle = gutter;
-    ctx.fillRect(0, 0, 56, 1164);
-
-    ctx.fillStyle = "rgba(255, 250, 238, 0.18)";
-    ctx.fillRect(0, 0, 2, 1164);
-  }
-
-  return canvas;
-}
-
-function getZoneBounds(side: "left" | "right", spread: VoyagerSpreadSpec) {
-  const W = 2048;
-  const H = 1164;
-  const padX = side === "left" ? 86 : 1094;
-  const maxRight = side === "left" ? 950 : 1962;
-  const zoneW = maxRight - padX;
-  const anchorX = Math.max(padX + 16, Math.min(maxRight - 16, spread.textAnchor.x * W));
-  const anchorY = Math.max(94, Math.min(H - 390, spread.textAnchor.y * H));
-  return { W, H, padX, maxRight, zoneW, anchorX, anchorY };
-}
-
-function drawSpreadParallaxDisplay(
-  canvas: HTMLCanvasElement,
-  spread: VoyagerSpreadSpec,
-  lang: "en" | "es"
-) {
-  canvas.width = 2048;
-  canvas.height = 1164;
-  const ctx = canvas.getContext("2d");
-  if (!ctx) return;
-
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-  const { padX, maxRight, zoneW, anchorX, anchorY } = getZoneBounds(
-    spread.textSide,
-    spread
-  );
-  const align = spread.textAnchor.align;
-  const drawX =
-    align === "center"
-      ? (padX + maxRight) * 0.5
-      : align === "right"
-        ? maxRight
-        : anchorX;
-  const isLight = Boolean(spread.lightPaper);
-
-  ctx.save();
-  ctx.textAlign = align;
-  ctx.textBaseline = "top";
-
-  ctx.save();
-  ctx.translate(drawX, anchorY - 46);
-  ctx.rotate(-0.025);
-  ctx.font = '700 36px "Patrick Hand", "Comic Sans MS", cursive';
-  ctx.lineWidth = isLight ? 7 : 8;
-  ctx.strokeStyle = isLight ? "rgba(255, 249, 235, 0.94)" : "rgba(13, 17, 38, 0.88)";
-  ctx.strokeText(spread.displayTop[lang], 0, 0);
-  ctx.fillStyle = isLight ? "#D93D2D" : spread.accentColor || "#FFD166";
-  ctx.fillText(spread.displayTop[lang], 0, 0);
-  ctx.restore();
-
-  ctx.font = '700 72px "Caveat Brush", "Fraunces", Georgia, serif';
-  const mainLines = wrapLines(ctx, spread.displayMain[lang], zoneW * 0.94);
-  let y = anchorY;
-  for (const line of mainLines.slice(0, 3)) {
-    ctx.fillStyle = isLight ? "rgba(255, 248, 232, 0.72)" : "rgba(11, 14, 30, 0.55)";
-    ctx.fillText(line, drawX + 4, y + 5);
-    ctx.lineWidth = 10;
-    ctx.lineJoin = "round";
-    ctx.strokeStyle = isLight ? "rgba(255, 248, 232, 0.92)" : "rgba(15, 19, 43, 0.86)";
-    ctx.strokeText(line, drawX, y);
-    ctx.fillStyle = spread.accentColor || "#F4A236";
-    ctx.fillText(line, drawX + 2, y + 2);
-    ctx.fillStyle = isLight ? "#182046" : "#FFF7E6";
-    ctx.fillText(line, drawX, y);
-    y += 74;
-  }
-
-  const measureW = Math.min(
-    zoneW * 0.72,
-    Math.max(200, ctx.measureText(mainLines[0] || "").width * 0.86)
-  );
-  const ulStart =
-    align === "center"
-      ? drawX - measureW * 0.5
-      : align === "right"
-        ? drawX - measureW
-        : drawX;
-  ctx.strokeStyle = spread.accentColor || "#FFD166";
-  ctx.lineWidth = 6;
-  ctx.lineCap = "round";
-  ctx.beginPath();
-  ctx.moveTo(ulStart, y - 4);
-  ctx.quadraticCurveTo(ulStart + measureW * 0.5, y + 10, ulStart + measureW, y - 6);
-  ctx.stroke();
-
-  ctx.restore();
-}
-
-function drawCrayonStar(
-  ctx: CanvasRenderingContext2D,
-  cx: number,
-  cy: number,
-  r: number,
-  color: string
-) {
-  ctx.save();
-  ctx.translate(cx, cy);
-  ctx.strokeStyle = color;
-  ctx.lineWidth = 3.2;
-  ctx.lineCap = "round";
-  for (let i = 0; i < 4; i += 1) {
-    const a = (i * Math.PI) / 4;
-    ctx.beginPath();
-    ctx.moveTo(Math.cos(a) * -r, Math.sin(a) * -r);
-    ctx.lineTo(Math.cos(a) * r, Math.sin(a) * r);
-    ctx.stroke();
-  }
-  ctx.fillStyle = "#FFF7E6";
-  ctx.beginPath();
-  ctx.arc(0, 0, r * 0.25, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.restore();
-}
-
-function drawSpreadParallaxStory(
-  canvas: HTMLCanvasElement,
-  spread: VoyagerSpreadSpec,
-  lang: "en" | "es"
-) {
-  canvas.width = 2048;
-  canvas.height = 1164;
-  const ctx = canvas.getContext("2d");
-  if (!ctx) return;
-
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-  const { H, padX, maxRight, zoneW, anchorX, anchorY } = getZoneBounds(
-    spread.textSide,
-    spread
-  );
-  const align = spread.textAnchor.align;
-  const isLight = Boolean(spread.lightPaper);
-
-  ctx.font = '700 72px "Caveat Brush", "Fraunces", Georgia, serif';
-  const mainLines = wrapLines(ctx, spread.displayMain[lang], zoneW * 0.94);
-  const headCount = Math.min(3, Math.max(1, mainLines.length));
-
-  ctx.save();
-  ctx.font = '600 26px "Fraunces", Georgia, serif';
-  const storyMaxW = Math.min(720, zoneW * 0.92);
-  const storyLines = wrapLines(ctx, spread.story[lang], storyMaxW).slice(0, 5);
-  const lineH = 38;
-  const blockH = storyLines.length * lineH + 34;
-  const storyTop = Math.min(H - blockH - 46, anchorY + headCount * 74 + 20);
-
-  let actualMaxW = 0;
-  for (const l of storyLines) {
-    actualMaxW = Math.max(actualMaxW, ctx.measureText(l).width);
-  }
-  const boxW = Math.min(zoneW, actualMaxW + 48);
-  const boxX =
-    align === "center"
-      ? (padX + maxRight) * 0.5 - boxW * 0.5
-      : align === "right"
-        ? maxRight - boxW
-        : anchorX - 18;
-  const textDrawX =
-    align === "center"
-      ? (padX + maxRight) * 0.5
-      : align === "right"
-        ? maxRight - 14
-        : Math.max(padX, anchorX + 6);
-
-  ctx.save();
-  drawRoundedRectPath(ctx, boxX, storyTop - 16, boxW, blockH, [24, 24, 24, 24]);
-  ctx.shadowColor = isLight ? "rgba(255, 246, 224, 0.86)" : "rgba(11, 14, 30, 0.72)";
-  ctx.shadowBlur = 22;
-  ctx.fillStyle = isLight ? "rgba(255, 249, 235, 0.84)" : "rgba(13, 17, 38, 0.68)";
-  ctx.fill();
-  ctx.restore();
-
-  ctx.textAlign = align;
-  ctx.textBaseline = "top";
-  ctx.font = '600 26px "Fraunces", Georgia, serif';
-  let sy = storyTop + 2;
-  for (const line of storyLines) {
-    ctx.lineWidth = isLight ? 4 : 5;
-    ctx.lineJoin = "round";
-    ctx.strokeStyle = isLight ? "rgba(255, 250, 238, 0.9)" : "rgba(11, 14, 30, 0.86)";
-    ctx.strokeText(line, textDrawX, sy);
-    ctx.fillStyle = isLight ? "#182046" : "#FFF8EC";
-    ctx.fillText(line, textDrawX, sy);
-    sy += lineH;
-  }
-
-  // Floating parallax crayon sparkles scattered around the margins (foreground depth)
-  const seedBase = spread.id.split("").reduce((acc, c) => acc + c.charCodeAt(0), 0);
-  const sparkles = [
-    { x: padX + 36, y: 112, r: 12 },
-    { x: maxRight - 42, y: 138, r: 9 },
-    { x: padX + zoneW * 0.84, y: storyTop - 36, r: 11 },
-    { x: spread.textSide === "left" ? 1860 : 196, y: 144, r: 13 },
-    { x: spread.textSide === "left" ? 1910 : 148, y: 980, r: 10 },
-  ];
-  sparkles.forEach((sp, i) => {
-    const jx = ((seedBase * (i + 3)) % 28) - 14;
-    const jy = ((seedBase * (i + 7)) % 24) - 12;
-    drawCrayonStar(
-      ctx,
-      sp.x + jx,
-      sp.y + jy,
-      sp.r,
-      i % 2 === 0 ? spread.accentColor : "#98DCE6"
-    );
+  const mat = new THREE.MeshStandardMaterial({
+    map: opts.fallbackBg,
+    alphaMap: opts.alphaMap,
+    alphaTest: 0.45,
+    roughness: opts.roughness,
+    metalness: 0.02,
   });
 
-  ctx.restore();
+  mat.customProgramCacheKey = () => "vg-parallax-page-v2";
+  mat.onBeforeCompile = (shader) => {
+    shader.uniforms.uHalfSide = uniforms.uHalfSide;
+    shader.uniforms.uGutterShade = uniforms.uGutterShade;
+    shader.uniforms.uParallax = uniforms.uParallax;
+    shader.uniforms.uLayer1 = uniforms.uLayer1;
+    shader.uniforms.uLayer2 = uniforms.uLayer2;
+    shader.uniforms.uLayer3 = uniforms.uLayer3;
+    shader.uniforms.uLayer4 = uniforms.uLayer4;
+    shader.uniforms.uMove1 = uniforms.uMove1;
+    shader.uniforms.uMove2 = uniforms.uMove2;
+    shader.uniforms.uMove3 = uniforms.uMove3;
+    shader.uniforms.uMove4 = uniforms.uMove4;
+
+    shader.fragmentShader = shader.fragmentShader
+      .replace(
+        "#include <map_pars_fragment>",
+        `
+        #ifdef USE_MAP
+          uniform sampler2D map;
+          uniform float uHalfSide;
+          uniform float uGutterShade;
+          uniform vec2 uParallax;
+          uniform sampler2D uLayer1;
+          uniform sampler2D uLayer2;
+          uniform sampler2D uLayer3;
+          uniform sampler2D uLayer4;
+          uniform vec2 uMove1;
+          uniform vec2 uMove2;
+          uniform vec2 uMove3;
+          uniform vec2 uMove4;
+        #endif
+        `
+      )
+      .replace(
+        "#include <map_fragment>",
+        `
+        #ifdef USE_MAP
+          vec2 baseUv = (uHalfSide < -0.5)
+            ? vMapUv
+            : vec2(uHalfSide * 0.5 + vMapUv.x * 0.5, vMapUv.y);
+
+          vec4 comp = texture2D(map, baseUv);
+
+          vec2 uv1 = baseUv + uParallax * uMove1;
+          if (uv1.x >= 0.0 && uv1.x <= 1.0 && uv1.y >= 0.0 && uv1.y <= 1.0) {
+            vec4 c1 = texture2D(uLayer1, uv1);
+            comp.rgb = mix(comp.rgb, c1.rgb, c1.a);
+          }
+
+          vec2 uv2 = baseUv + uParallax * uMove2;
+          if (uv2.x >= 0.0 && uv2.x <= 1.0 && uv2.y >= 0.0 && uv2.y <= 1.0) {
+            vec4 c2 = texture2D(uLayer2, uv2);
+            comp.rgb = mix(comp.rgb, c2.rgb, c2.a);
+          }
+
+          vec2 uv3 = baseUv + uParallax * uMove3;
+          if (uv3.x >= 0.0 && uv3.x <= 1.0 && uv3.y >= 0.0 && uv3.y <= 1.0) {
+            vec4 c3 = texture2D(uLayer3, uv3);
+            comp.rgb = mix(comp.rgb, c3.rgb, c3.a);
+          }
+
+          vec2 uv4 = baseUv + uParallax * uMove4;
+          if (uv4.x >= 0.0 && uv4.x <= 1.0 && uv4.y >= 0.0 && uv4.y <= 1.0) {
+            vec4 c4 = texture2D(uLayer4, uv4);
+            comp.rgb = mix(comp.rgb, c4.rgb, c4.a);
+          }
+
+          if (uGutterShade > 0.5) {
+            float centerDist = abs(baseUv.x - 0.5);
+            float crease = smoothstep(0.028, 0.0, centerDist);
+            comp.rgb *= (1.0 - crease * 0.28);
+          }
+
+          diffuseColor *= comp;
+        #endif
+        `
+      );
+  };
+
+  return { mat, uniforms };
 }
 
 export default function VoyagerBook3D({
@@ -572,18 +270,16 @@ export default function VoyagerBook3D({
   reduced,
   gyroActive = false,
   spreads,
-  coverImage,
-  backCoverImage,
-  coverTopLine,
+  coverLayers,
+  backCoverLayers,
   coverMainTitle,
-  coverTagline,
-  backColophon,
 }: VoyagerBook3DProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const targetPageRef = useRef(page);
   const langRef = useRef(lang);
   const reducedRef = useRef(reduced);
   const onChangePageRef = useRef(onChangePage);
+  const swappableRef = useRef<LangSwappableMaterial[]>([]);
   const [webglReady, setWebglReady] = useState(true);
 
   useEffect(() => {
@@ -592,6 +288,12 @@ export default function VoyagerBook3D({
 
   useEffect(() => {
     langRef.current = lang;
+    for (const item of swappableRef.current) {
+      const lTex = item.lettersTex[lang];
+      const tTex = item.textTex[lang];
+      if (lTex) item.uniforms.uLayer1.value = lTex;
+      if (tTex) item.uniforms.uLayer4.value = tTex;
+    }
   }, [lang]);
 
   useEffect(() => {
@@ -623,7 +325,7 @@ export default function VoyagerBook3D({
     renderer.setSize(container.clientWidth || 1200, container.clientHeight || 720);
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.06;
+    renderer.toneMappingExposure = 1.04;
     renderer.domElement.className = "vg-canvas";
     container.appendChild(renderer.domElement);
 
@@ -632,40 +334,40 @@ export default function VoyagerBook3D({
     const width = container.clientWidth || 1200;
     const height = container.clientHeight || 720;
     const aspect = width / height;
-    const camera = new THREE.PerspectiveCamera(aspect < 1 ? 46 : 35, aspect, 0.1, 100);
-    camera.position.set(0, 0, aspect < 1 ? 11.4 : 8.5);
+    const camera = new THREE.PerspectiveCamera(aspect < 1 ? 45 : 34, aspect, 0.1, 100);
+    camera.position.set(0, 0, aspect < 1 ? 12.6 : 9.4);
     camera.lookAt(0, 0, 0);
 
-    const ambient = new THREE.AmbientLight(0xfff1dc, 1.32);
+    const ambient = new THREE.AmbientLight(0xfff1dc, 1.38);
     scene.add(ambient);
 
-    const keyLight = new THREE.DirectionalLight(0xfff5e4, 1.48);
-    keyLight.position.set(3.2, 4.4, 7.6);
+    const keyLight = new THREE.DirectionalLight(0xfff5e4, 1.42);
+    keyLight.position.set(3.4, 4.4, 8.2);
     scene.add(keyLight);
 
-    const warmSpot = new THREE.SpotLight(0xffdfb0, 2.6, 26, Math.PI / 3.4, 0.65, 1.2);
-    warmSpot.position.set(-2.2, 2.8, 7.0);
+    const warmSpot = new THREE.SpotLight(0xffdfb0, 2.4, 28, Math.PI / 3.2, 0.68, 1.1);
+    warmSpot.position.set(-2.2, 2.6, 7.6);
     scene.add(warmSpot);
 
-    const rimLight = new THREE.DirectionalLight(0x88b4ff, 0.42);
+    const rimLight = new THREE.DirectionalLight(0x88b4ff, 0.36);
     rimLight.position.set(-4.5, -2.5, 4.5);
     scene.add(rimLight);
 
-    // Subtle floating star particles on background depth plane
+    // Floating depth starfield particles behind the storybook
     const starCount = 130;
     const starPositions = new Float32Array(starCount * 3);
     for (let i = 0; i < starCount; i += 1) {
-      starPositions[i * 3] = (Math.random() - 0.5) * 18;
-      starPositions[i * 3 + 1] = (Math.random() - 0.5) * 11;
-      starPositions[i * 3 + 2] = -3.8 - Math.random() * 4.5;
+      starPositions[i * 3] = (Math.random() - 0.5) * 20;
+      starPositions[i * 3 + 1] = (Math.random() - 0.5) * 12;
+      starPositions[i * 3 + 2] = -4.2 - Math.random() * 4.5;
     }
     const starGeo = new THREE.BufferGeometry();
     starGeo.setAttribute("position", new THREE.BufferAttribute(starPositions, 3));
     const starMat = new THREE.PointsMaterial({
       color: 0xffe4a3,
-      size: 0.048,
+      size: 0.052,
       transparent: true,
-      opacity: 0.52,
+      opacity: 0.50,
     });
     const starPoints = new THREE.Points(starGeo, starMat);
     scene.add(starPoints);
@@ -673,43 +375,34 @@ export default function VoyagerBook3D({
     const bookWrapper = new THREE.Group();
     scene.add(bookWrapper);
 
-    const pageW = 3.45;
-    const pageH = 3.92;
+    // Panoramic 1.95:1 open two-page spread geometry (4.05 x 4.15 per half)
+    const pageW = 4.05;
+    const pageH = 4.15;
     const segX = 28;
     const segY = 6;
     const maxAnisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy());
 
-    // Rounded outer board-book corner masks
     const rightCornerAlpha = createCornerAlphaTexture("right");
     const leftCornerAlpha = createCornerAlphaTexture("left");
     const deskShadowTex = createDeskShadowTexture();
+    const emptyTex = createEmptyTexture();
+    const fallbackCoverTex = createSolidTexture(24, 28, 68);
+    const fallbackPageTex = createSolidTexture(28, 32, 74);
 
     const deskShadowMat = new THREE.MeshBasicMaterial({
       map: deskShadowTex,
       transparent: true,
       depthWrite: false,
-      opacity: 0.74,
+      opacity: 0.76,
     });
     const deskShadowMesh = new THREE.Mesh(
       new THREE.PlaneGeometry(pageW * 2.24, pageH * 1.18),
       deskShadowMat
     );
-    deskShadowMesh.position.set(0, -0.06, -0.22);
+    deskShadowMesh.position.set(0, -0.06, -0.24);
     bookWrapper.add(deskShadowMesh);
 
-    const buildPlaceholderTexture = (tint: string): THREE.CanvasTexture => {
-      const c = document.createElement("canvas");
-      c.width = 64;
-      c.height = 64;
-      const g = c.getContext("2d");
-      if (g) {
-        g.fillStyle = tint;
-        g.fillRect(0, 0, 64, 64);
-      }
-      const tex = new THREE.CanvasTexture(c);
-      tex.colorSpace = THREE.SRGBColorSpace;
-      return tex;
-    };
+    const sharedParallax = { value: new THREE.Vector2(0, 0) };
 
     interface LeafBundle {
       group: THREE.Group;
@@ -719,13 +412,26 @@ export default function VoyagerBook3D({
       backBaseX: Float32Array;
       frontMat: THREE.MeshStandardMaterial;
       backMat: THREE.MeshStandardMaterial;
+      frontUniforms: ParallaxUniformBundle;
+      backUniforms: ParallaxUniformBundle;
     }
 
     const leafCount = spreads.length + 1;
     const leaves: LeafBundle[] = [];
+    const createdTextures: THREE.Texture[] = [
+      rightCornerAlpha,
+      leftCornerAlpha,
+      deskShadowTex,
+      emptyTex,
+      fallbackCoverTex,
+      fallbackPageTex,
+    ];
+    swappableRef.current = [];
 
     for (let i = 0; i < leafCount; i += 1) {
-      const isHardCover = i === 0 || i === leafCount - 1;
+      const isCoverFront = i === 0;
+      const isCoverBack = i === leafCount - 1;
+
       const frontGeo = new THREE.PlaneGeometry(pageW, pageH, segX, segY);
       frontGeo.translate(pageW * 0.5, 0, 0.0025);
       const fPos = frontGeo.attributes.position;
@@ -743,20 +449,24 @@ export default function VoyagerBook3D({
         backBaseX[k] = bPos.getX(k);
       }
 
-      const frontMat = new THREE.MeshStandardMaterial({
-        map: buildPlaceholderTexture(i === 0 ? "#1C214A" : "#E9DEC8"),
+      const { mat: frontMat, uniforms: frontUniforms } = createParallaxPageMaterial({
+        fallbackBg: isCoverFront ? fallbackCoverTex : fallbackPageTex,
+        emptyTex,
         alphaMap: rightCornerAlpha,
-        alphaTest: 0.45,
-        roughness: isHardCover ? 0.62 : 0.82,
-        metalness: 0.02,
+        sharedParallax,
+        halfSide: isCoverFront ? -1.0 : 1.0,
+        gutterShade: isCoverFront ? 0.0 : 1.0,
+        roughness: isCoverFront ? 0.64 : 0.80,
       });
 
-      const backMat = new THREE.MeshStandardMaterial({
-        map: buildPlaceholderTexture(i === leafCount - 1 ? "#1A1E44" : "#E9DEC8"),
+      const { mat: backMat, uniforms: backUniforms } = createParallaxPageMaterial({
+        fallbackBg: isCoverBack ? fallbackCoverTex : fallbackPageTex,
+        emptyTex,
         alphaMap: leftCornerAlpha,
-        alphaTest: 0.45,
-        roughness: isHardCover ? 0.62 : 0.82,
-        metalness: 0.02,
+        sharedParallax,
+        halfSide: isCoverBack ? -1.0 : 0.0,
+        gutterShade: isCoverBack ? 0.0 : 1.0,
+        roughness: isCoverBack ? 0.64 : 0.80,
       });
 
       const frontMesh = new THREE.Mesh(frontGeo, frontMat);
@@ -774,121 +484,124 @@ export default function VoyagerBook3D({
         backBaseX,
         frontMat,
         backMat,
+        frontUniforms,
+        backUniforms,
       });
     }
 
-    // Two floating 2.5D parallax overlay planes parented to the book wrapper
-    const displayCanvas = document.createElement("canvas");
-    displayCanvas.width = 2048;
-    displayCanvas.height = 1164;
-    const displayTex = new THREE.CanvasTexture(displayCanvas);
-    displayTex.colorSpace = THREE.SRGBColorSpace;
-    displayTex.minFilter = THREE.LinearFilter;
-    displayTex.anisotropy = maxAnisotropy;
-
-    const layerDisplayMat = new THREE.MeshBasicMaterial({
-      map: displayTex,
-      transparent: true,
-      depthWrite: false,
-      opacity: 0,
-    });
-    const layerDisplayMesh = new THREE.Mesh(
-      new THREE.PlaneGeometry(pageW * 2, pageH),
-      layerDisplayMat
-    );
-    layerDisplayMesh.position.set(0, 0, 0.21);
-    layerDisplayMesh.visible = false;
-    bookWrapper.add(layerDisplayMesh);
-
-    const storyCanvas = document.createElement("canvas");
-    storyCanvas.width = 2048;
-    storyCanvas.height = 1164;
-    const storyTex = new THREE.CanvasTexture(storyCanvas);
-    storyTex.colorSpace = THREE.SRGBColorSpace;
-    storyTex.minFilter = THREE.LinearFilter;
-    storyTex.anisotropy = maxAnisotropy;
-
-    const layerStoryMat = new THREE.MeshBasicMaterial({
-      map: storyTex,
-      transparent: true,
-      depthWrite: false,
-      opacity: 0,
-    });
-    const layerStoryMesh = new THREE.Mesh(
-      new THREE.PlaneGeometry(pageW * 2, pageH),
-      layerStoryMat
-    );
-    layerStoryMesh.position.set(0, 0, 0.35);
-    layerStoryMesh.visible = false;
-    bookWrapper.add(layerStoryMesh);
-
-    const makeCanvasTexture = (canvas: HTMLCanvasElement): THREE.CanvasTexture => {
-      const tex = new THREE.CanvasTexture(canvas);
-      tex.colorSpace = THREE.SRGBColorSpace;
-      tex.anisotropy = maxAnisotropy;
-      tex.minFilter = THREE.LinearMipmapLinearFilter;
-      tex.generateMipmaps = true;
-      return tex;
-    };
-
     let disposed = false;
-    const createdTextures: THREE.Texture[] = [
-      rightCornerAlpha,
-      leftCornerAlpha,
-      deskShadowTex,
-      displayTex,
-      storyTex,
-    ];
+    const loader = new THREE.TextureLoader();
 
-    const loadImg = (src: string): Promise<HTMLImageElement> =>
+    const loadTex = (url: string, isOverlay: boolean): Promise<THREE.Texture> =>
       new Promise((resolve, reject) => {
-        const img = new Image();
-        img.crossOrigin = "anonymous";
-        img.onload = () => resolve(img);
-        img.onerror = reject;
-        img.src = src;
+        loader.load(
+          url,
+          (tex) => {
+            if (disposed) {
+              tex.dispose();
+              return;
+            }
+            tex.colorSpace = THREE.SRGBColorSpace;
+            tex.wrapS = THREE.ClampToEdgeWrapping;
+            tex.wrapT = THREE.ClampToEdgeWrapping;
+            if (isOverlay) {
+              tex.minFilter = THREE.LinearFilter;
+              tex.magFilter = THREE.LinearFilter;
+              tex.generateMipmaps = false;
+            } else {
+              tex.anisotropy = maxAnisotropy;
+              tex.minFilter = THREE.LinearMipmapLinearFilter;
+            }
+            tex.needsUpdate = true;
+            createdTextures.push(tex);
+            resolve(tex);
+          },
+          undefined,
+          reject
+        );
       });
 
-    // Load cover art immediately
-    loadImg(coverImage)
-      .then((img) => {
-        if (disposed) return;
-        const c = paintFrontCoverCanvas(img, coverTopLine, coverMainTitle, coverTagline);
-        const tex = makeCanvasTexture(c);
-        createdTextures.push(tex);
-        leaves[0].frontMat.map = tex;
-        leaves[0].frontMat.needsUpdate = true;
-      })
-      .catch(() => {});
+    const wireLayerSetToTargets = (
+      layers: VoyagerLayerSet,
+      targets: Array<{ mat: THREE.MeshStandardMaterial; uniforms: ParallaxUniformBundle }>
+    ) => {
+      const entryTargets = targets.map((t) => {
+        const entry: LangSwappableMaterial = {
+          uniforms: t.uniforms,
+          layers,
+          lettersTex: {},
+          textTex: {},
+        };
+        swappableRef.current.push(entry);
+        return { t, entry };
+      });
 
-    // Load back cover art onto final leaf's back face so book closes completely
-    loadImg(backCoverImage)
-      .then((img) => {
-        if (disposed) return;
-        const c = paintBackCoverCanvas(img, backColophon);
-        const tex = makeCanvasTexture(c);
-        createdTextures.push(tex);
-        leaves[leafCount - 1].backMat.map = tex;
-        leaves[leafCount - 1].backMat.needsUpdate = true;
-      })
-      .catch(() => {});
-
-    // Load all 6 two-page spreads (left half -> leaf i back, right half -> leaf i+1 front)
-    spreads.forEach((sp, i) => {
-      loadImg(sp.image)
-        .then((img) => {
-          if (disposed) return;
-          const leftC = paintHalfSpreadCanvas(img, "left");
-          const rightC = paintHalfSpreadCanvas(img, "right");
-          const leftTex = makeCanvasTexture(leftC);
-          const rightTex = makeCanvasTexture(rightC);
-          createdTextures.push(leftTex, rightTex);
-          leaves[i].backMat.map = leftTex;
-          leaves[i].backMat.needsUpdate = true;
-          leaves[i + 1].frontMat.map = rightTex;
-          leaves[i + 1].frontMat.needsUpdate = true;
+      loadTex(layers.bg, false)
+        .then((tex) => {
+          for (const { t } of entryTargets) {
+            t.mat.map = tex;
+            t.mat.needsUpdate = true;
+          }
         })
         .catch(() => {});
+
+      loadTex(layers.mid, true)
+        .then((tex) => {
+          for (const { t } of entryTargets) {
+            t.uniforms.uLayer2.value = tex;
+          }
+        })
+        .catch(() => {});
+
+      loadTex(layers.fg, true)
+        .then((tex) => {
+          for (const { t } of entryTargets) {
+            t.uniforms.uLayer3.value = tex;
+          }
+        })
+        .catch(() => {});
+
+      (["en", "es"] as const).forEach((code) => {
+        loadTex(layers.letters[code], true)
+          .then((tex) => {
+            for (const { t, entry } of entryTargets) {
+              entry.lettersTex[code] = tex;
+              if (langRef.current === code) {
+                t.uniforms.uLayer1.value = tex;
+              }
+            }
+          })
+          .catch(() => {});
+
+        loadTex(layers.text[code], true)
+          .then((tex) => {
+            for (const { t, entry } of entryTargets) {
+              entry.textTex[code] = tex;
+              if (langRef.current === code) {
+                t.uniforms.uLayer4.value = tex;
+              }
+            }
+          })
+          .catch(() => {});
+      });
+    };
+
+    // Cover front face -> leaf 0 front
+    wireLayerSetToTargets(coverLayers, [
+      { mat: leaves[0].frontMat, uniforms: leaves[0].frontUniforms },
+    ]);
+
+    // Back cover face -> final leaf back
+    wireLayerSetToTargets(backCoverLayers, [
+      { mat: leaves[leafCount - 1].backMat, uniforms: leaves[leafCount - 1].backUniforms },
+    ]);
+
+    // All 6 spreads -> leaf i back (left half) + leaf i+1 front (right half) sharing loaded textures!
+    spreads.forEach((sp, i) => {
+      wireLayerSetToTargets(sp.layers, [
+        { mat: leaves[i].backMat, uniforms: leaves[i].backUniforms },
+        { mat: leaves[i + 1].frontMat, uniforms: leaves[i + 1].frontUniforms },
+      ]);
     });
 
     const bendGeometry = (
@@ -902,14 +615,13 @@ export default function VoyagerBook3D({
       for (let i = 0; i < pos.count; i += 1) {
         const bx = baseX[i];
         const ratio = bx / pageW;
-        const gutterLift = Math.sin(Math.min(1, ratio * 2.5) * Math.PI) * 0.042;
-        const curlAngle = bow * (0.38 * ratio * ratio);
-        const arcR = bx;
-        const rx = curlAngle > 0.001 ? arcR * Math.cos(curlAngle) : bx;
+        const gutterLift = Math.sin(Math.min(1, ratio * 2.5) * Math.PI) * 0.045;
+        const curlAngle = bow * (0.36 * ratio * ratio);
+        const rx = curlAngle > 0.001 ? bx * Math.cos(curlAngle) : bx;
         const rz =
           baseZ +
           gutterLift * (1 - bow * 0.65) +
-          (curlAngle > 0.001 ? arcR * Math.sin(curlAngle) : 0);
+          (curlAngle > 0.001 ? bx * Math.sin(curlAngle) : 0);
         pos.setX(i, rx);
         pos.setZ(i, rz);
       }
@@ -917,7 +629,6 @@ export default function VoyagerBook3D({
       geo.computeVertexNormals();
     };
 
-    // Mouse parallax & mobile gyroscope state
     let pointerNormX = 0;
     let pointerNormY = 0;
     let gyroNormX = 0;
@@ -926,27 +637,6 @@ export default function VoyagerBook3D({
     let parallaxX = 0;
     let parallaxY = 0;
     let smoothProgress = targetPageRef.current;
-    let lastOverlayKey = "";
-
-    const syncOverlayTextures = (spreadIdx: number, activeLang: "en" | "es") => {
-      const sp = spreads[spreadIdx - 1];
-      if (!sp) return;
-      const key = `${sp.id}:${activeLang}`;
-      if (key === lastOverlayKey) return;
-      lastOverlayKey = key;
-      drawSpreadParallaxDisplay(displayCanvas, sp, activeLang);
-      displayTex.needsUpdate = true;
-      drawSpreadParallaxStory(storyCanvas, sp, activeLang);
-      storyTex.needsUpdate = true;
-    };
-
-    // Paint initial spread overlay when fonts settle
-    if (document.fonts && document.fonts.ready) {
-      document.fonts.ready.then(() => {
-        if (disposed) return;
-        lastOverlayKey = "";
-      });
-    }
 
     const onPointerMove = (e: PointerEvent) => {
       const rect = container.getBoundingClientRect();
@@ -978,9 +668,9 @@ export default function VoyagerBook3D({
       const relX = (e.clientX - rect.left) / rect.width;
       const cur = targetPageRef.current;
       if (cur === 0) {
-        if (relX > 0.28) onChangePageRef.current(1);
+        if (relX > 0.25) onChangePageRef.current(1);
       } else if (cur >= spreads.length + 1) {
-        if (relX < 0.72) onChangePageRef.current(spreads.length);
+        if (relX < 0.75) onChangePageRef.current(spreads.length);
       } else if (relX < 0.44) {
         onChangePageRef.current(Math.max(0, cur - 1));
       } else if (relX > 0.56) {
@@ -999,7 +689,8 @@ export default function VoyagerBook3D({
       const h = container.clientHeight || 720;
       const a = w / h;
       camera.aspect = a;
-      camera.position.z = a < 1 ? 11.4 : 8.5;
+      camera.fov = a < 1 ? 45 : 34;
+      camera.position.z = a < 1 ? 12.6 : 9.4;
       camera.updateProjectionMatrix();
       renderer.setSize(w, h);
     };
@@ -1029,7 +720,9 @@ export default function VoyagerBook3D({
       parallaxX += (goalX * factor - parallaxX) * Math.min(1, dt * 5.2);
       parallaxY += (goalY * factor - parallaxY) * Math.min(1, dt * 5.2);
 
-      // Update all 7 leaves
+      // Drive shader-space 2.5D parallax inside every open page surface!
+      sharedParallax.value.set(parallaxX * 0.022, -parallaxY * 0.018);
+
       for (let i = 0; i < leaves.length; i += 1) {
         const leaf = leaves[i];
         const rawP = THREE.MathUtils.clamp(smoothProgress - i, 0, 1);
@@ -1048,12 +741,9 @@ export default function VoyagerBook3D({
         bendGeometry(leaf.backGeo, leaf.backBaseX, -0.0025, easedP);
       }
 
-      // Smooth centering between Front Cover (0), Open Spreads (1..6), and Back Cover (7)
       const isDesktop = (container.clientWidth || 1200) > 900;
       const frontCoverOffset = -pageW * 0.5;
-      const backCoverDesktopOffset = pageW * 0.5 - 1.15;
-      const backCoverMobileOffset = pageW * 0.5;
-      const backCoverOffset = isDesktop ? backCoverDesktopOffset : backCoverMobileOffset;
+      const backCoverOffset = isDesktop ? pageW * 0.5 - 1.32 : pageW * 0.5;
 
       let targetBookX = 0;
       if (smoothProgress < 1) {
@@ -1068,13 +758,12 @@ export default function VoyagerBook3D({
         targetBookX = THREE.MathUtils.lerp(0, backCoverOffset, closeEase);
       }
 
-      const swayY = Math.sin(now * 0.00055) * 0.025 * factor;
+      const swayY = Math.sin(now * 0.00055) * 0.024 * factor;
       bookWrapper.position.x = targetBookX;
-      bookWrapper.position.y = parallaxY * -0.10 + swayY;
-      bookWrapper.rotation.y = parallaxX * 0.11;
-      bookWrapper.rotation.x = parallaxY * 0.07;
+      bookWrapper.position.y = parallaxY * -0.09 + swayY;
+      bookWrapper.rotation.y = parallaxX * 0.10;
+      bookWrapper.rotation.x = parallaxY * 0.065;
 
-      // Adapt soft desk shadow behind single cover vs open spread
       const openFactor =
         smoothProgress < 1
           ? THREE.MathUtils.smoothstep(smoothProgress, 0.1, 0.9)
@@ -1089,29 +778,6 @@ export default function VoyagerBook3D({
             ? THREE.MathUtils.lerp(0, -pageW * 0.5, 1 - openFactor)
             : 0;
 
-      // Floating 2.5D parallax story & typography layers (visible cleanly when settled on a spread)
-      const nearestIdx = Math.round(smoothProgress);
-      const distFromStop = Math.abs(smoothProgress - nearestIdx);
-      if (nearestIdx >= 1 && nearestIdx <= spreads.length) {
-        syncOverlayTextures(nearestIdx, langRef.current);
-        const settle = Math.pow(
-          THREE.MathUtils.clamp(1 - distFromStop * 1.95, 0, 1),
-          2
-        );
-        layerDisplayMat.opacity = settle;
-        layerStoryMat.opacity = settle;
-        const isVisible = settle > 0.015;
-        layerDisplayMesh.visible = isVisible;
-        layerStoryMesh.visible = isVisible;
-        layerDisplayMesh.position.set(parallaxX * 0.14, parallaxY * 0.08, 0.21);
-        layerStoryMesh.position.set(parallaxX * 0.24, parallaxY * 0.14, 0.35);
-      } else {
-        layerDisplayMesh.visible = false;
-        layerStoryMesh.visible = false;
-        layerDisplayMat.opacity = 0;
-        layerStoryMat.opacity = 0;
-      }
-
       starPoints.rotation.y = now * 0.000018 * factor;
       renderer.render(scene, camera);
       rafId = requestAnimationFrame(tick);
@@ -1122,6 +788,7 @@ export default function VoyagerBook3D({
     return () => {
       disposed = true;
       cancelAnimationFrame(rafId);
+      swappableRef.current = [];
       window.removeEventListener("pointermove", onPointerMove);
       window.removeEventListener("deviceorientation", onDeviceOrientation);
       window.removeEventListener("resize", onResize);
@@ -1136,10 +803,6 @@ export default function VoyagerBook3D({
         l.frontMat.dispose();
         l.backMat.dispose();
       });
-      layerDisplayMesh.geometry.dispose();
-      layerDisplayMat.dispose();
-      layerStoryMesh.geometry.dispose();
-      layerStoryMat.dispose();
       deskShadowMesh.geometry.dispose();
       deskShadowMat.dispose();
       starGeo.dispose();
@@ -1147,26 +810,17 @@ export default function VoyagerBook3D({
       createdTextures.forEach((t) => t.dispose());
       renderer.dispose();
     };
-  }, [
-    spreads,
-    coverImage,
-    backCoverImage,
-    coverTopLine,
-    coverMainTitle,
-    coverTagline,
-    backColophon,
-    gyroActive,
-  ]);
+  }, [spreads, coverLayers, backCoverLayers, gyroActive]);
 
   if (!webglReady) {
     const activeSpread =
       page >= 1 && page <= spreads.length ? spreads[page - 1] : null;
     const fallbackSrc =
       page === 0
-        ? coverImage
+        ? coverLayers.bg
         : page >= spreads.length + 1
-          ? backCoverImage
-          : activeSpread?.image ?? coverImage;
+          ? backCoverLayers.bg
+          : activeSpread?.layers.bg ?? coverLayers.bg;
     return (
       <div className="vg-webgl-fallback">
         <div

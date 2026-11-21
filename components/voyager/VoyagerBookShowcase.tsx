@@ -5,34 +5,46 @@ import Link from "next/link";
 import dynamic from "next/dynamic";
 import { useLanguage } from "@/components/LanguageProvider";
 import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
-import type { VoyagerSpreadSpec } from "./VoyagerBook3D";
+import type { VoyagerLayerSet, VoyagerSpreadSpec } from "./VoyagerBook3D";
 
 const VoyagerBook3D = dynamic(() => import("./VoyagerBook3D"), {
   ssr: false,
   loading: () => <div className="vg-loading-stage">...</div>,
 });
 
+function makeLayerSet(folder: string): VoyagerLayerSet {
+  const base = `/images/voyager/layers/${folder}`;
+  return {
+    bg: `${base}/bg.png`,
+    letters: {
+      en: `${base}/letters-en.png`,
+      es: `${base}/letters-es.png`,
+    },
+    mid: `${base}/mid.png`,
+    fg: `${base}/fg.png`,
+    text: {
+      en: `${base}/text-en.png`,
+      es: `${base}/text-es.png`,
+    },
+    thumb: `${base}/thumb.png`,
+  };
+}
+
+const COVER_LAYERS = makeLayerSet("cover");
+const BACK_COVER_LAYERS = makeLayerSet("back-cover");
+
 const SPREADS: VoyagerSpreadSpec[] = [
   {
-    id: "spread-01-hello",
-    image: "/images/voyager/spread-01-hello.png",
+    id: "spread-01",
+    layers: makeLayerSet("spread-01"),
     navLabel: { en: "Look Up!", es: "¡Mira Arriba!" },
-    thumbPos: "58% 46%",
     title: {
-      en: "Look Up — A Tiny Robot Far Away",
+      en: "Look Up — A Tiny Explorer Far Away",
       es: "Mira Arriba — Una Nave Muy Lejana",
     },
-    displayTop: {
-      en: "CHAPTER 1 • LOOK UP!",
-      es: "CAPÍTULO 1 • ¡MIRA ARRIBA!",
-    },
-    displayMain: {
-      en: "Hello,\nLittle Traveler",
-      es: "Hola,\nPequeña Viajera",
-    },
     story: {
-      en: "Long before you were born, dreamers built Voyager 1—a brave golden explorer racing past the stars with Maca keeping watch from the garden.",
-      es: "Mucho antes de que nacieras, unos soñadores lanzaron a Voyager 1: una nave dorada que viaja entre estrellas mientras Maca vigila el cielo.",
+      en: "Long before you were born, dreamers launched Voyager 1—a brave golden explorer racing past the stars with Maca keeping watch.",
+      es: "Mucho antes de que nacieras, unos soñadores lanzaron a Voyager 1: una nave dorada que viaja entre estrellas con Maca mirando el cielo.",
     },
     macaFact: {
       en: "Voyager 1 left Earth in 1977 and has never come home—it is now the farthest human-made object in the entire universe!",
@@ -42,30 +54,18 @@ const SPREADS: VoyagerSpreadSpec[] = [
       en: "Ask together: If you pointed a cardboard telescope at the sky tonight, what faraway world would you say hello to first?",
       es: "Pregunta en familia: Si apuntaras un telescopio de cartón al cielo esta noche, ¿a qué mundo lejano saludarías primero?",
     },
-    accentColor: "#FFD166",
-    textSide: "right",
-    textAnchor: { x: 0.56, y: 0.14, align: "left" },
   },
   {
-    id: "spread-02-launch",
-    image: "/images/voyager/spread-02-launch.png",
+    id: "spread-02",
+    layers: makeLayerSet("spread-02"),
     navLabel: { en: "Blast Off", es: "Despegue" },
-    thumbPos: "77% 36%",
     title: {
       en: "Blast Off on a Pillar of Fire",
       es: "Despegue en un Pilar de Fuego",
     },
-    displayTop: {
-      en: "SEPTEMBER 1977 • TITAN IIIE",
-      es: "SEPTIEMBRE 1977 • DESPEGUE",
-    },
-    displayMain: {
-      en: "Up, Up &\nWay Out!",
-      es: "¡Más Alto\ny Más Lejos!",
-    },
     story: {
-      en: "WHOOOOSH! On a bright morning, a giant orange rocket roared into the clouds—and Maca cheered as Voyager climbed above rainforests and oceans.",
-      es: "¡FUUUUM! Una mañana luminosa, un cohete gigante rugió hacia las nubes mientras Maca celebraba su vuelo sobre selvas y mares.",
+      en: "WHOOOOSH! On a bright September morning, a roaring orange rocket lifted Voyager past rainforests and oceans as Maca cheered.",
+      es: "¡FUUUUM! Una mañana luminosa de septiembre, un cohete gigante rugió hacia las nubes mientras Maca celebraba su viaje.",
     },
     macaFact: {
       en: "Voyager speeds at more than 61,000 kilometers per hour—faster than twenty racing jets flying nose to tail!",
@@ -75,31 +75,18 @@ const SPREADS: VoyagerSpreadSpec[] = [
       en: "Count down from 5 to 1 together and flap your brightest macaw wings like Maca climbing into the clouds!",
       es: "¡Cuenten juntos del 5 al 1 y agiten sus alas de guacamaya como Maca subiendo hasta las nubes!",
     },
-    accentColor: "#E84A3A",
-    lightPaper: true,
-    textSide: "left",
-    textAnchor: { x: 0.06, y: 0.11, align: "left" },
   },
   {
-    id: "spread-03-jupiter",
-    image: "/images/voyager/spread-03-jupiter.png",
-    navLabel: { en: "Giant Swirls", es: "Nubes Gigantes" },
-    thumbPos: "38% 52%",
+    id: "spread-03",
+    layers: makeLayerSet("spread-03"),
+    navLabel: { en: "Jupiter", es: "Júpiter" },
     title: {
-      en: "Jupiter's Giant Swirl & Volcanic Moons",
-      es: "Los Remolinos de Júpiter y sus Lunas",
-    },
-    displayTop: {
-      en: "CHAPTER 3 • JUPITER",
-      es: "CAPÍTULO 3 • JÚPITER",
-    },
-    displayMain: {
-      en: "A Storm\nAs Big As Earth",
-      es: "Una Tormenta\nColor Coral",
+      en: "Jupiter's Giant Swirls and Moons",
+      es: "Las Tormentas de Júpiter y sus Lunas",
     },
     story: {
-      en: "Voyager buzzed past stormy Jupiter and spotted volcanoes erupting on moon Io—tiny glowing sparks dancing beside clouds wide enough to swallow our whole world.",
-      es: "Voyager rozó las nubes gigantes de Júpiter y descubrió volcanes activos en su luna Ío junto a una tormenta donde cabría toda la Tierra.",
+      en: "Voyager buzzed past marbled Jupiter and spotted orange volcanoes erupting on moon Io—beside a swirling hurricane wider than our Earth.",
+      es: "Voyager rozó las nubes rayadas de Júpiter y descubrió volcanes activos en Ío, junto a una gran tormenta donde cabría la Tierra.",
     },
     macaFact: {
       en: "Jupiter's Great Red Spot is a spinning storm larger than planet Earth that has been swirling for over three centuries!",
@@ -109,30 +96,18 @@ const SPREADS: VoyagerSpreadSpec[] = [
       en: "Which crayon colors would you grab to draw Jupiter's striped clouds—tangerine, honey yellow, or hot volcanic cinnamon?",
       es: "¿Qué crayones elegirías para pintar las nubes de Júpiter: mandarina, miel o rojo volcán?",
     },
-    accentColor: "#F4A236",
-    textSide: "left",
-    textAnchor: { x: 0.19, y: 0.56, align: "left" },
   },
   {
-    id: "spread-04-saturn",
-    image: "/images/voyager/spread-04-saturn.png",
-    navLabel: { en: "Icy Rings", es: "Anillos de Hielo" },
-    thumbPos: "72% 72%",
+    id: "spread-04",
+    layers: makeLayerSet("spread-04"),
+    navLabel: { en: "Saturn", es: "Saturno" },
     title: {
       en: "Dancing Through Saturn's Icy Rings",
       es: "Bailando en los Anillos de Saturno",
     },
-    displayTop: {
-      en: "CHAPTER 4 • SATURN",
-      es: "CAPÍTULO 4 • SATURNO",
-    },
-    displayMain: {
-      en: "Skating\non Stardust",
-      es: "Patinando en\nHielo y Luz",
-    },
     story: {
-      en: "Then came Saturn's twinkling ribbon of ice and dust! Voyager tilted toward misty Titan before flinging onward toward the endless velvet night.",
-      es: "Después llegaron los anillos brillantes de Saturno, hechos de millones de cristales de hielo bailando antes de saltar al espacio profundo.",
+      en: "Then came Saturn's glittering ribbon of icy jewels—stretching wider than Earth to the Moon yet thinner than a backyard slide.",
+      es: "Después brillaron los anillos mágicos de Saturno, hechos de millones de cristales de hielo bailando en el silencio azul.",
     },
     macaFact: {
       en: "Saturn's rings stretch wider than Earth to the Moon, yet in many places they are thinner than a backyard slide!",
@@ -142,30 +117,18 @@ const SPREADS: VoyagerSpreadSpec[] = [
       en: "Look closely! Can you spot the cosmic cat gliding through Saturn's rainbow rings while Maca flies alongside Voyager?",
       es: "¡Mira con lupa! ¿Ves al gatito espacial flotando en los anillos mientras Maca vuela junto a Voyager?",
     },
-    accentColor: "#98DCE6",
-    textSide: "left",
-    textAnchor: { x: 0.06, y: 0.56, align: "left" },
   },
   {
-    id: "spread-05-record",
-    image: "/images/voyager/spread-05-record.png",
+    id: "spread-05",
+    layers: makeLayerSet("spread-05"),
     navLabel: { en: "Golden Song", es: "Disco de Oro" },
-    thumbPos: "74% 50%",
     title: {
       en: "The Golden Record — Earth's Mixtape",
       es: "El Disco de Oro — Canción del Planeta",
     },
-    displayTop: {
-      en: "CHAPTER 5 • TIME CAPSULE",
-      es: "CAPÍTULO 5 • DISCO DE ORO",
-    },
-    displayMain: {
-      en: "Earth's\nTime Capsule",
-      es: "Nuestra Cápsula\nMusical",
-    },
     story: {
-      en: "Bolted to Voyager's golden side rides a shimmering copper record filled with whale songs, laughter, thunder, guitars, and gentle hellos in 55 languages.",
-      es: "Sujeto al costado de la nave viaja un disco dorado con cantos de ballenas, risas, truenos, música y saludos en 55 idiomas.",
+      en: "Bolted to Voyager's side rides a copper record plated in gold—carrying whale songs, guitars, laughter, Beethoven, and hellos in 55 languages.",
+      es: "Sujeto a la nave viaja un disco dorado lleno de cantos de ballena, risas, lluvia suave, guitarras y saludos en 55 idiomas.",
     },
     macaFact: {
       en: "A tiny six-year-old boy named Nick Sagan recorded Earth's warm greeting: 'Hello from the children of planet Earth!'",
@@ -175,29 +138,17 @@ const SPREADS: VoyagerSpreadSpec[] = [
       en: "Tap the Golden Record pill below! Pick 1 favorite song and 1 home sound you would pack inside our family time capsule.",
       es: "¡Toca el botón del Disco de Oro! Elijan juntos 1 canción favorita y 1 sonido de casa para enviar a las estrellas.",
     },
-    accentColor: "#FFD166",
-    textSide: "left",
-    textAnchor: { x: 0.06, y: 0.09, align: "left" },
   },
   {
-    id: "spread-06-dot",
-    image: "/images/voyager/spread-06-dot.png",
+    id: "spread-06",
+    layers: makeLayerSet("spread-06"),
     navLabel: { en: "Blue Dot", es: "Punto Azul" },
-    thumbPos: "72% 48%",
     title: {
       en: "One Tiny Pale Blue Dot — Our Home",
       es: "Un Pequeño Punto Azul — Nuestro Hogar",
     },
-    displayTop: {
-      en: "CHAPTER 6 • PALE BLUE DOT",
-      es: "CAPÍTULO 6 • PUNTO AZUL",
-    },
-    displayMain: {
-      en: "One Tiny\nBlue Home",
-      es: "Un Pequeño\nPunto Azul",
-    },
     story: {
-      en: "Six billion kilometers away, Voyager looked back through a sunbeam and photographed Earth as one shimmering blue spark—holding every child, macaw, and dream.",
+      en: "Six billion kilometers away, Voyager looked back through a sunbeam and photographed Earth—one tiny blue spark holding every child and dream.",
       es: "A seis mil millones de kilómetros, Voyager miró atrás y fotografió la Tierra en un rayo de sol: un puntito azul donde cabe todo nuestro amor.",
     },
     macaFact: {
@@ -208,9 +159,6 @@ const SPREADS: VoyagerSpreadSpec[] = [
       en: "Carl Sagan reminded us that seeing Earth so small teaches us to be kinder to one another and to care for our only pale blue dot.",
       es: "Carl Sagan nos recordó que ver la Tierra tan chiquita nos invita a cuidarla con ternura y ser más amables entre todos.",
     },
-    accentColor: "#7CC8EA",
-    textSide: "left",
-    textAnchor: { x: 0.07, y: 0.09, align: "left" },
   },
 ];
 
@@ -326,11 +274,7 @@ const UI_COPY = {
       },
     ],
     replayBookBtn: "Read Again from Cover",
-    coverEyebrow: "SCARLET MACAW EDITION • BILINGUAL EN / ES",
     coverMainTitle: "Voyager 1",
-    coverTagline: "An interactive 3D wax-crayon bedtime story about Earth's farthest little traveler.",
-    backColophon:
-      "Still racing softly beyond the Sun. Written in two languages for curious kids, dreaming parents, and one very loud scarlet macaw.",
   },
   es: {
     backLabel: "Volver al portafolio",
@@ -382,11 +326,7 @@ const UI_COPY = {
       },
     ],
     replayBookBtn: "Volver a Leer desde Portada",
-    coverEyebrow: "EDICIÓN GUACAMAYA ROJA • BILINGÜE EN / ES",
     coverMainTitle: "Voyager 1",
-    coverTagline: "Un cuento interactivo 3D en creyón de cera sobre nuestra viajera más lejana.",
-    backColophon:
-      "Volando suavemente más allá del Sol. Escrito en dos idiomas para niños curiosos, madres y padres soñadores y una guacamaya muy parlanchina.",
   },
 } as const;
 
@@ -413,7 +353,6 @@ function VoyagerHandLogo({
         aria-hidden="true"
       >
         <g filter="url(#vgCrayonTex)">
-          {/* Tiny crayon planet emblem on the left */}
           <ellipse
             cx="24"
             cy="22"
@@ -433,12 +372,10 @@ function VoyagerHandLogo({
             strokeWidth="2.1"
             strokeLinecap="round"
           />
-          {/* Tiny star spark */}
           <path
             d="M 192,10 L 195,15 L 201,15 L 196,19 L 198,25 L 192,21 L 186,25 L 188,19 L 183,15 L 189,15 Z"
             fill="#FFD166"
           />
-          {/* Hand-drawn warm coral crayon underline */}
           <path
             d="M 48,38 Q 112,42 180,35"
             fill="none"
@@ -447,12 +384,7 @@ function VoyagerHandLogo({
             strokeLinecap="round"
           />
         </g>
-        <text
-          x="114"
-          y="29"
-          textAnchor="middle"
-          className="vg-hand-logo-word"
-        >
+        <text x="114" y="29" textAnchor="middle" className="vg-hand-logo-word">
           Voyager 1
         </text>
       </svg>
@@ -464,16 +396,11 @@ function VoyagerHandLogo({
 function CrayonArrowSvg({ direction }: { direction: "prev" | "next" }) {
   const isNext = direction === "next";
   return (
-    <svg
-      viewBox="0 0 88 52"
-      className="vg-crayon-arrow-svg"
-      aria-hidden="true"
-    >
+    <svg viewBox="0 0 88 52" className="vg-crayon-arrow-svg" aria-hidden="true">
       <g
         filter="url(#vgCrayonTex)"
         transform={isNext ? undefined : "translate(88 0) scale(-1 1)"}
       >
-        {/* Warm coral outer wax outline */}
         <path
           d="M 12,27 Q 41,22 72,26"
           fill="none"
@@ -489,7 +416,6 @@ function CrayonArrowSvg({ direction }: { direction: "prev" | "next" }) {
           strokeLinecap="round"
           strokeLinejoin="round"
         />
-        {/* Golden crayon core highlight */}
         <path
           d="M 13,26 Q 42,22 71,26"
           fill="none"
@@ -513,7 +439,7 @@ function CrayonArrowSvg({ direction }: { direction: "prev" | "next" }) {
 export function VoyagerBookShowcase() {
   const { lang, setLang } = useLanguage();
   const reduced = usePrefersReducedMotion();
-  const maxPage = SPREADS.length + 1; // 7 (Back Cover)
+  const maxPage = SPREADS.length + 1;
   const [page, setPage] = useState(0);
   const [macaOpen, setMacaOpen] = useState(false);
   const [recordModalOpen, setRecordModalOpen] = useState(false);
@@ -568,7 +494,6 @@ export function VoyagerBookShowcase() {
     [maxPage]
   );
 
-  // Keyboard navigation
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
@@ -587,7 +512,6 @@ export function VoyagerBookShowcase() {
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [page, macaOpen, recordModalOpen, goToPage]);
 
-  // Debounced wheel turn when modals are closed
   useEffect(() => {
     const onWheel = (e: WheelEvent) => {
       if (recordModalOpen || page >= maxPage) return;
@@ -608,27 +532,23 @@ export function VoyagerBookShowcase() {
   const medallions = [
     {
       id: "cover",
-      image: "/images/voyager/cover.png",
-      thumbPos: "50% 42%",
+      thumb: COVER_LAYERS.thumb,
       label: { en: ui.coverLabel, es: UI_COPY.es.coverLabel },
     },
     ...SPREADS.map((sp) => ({
       id: sp.id,
-      image: sp.image,
-      thumbPos: sp.thumbPos,
+      thumb: sp.layers.thumb,
       label: sp.navLabel,
     })),
     {
       id: "back-cover",
-      image: "/images/voyager/back-cover.png",
-      thumbPos: "50% 44%",
+      thumb: BACK_COVER_LAYERS.thumb,
       label: { en: ui.endLabel, es: UI_COPY.es.endLabel },
     },
   ];
 
   return (
     <div className="vg-page">
-      {/* Shared wax-crayon SVG grain filter */}
       <svg
         width="0"
         height="0"
@@ -655,10 +575,8 @@ export function VoyagerBookShowcase() {
         </defs>
       </svg>
 
-      {/* Atmospheric star-speckled cosmos canvas */}
       <div className="vg-cosmos-bg" aria-hidden="true" />
 
-      {/* Sticky Top Header Bar */}
       <header className="vg-topbar">
         <div className="vg-topbar-left">
           <Link href="/" className="vg-back-btn">
@@ -708,7 +626,6 @@ export function VoyagerBookShowcase() {
         </div>
       </header>
 
-      {/* Main 3D Interactive Book Stage */}
       <main className="vg-book-stage">
         <VoyagerBook3D
           page={page}
@@ -717,15 +634,11 @@ export function VoyagerBookShowcase() {
           reduced={reduced}
           gyroActive={gyroActive}
           spreads={SPREADS}
-          coverImage="/images/voyager/cover.png"
-          backCoverImage="/images/voyager/back-cover.png"
-          coverTopLine={ui.coverEyebrow}
+          coverLayers={COVER_LAYERS}
+          backCoverLayers={BACK_COVER_LAYERS}
           coverMainTitle={ui.coverMainTitle}
-          coverTagline={ui.coverTagline}
-          backColophon={ui.backColophon}
         />
 
-        {/* Hand-drawn Wax-Crayon Prev / Next Navigation Arrows */}
         {page > 0 ? (
           <button
             type="button"
@@ -750,7 +663,6 @@ export function VoyagerBookShowcase() {
           </button>
         ) : null}
 
-        {/* Cover CTA Button */}
         {page === 0 ? (
           <div className="vg-cover-cta-wrap">
             <button
@@ -764,7 +676,6 @@ export function VoyagerBookShowcase() {
           </div>
         ) : null}
 
-        {/* Accessible screen-reader announcement + Optional Maca Fact / Parent Spark Dock */}
         {currentSpread ? (
           <>
             <div className="sr-only" aria-live="polite">
@@ -773,14 +684,9 @@ export function VoyagerBookShowcase() {
 
             <div className="vg-maca-dock">
               {macaOpen ? (
-                <section
-                  className="vg-maca-popover"
-                  aria-label={ui.macaFactTitle}
-                >
+                <section className="vg-maca-popover" aria-label={ui.macaFactTitle}>
                   <div className="vg-maca-popover-head">
-                    <span className="vg-maca-tag">
-                      🦜 {ui.macaFactTitle}
-                    </span>
+                    <span className="vg-maca-tag">🦜 {ui.macaFactTitle}</span>
                     <button
                       type="button"
                       className="vg-maca-close"
@@ -804,7 +710,7 @@ export function VoyagerBookShowcase() {
               ) : null}
 
               <div className="vg-maca-actions">
-                {currentSpread.id === "spread-05-record" ? (
+                {currentSpread.id === "spread-05" ? (
                   <button
                     type="button"
                     className="vg-dock-pill is-gold"
@@ -826,7 +732,6 @@ export function VoyagerBookShowcase() {
           </>
         ) : null}
 
-        {/* Back-Cover Extra Resources Drawer */}
         <aside
           className={`vg-extra-resources ${page === maxPage ? "is-open" : ""}`}
           aria-hidden={page !== maxPage}
@@ -864,11 +769,15 @@ export function VoyagerBookShowcase() {
         </aside>
       </main>
 
-      {/* Bottom Illustrated Chapter Medallion Nav */}
       <nav className="vg-medallion-nav" aria-label={ui.navAria}>
         {medallions.map((item, idx) => {
           const isActive = page === idx;
-          const label = idx === 0 ? ui.coverLabel : idx === maxPage ? ui.endLabel : item.label[lang];
+          const label =
+            idx === 0
+              ? ui.coverLabel
+              : idx === maxPage
+                ? ui.endLabel
+                : item.label[lang];
           const arcId = `vg-medallion-arc-${idx}`;
           return (
             <button
@@ -899,8 +808,8 @@ export function VoyagerBookShowcase() {
               <span
                 className="vg-medallion-disc"
                 style={{
-                  backgroundImage: `url("${item.image}")`,
-                  backgroundPosition: item.thumbPos,
+                  backgroundImage: `url("${item.thumb}")`,
+                  backgroundPosition: "center",
                 }}
               />
             </button>
@@ -908,7 +817,6 @@ export function VoyagerBookShowcase() {
         })}
       </nav>
 
-      {/* Interactive Wax-Crayon Golden Record Explorer Modal */}
       {recordModalOpen ? (
         <div
           className="vg-modal-backdrop"
@@ -965,10 +873,23 @@ export function VoyagerBookShowcase() {
                       strokeDasharray={r === 74 ? "6 4" : undefined}
                     />
                   ))}
-                  <circle cx="130" cy="130" r="32" fill="#2A1D0D" stroke="#FFD166" strokeWidth="2" />
+                  <circle
+                    cx="130"
+                    cy="130"
+                    r="32"
+                    fill="#2A1D0D"
+                    stroke="#FFD166"
+                    strokeWidth="2"
+                  />
                   <circle cx="130" cy="130" r="7" fill="#FFF7E6" />
-                  {/* Etched hydrogen / stylus nod */}
-                  <line x1="88" y1="68" x2="108" y2="88" stroke="#FFF0B8" strokeWidth="1.8" />
+                  <line
+                    x1="88"
+                    y1="68"
+                    x2="108"
+                    y2="88"
+                    stroke="#FFF0B8"
+                    strokeWidth="1.8"
+                  />
                   <circle cx="108" cy="88" r="3" fill={activeTrack.color} />
                 </svg>
               </div>
