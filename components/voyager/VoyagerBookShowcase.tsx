@@ -633,7 +633,10 @@ export function VoyagerBookShowcase() {
 
       <header className="vg-topbar">
         <div className="vg-topbar-left">
-          <Link href="/" className="vg-back-btn">
+          <Link
+            href="https://the-juanimal-studio-git-v3-signature-director-juanimal-design.vercel.app"
+            className="vg-back-btn"
+          >
             <span aria-hidden="true">←</span>
             <span>{ui.backLabel}</span>
           </Link>
@@ -818,7 +821,10 @@ export function VoyagerBookShowcase() {
             >
               ↺ {ui.replayBookBtn}
             </button>
-            <Link href="/" className="vg-portfolio-link">
+            <Link
+              href="https://the-juanimal-studio-git-v3-signature-director-juanimal-design.vercel.app"
+              className="vg-portfolio-link"
+            >
               {ui.backLabel}
             </Link>
           </div>
