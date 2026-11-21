@@ -427,48 +427,13 @@ function VoyagerHandLogo({
       onClick={onClick}
       aria-label={ariaLabel}
     >
-      <svg
-        viewBox="0 0 212 46"
-        className="vg-hand-logo-svg"
-        role="img"
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src="/images/voyager/voyager-logo-badge.png"
+        alt=""
+        className="vg-hand-logo-img"
         aria-hidden="true"
-      >
-        <g filter="url(#vgCrayonTex)">
-          <ellipse
-            cx="24"
-            cy="22"
-            rx="16"
-            ry="6.5"
-            transform="rotate(-18 24 22)"
-            fill="none"
-            stroke="#98DCE6"
-            strokeWidth="2.4"
-            strokeLinecap="round"
-          />
-          <circle cx="24" cy="22" r="8.2" fill="#F4A236" stroke="#182046" strokeWidth="1.4" />
-          <path
-            d="M 10,26 Q 24,29 38,18"
-            fill="none"
-            stroke="#FFD166"
-            strokeWidth="2.1"
-            strokeLinecap="round"
-          />
-          <path
-            d="M 192,10 L 195,15 L 201,15 L 196,19 L 198,25 L 192,21 L 186,25 L 188,19 L 183,15 L 189,15 Z"
-            fill="#FFD166"
-          />
-          <path
-            d="M 48,38 Q 112,42 180,35"
-            fill="none"
-            stroke="#E84A3A"
-            strokeWidth="3.2"
-            strokeLinecap="round"
-          />
-        </g>
-        <text x="114" y="29" textAnchor="middle" className="vg-hand-logo-word">
-          Voyager 1
-        </text>
-      </svg>
+      />
       <span className="sr-only">{subLabel}</span>
     </button>
   );

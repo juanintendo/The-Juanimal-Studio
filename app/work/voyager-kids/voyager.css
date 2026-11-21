@@ -118,21 +118,18 @@
   transform: scale(1.05) rotate(-1deg);
 }
 
-.vg-hand-logo-svg {
-  width: 190px;
-  height: 42px;
-  overflow: visible;
-  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.55));
+.vg-hand-logo-img {
+  height: 50px;
+  width: auto;
+  max-width: 140px;
+  display: block;
+  object-fit: contain;
+  filter: drop-shadow(0 3px 10px rgba(0, 0, 0, 0.55));
+  transition: filter 0.22s ease;
 }
 
-.vg-hand-logo-word {
-  font-family: var(--vg-brush);
-  font-size: 31px;
-  fill: #fff7e6;
-  stroke: #141838;
-  stroke-width: 1.5px;
-  paint-order: stroke fill;
-  letter-spacing: 0.02em;
+.vg-hand-logo-btn:hover .vg-hand-logo-img {
+  filter: drop-shadow(0 4px 14px rgba(255, 209, 102, 0.45));
 }
 
 /* Gyroscope Toggle (shown on supported iOS devices) */
@@ -1063,13 +1060,8 @@
     height: 54px;
   }
 
-  .vg-hand-logo-svg {
-    width: 148px;
-    height: 36px;
-  }
-
-  .vg-hand-logo-word {
-    font-size: 27px;
+  .vg-hand-logo-img {
+    height: 42px;
   }
 
   .vg-back-btn span:last-child {
