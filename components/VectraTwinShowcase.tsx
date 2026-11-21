@@ -2058,7 +2058,7 @@ export function VectraTwinShowcase() {
       {/* Clean Studio Return Bar */}
       <header className="vt-topbar">
         <Link
-          href="/"
+          href="https://the-juanimal-studio-git-v3-signature-director-juanimal-design.vercel.app"
           className="vt-brand-return"
           aria-label="Return to The Juanimal Studio"
         >
@@ -2318,7 +2318,10 @@ export function VectraTwinShowcase() {
               <Link href="/contact" className="vt-btn-dark">
                 {c.studioPitch.cta}
               </Link>
-              <Link href="/#work" className="vt-btn-outline">
+              <Link
+                href="https://the-juanimal-studio-git-v3-signature-director-juanimal-design.vercel.app/#work"
+                className="vt-btn-outline"
+              >
                 {c.studioPitch.secondary}
               </Link>
             </div>
@@ -2360,8 +2363,12 @@ export function VectraTwinShowcase() {
 
           <div className="vt-footer-col">
             <small>The Juanimal Studio</small>
-            <Link href="/">{lang === "es" ? "Portada del Estudio" : "Studio Home"}</Link>
-            <Link href="/#work">{lang === "es" ? "8 Trabajos Reales" : "All 8 Shipped Works"}</Link>
+            <Link href="https://the-juanimal-studio-git-v3-signature-director-juanimal-design.vercel.app">
+              {lang === "es" ? "Portada del Estudio" : "Studio Home"}
+            </Link>
+            <Link href="https://the-juanimal-studio-git-v3-signature-director-juanimal-design.vercel.app/#work">
+              {lang === "es" ? "8 Trabajos Reales" : "All 8 Shipped Works"}
+            </Link>
             <Link href="/work/frame-by-agents">Launch Kit #001</Link>
             <Link href="/about">{lang === "es" ? "Sobre Mí" : "About"}</Link>
           </div>
