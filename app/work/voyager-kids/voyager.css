@@ -52,25 +52,28 @@
   top: 0;
   left: 0;
   right: 0;
-  height: 58px;
+  min-height: 96px;
   z-index: 40;
   display: grid;
   grid-template-columns: 1fr auto 1fr;
   align-items: center;
-  padding: 0 22px;
-  background: linear-gradient(180deg, rgba(8, 10, 24, 0.86) 0%, rgba(8, 10, 24, 0) 100%);
+  padding: 18px 26px 8px;
+  background: linear-gradient(180deg, rgba(8, 10, 24, 0.88) 0%, rgba(8, 10, 24, 0.42) 65%, rgba(8, 10, 24, 0) 100%);
+  pointer-events: none;
 }
 
 .vg-topbar-left {
   display: flex;
   align-items: center;
   justify-content: flex-start;
+  pointer-events: auto;
 }
 
 .vg-topbar-center {
   display: flex;
   align-items: center;
   justify-content: center;
+  pointer-events: auto;
 }
 
 .vg-topbar-right {
@@ -78,6 +81,7 @@
   align-items: center;
   justify-content: flex-end;
   gap: 10px;
+  pointer-events: auto;
 }
 
 .vg-back-btn {
@@ -106,7 +110,7 @@
   appearance: none;
   background: transparent;
   border: none;
-  padding: 2px 6px;
+  padding: 2px 8px;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
@@ -119,9 +123,9 @@
 }
 
 .vg-hand-logo-img {
-  height: 50px;
+  height: 80px;
   width: auto;
-  max-width: 140px;
+  max-width: 180px;
   display: block;
   object-fit: contain;
   filter: drop-shadow(0 3px 10px rgba(0, 0, 0, 0.55));
@@ -182,7 +186,7 @@
 /* 3D Interactive Book Stage */
 .vg-book-stage {
   position: absolute;
-  inset: 56px 0 98px 0;
+  inset: 92px 0 96px 0;
   z-index: 2;
 }
 
@@ -1056,12 +1060,12 @@
 /* Responsive Mobile Rules */
 @media (max-width: 900px) {
   .vg-topbar {
-    padding: 0 12px;
-    height: 54px;
+    padding: 12px 14px 6px;
+    min-height: 78px;
   }
 
   .vg-hand-logo-img {
-    height: 42px;
+    height: 62px;
   }
 
   .vg-back-btn span:last-child {
@@ -1069,7 +1073,7 @@
   }
 
   .vg-book-stage {
-    inset: 54px 0 132px 0;
+    inset: 80px 0 132px 0;
   }
 
   .vg-crayon-arrow.is-prev {
