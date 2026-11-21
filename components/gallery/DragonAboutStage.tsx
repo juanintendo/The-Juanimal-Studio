@@ -32,11 +32,11 @@ const DRAGON_WORLDS: DragonWorld[] = [
     textureSrc: "/images/gallery/about/dragon-day.png",
     label: { en: "☀ SHINE", es: "☀ DÍA" },
     badge: { en: "STUDIO MODE", es: "MODO ESTUDIO" },
-    titleFill: "#FF9F1C",
-    titleStroke: "#15131A",
+    titleFill: "#FFA62B",
+    titleStroke: "#C8670A",
     headerTone: "paper",
-    particleHex: "#FFF29C",
-    taglineBg: "rgba(21, 19, 26, 0.72)",
+    particleHex: "#FFF4B8",
+    taglineBg: "transparent",
   },
   {
     id: "night",
@@ -44,32 +44,32 @@ const DRAGON_WORLDS: DragonWorld[] = [
     label: { en: "🌙 MECHA", es: "🌙 MECHA" },
     badge: { en: "CYBER RIG", es: "MODO MECHA" },
     titleFill: "#C7BAFF",
-    titleStroke: "#0B0E24",
+    titleStroke: "#6E5EC8",
     headerTone: "light",
-    particleHex: "#FFE14D",
-    taglineBg: "rgba(11, 14, 36, 0.78)",
+    particleHex: "#FFE670",
+    taglineBg: "transparent",
   },
   {
     id: "rain",
     textureSrc: "/images/gallery/about/dragon-rain.png",
     label: { en: "🌧 DEVSAURUS", es: "🌧 DEVSAURUS" },
     badge: { en: "STORM & CODE", es: "TORMENTA & CÓDIGO" },
-    titleFill: "#FF9E8A",
-    titleStroke: "#142636",
+    titleFill: "#FF9F8C",
+    titleStroke: "#BD4E41",
     headerTone: "light",
     particleHex: "#DDF0FF",
-    taglineBg: "rgba(20, 38, 54, 0.76)",
+    taglineBg: "transparent",
   },
   {
     id: "rainbow",
     textureSrc: "/images/gallery/about/dragon-rainbow.png",
     label: { en: "🌈 COSMIC", es: "🌈 CÓSMICO" },
     badge: { en: "TECH WIZARD", es: "MAGO CREATIVO" },
-    titleFill: "#FFE14D",
-    titleStroke: "#241838",
+    titleFill: "#FFE462",
+    titleStroke: "#C78E18",
     headerTone: "paper",
-    particleHex: "#FFFFFF",
-    taglineBg: "rgba(36, 24, 56, 0.72)",
+    particleHex: "#FFFDF2",
+    taglineBg: "transparent",
   },
 ];
 
@@ -119,24 +119,23 @@ const ABOUT_FRAG = `
   }
 
   void main() {
-    vec2 uvA = computeSceneUv(vUv, 1.0);
-    vec2 uvB = computeSceneUv(vUv, 1.18);
+    // Pixel-locked shared UVs so both worlds share 100% identical camera framing across the portal edge
+    vec2 sceneUv = computeSceneUv(vUv, 1.0);
 
-    vec3 colA = texture2D(uCurrentTex, uvA).rgb;
-    vec3 colB = texture2D(uNextTex, uvB).rgb;
+    vec3 colA = texture2D(uCurrentTex, sceneUv).rgb;
+    vec3 colB = texture2D(uNextTex, sceneUv).rgb;
 
     float aspect = uResolution.x / max(1.0, uResolution.y);
     vec2 aspectScale = vec2(aspect, 1.0);
 
-    // Circular hover portal peeking directly into NEXT Dragon world
+    // Circular hover portal peeking directly into NEXT Dragon world (clean Justine Soulie lens edge)
     vec2 hVec = (vUv - uHoverUv) * aspectScale;
     float hAngle = atan(hVec.y, hVec.x);
-    float hWobble = sin(hAngle * 5.0 + uTime * 3.0) * 0.004 * uMotionScale;
+    float hWobble = sin(hAngle * 5.0 + uTime * 3.0) * 0.0018 * uMotionScale;
     float hDist = length(hVec) + hWobble;
     float minDimFactor = aspect < 1.0 ? 0.145 : 0.165;
     float hRad = minDimFactor * uHoverActive * (1.0 - smoothstep(0.0, 0.2, uTransition));
-    float hoverMask = 1.0 - smoothstep(hRad - 0.008, hRad + 0.006, hDist);
-    float hoverRim = (smoothstep(hRad - 0.010, hRad - 0.003, hDist) - smoothstep(hRad, hRad + 0.006, hDist)) * step(0.02, uHoverActive);
+    float hoverMask = 1.0 - smoothstep(hRad - 0.003, hRad + 0.003, hDist);
 
     // Click explosive portal wipe expanding across full screen
     vec2 cVec = (vUv - uClickOrigin) * aspectScale;
@@ -151,8 +150,8 @@ const ABOUT_FRAG = `
     float portalMix = clamp(max(hoverMask, clickMask), 0.0, 1.0);
     vec3 finalRgb = mix(colA, colB, portalMix);
 
-    // Crisp off-white / warm gold comic portal rim
-    finalRgb = mix(finalRgb, vec3(0.99, 0.98, 0.94), clamp(max(hoverRim * 0.72, clickRim * 0.85), 0.0, 0.88));
+    // Subtle crisp rim only during click wipe transition
+    finalRgb = mix(finalRgb, vec3(0.99, 0.98, 0.94), clamp(clickRim * 0.42, 0.0, 0.42));
 
     // Gentle living pastel film grain matching Justine Soulie About finish
     float grain = (hash12(floor(vUv * uResolution * 0.5) + fract(uTime * 12.0) * 100.0) - 0.5) * 0.042 * uMotionScale;
@@ -282,7 +281,22 @@ export function DragonAboutStage() {
     const quadMesh = new THREE.Mesh(quadGeo, quadMat);
     scene.add(quadMesh);
 
-    // Subtle atmospheric particle field matching active Dragon weather world
+    // Subtle glowing atmospheric particle sprite (soft circular bokeh instead of raw squares)
+    const spriteCanvas = document.createElement("canvas");
+    spriteCanvas.width = 64;
+    spriteCanvas.height = 64;
+    const sCtx = spriteCanvas.getContext("2d");
+    if (sCtx) {
+      const grad = sCtx.createRadialGradient(32, 32, 1, 32, 32, 31);
+      grad.addColorStop(0, "rgba(255,255,255,1)");
+      grad.addColorStop(0.35, "rgba(255,255,255,0.75)");
+      grad.addColorStop(0.75, "rgba(255,255,255,0.18)");
+      grad.addColorStop(1, "rgba(255,255,255,0)");
+      sCtx.fillStyle = grad;
+      sCtx.fillRect(0, 0, 64, 64);
+    }
+    const particleTex = new THREE.CanvasTexture(spriteCanvas);
+
     const pCount = 56;
     const pPositions = new Float32Array(pCount * 3);
     const pSpeeds = new Float32Array(pCount * 2);
@@ -297,10 +311,12 @@ export function DragonAboutStage() {
     pGeo.setAttribute("position", new THREE.BufferAttribute(pPositions, 3));
     const pMat = new THREE.PointsMaterial({
       color: new THREE.Color(DRAGON_WORLDS[0].particleHex),
-      size: 7.5,
+      map: particleTex,
+      size: 10,
       sizeAttenuation: false,
       transparent: true,
-      opacity: 0.72,
+      opacity: 0.48,
+      blending: THREE.AdditiveBlending,
       depthWrite: false,
     });
     const points = new THREE.Points(pGeo, pMat);
@@ -380,6 +396,7 @@ export function DragonAboutStage() {
 
     let hoverTarget = 0;
     let hoverSmooth = 0;
+    const hoverUvTarget = new THREE.Vector2(0.5, 0.5);
     let pointerX = 0;
     let pointerY = 0;
     let downX = 0;
@@ -390,7 +407,7 @@ export function DragonAboutStage() {
       if (rect.width <= 0 || rect.height <= 0) return;
       const u = THREE.MathUtils.clamp((e.clientX - rect.left) / rect.width, 0, 1);
       const v = THREE.MathUtils.clamp(1 - (e.clientY - rect.top) / rect.height, 0, 1);
-      uniforms.uHoverUv.value.set(u, v);
+      hoverUvTarget.set(u, v);
       hoverTarget = 1;
       pointerX = u * 2 - 1;
       pointerY = v * 2 - 1;
@@ -451,8 +468,9 @@ export function DragonAboutStage() {
         Math.min(1, dt * 7)
       );
 
-      hoverSmooth = THREE.MathUtils.lerp(hoverSmooth, hoverTarget, Math.min(1, dt * 8));
+      hoverSmooth = THREE.MathUtils.lerp(hoverSmooth, hoverTarget, Math.min(1, dt * 9));
       uniforms.uHoverActive.value = reducedRef.current ? 0 : hoverSmooth;
+      uniforms.uHoverUv.value.lerp(hoverUvTarget, Math.min(1, dt * 14));
 
       if (isMorphing) {
         morphProgress = Math.min(1, morphProgress + dt * 1.55);
@@ -468,6 +486,9 @@ export function DragonAboutStage() {
           uniforms.uNextTex.value = textures[nextAfter];
           uniforms.uTransition.value = 0;
           pMat.color.set(DRAGON_WORLDS[targetWorldIdx].particleHex);
+          const nextId = DRAGON_WORLDS[targetWorldIdx].id;
+          pMat.size = nextId === "night" ? 14 : nextId === "rain" ? 8.5 : nextId === "rainbow" ? 12.5 : 10;
+          pMat.opacity = nextId === "night" ? 0.78 : nextId === "rainbow" ? 0.72 : 0.48;
         }
       }
 
@@ -527,6 +548,7 @@ export function DragonAboutStage() {
       quadMat.dispose();
       pGeo.dispose();
       pMat.dispose();
+      particleTex.dispose();
       createdTextures.forEach((t) => t.dispose());
       renderer.dispose();
     };
@@ -588,6 +610,7 @@ export function DragonAboutStage() {
             className="jd-arched-wordmark"
             viewBox="0 0 760 112"
             aria-label={ui.topWord}
+            style={{ filter: "drop-shadow(0 3px 6px rgba(21, 19, 26, 0.25))" }}
           >
             <defs>
               <path id="jd-top-arch" d="M 60 94 Q 380 28 700 94" />
@@ -596,7 +619,7 @@ export function DragonAboutStage() {
               className="jd-arched-text"
               fill={currentWorld.titleFill}
               stroke={currentWorld.titleStroke}
-              strokeWidth="8"
+              strokeWidth="3.5"
               paintOrder="stroke fill"
             >
               <textPath href="#jd-top-arch" startOffset="50%" textAnchor="middle">
@@ -631,6 +654,7 @@ export function DragonAboutStage() {
             className="jd-lower-wordmark"
             viewBox="0 0 820 110"
             aria-label={ui.bottomWord}
+            style={{ filter: "drop-shadow(0 3px 6px rgba(21, 19, 26, 0.28))" }}
           >
             <text
               x="410"
@@ -639,17 +663,14 @@ export function DragonAboutStage() {
               className="jd-arched-text is-sub"
               fill={currentWorld.titleFill}
               stroke={currentWorld.titleStroke}
-              strokeWidth="8"
+              strokeWidth="3.5"
               paintOrder="stroke fill"
             >
               {ui.bottomWord}
             </text>
           </svg>
 
-          <div
-            className="jd-about-tagline"
-            style={{ backgroundColor: currentWorld.taglineBg }}
-          >
+          <div className="jd-about-tagline">
             {ui.tagline}
           </div>
 

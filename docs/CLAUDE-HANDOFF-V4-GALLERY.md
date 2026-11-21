@@ -19,14 +19,14 @@
    - Includes a clean bottom archival dock + **Interactive Toys** quick launcher linking directly to all playable WebGL prototypes (`/work/ramses-mania`, `/work/voyager-kids`, `/work/no-sku`, `/work/vectra-twin`) and the 4-world Dragon `/about` experience.
 
 3. **4-World Interactive Juanimal Dragon `/about` (`DragonAboutStage.tsx`):**
-   - **Four `1600×900` painterly gouache & wax-crayon worlds (`public/images/gallery/about/dragon-{day,night,rain,rainbow}.png`):**
+   - **Four pixel-locked `1600×900` in-place transformations (`public/images/gallery/about/dragon-{day,night,rain,rainbow}.png`) from the exact same base illustration (100% locked silhouette, outlines, bushes, clouds, and glasses across portal reveals):**
      1. **`day` (`☀ SHINE`)**: Emerald Juanimal Dragon with retro 3D glasses, leather jacket & artist's pencil in sunlit buttercream-mint foliage.
-     2. **`night` (`🌙 MECHA`)**: Riveted silver-chrome Mechanical Dragon with glowing 3D optics, steel wings, flame jacket & fireflies.
-     3. **`rain` (`🌧 DEVSAURUS`)**: Crimson DevSaurus with dark glasses, blue bandana & coffee mug in misty storm clouds.
-     4. **`rainbow` (`🌈 COSMIC`)**: Golden-iridescent Wizard Dragon with star 3D glasses & cape surrounded by paint/code sparkles.
-   - **Dual-World Circular Portal Shader (`ABOUT_FRAG`):**
-     - Moving the cursor opens a live circular lens peeking directly into the NEXT Dragon world.
-     - Clicking anywhere triggers an expanding circular portal wipe with synthesized harmonic chimes (`playPortalMorph`), plus world-specific 3D weather particles (sun dust, fireflies, falling raindrops, rainbow sparks), arched `Modak` typography synced to each world, and an archival **`CONTACT ME`** dossier modal.
+     2. **`night` (`🌙 MECHA`)**: Riveted silver-chrome Mechanical Dragon with neon cyber optics, metallic stylus & glowing fireflies under a starry midnight sky.
+     3. **`rain` (`🌧 DEVSAURUS`)**: Crimson DevSaurus with dark matte dev frames, cobalt polka-dot forehead bandana, rain-slick navy jacket & diagonal storm streaks.
+     4. **`rainbow` (`🌈 COSMIC`)**: Golden-amber Wizard Dragon with white prismatic glasses, royal magenta jacket, pastel rainbow arch & paint sparkles.
+   - **Pixel-Locked Dual-World Circular Portal Shader (`ABOUT_FRAG`):**
+     - Uses a single shared `sceneUv` so moving the cursor opens a butter-smooth circular lens peeking directly into the NEXT Dragon world with zero spatial shift or double-outline ghosting.
+     - Clicking anywhere triggers an expanding circular portal wipe with synthesized harmonic chimes (`playPortalMorph`), plus soft `64×64` bokeh `PointsMaterial` weather particles, Justine-style unboxed floating `Modak` typography, and an archival **`CONTACT ME`** dossier modal.
 
 4. **Horizontal Editorial Case Studies (`/poster-work/[slug]` — `PosterCaseStudy.tsx`):**
    - Archival left poster matte frame + full-height signature-color info column (`accentHex`) + wheel-to-horizontal visual gallery (`object-fit: contain` on every image) + direct **`LAUNCH LIVE EXPERIENCE ↗`** CTA into the full WebGL experience + `NEXT PROJECT →` loop tile.
