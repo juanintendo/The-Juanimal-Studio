@@ -254,6 +254,27 @@ export function WorkShowcaseV2() {
 
               {/* Media Stage obeying Framing Contract: 100% object-fit: contain inside .cel-frame */}
               <div ref={isIoa ? reelRef : undefined} className="wsv2-media">
+                {item.id === "ramses-mania" && (
+                  <div className="wsv2-saulbass-stage">
+                    <div className="cel-frame">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src="/images/ramses/card-cover.png"
+                        alt="Ramsés Mania French indie comic splash featuring hairless Sphynx cat atop radiator"
+                        loading="lazy"
+                      />
+                    </div>
+                    <div className="cel-frame">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src="/images/ramses/card-disco.png"
+                        alt="DJ Ramsés 3AM Disco Zoomies pop-color comic panel with headphones and turntables"
+                        loading="lazy"
+                      />
+                    </div>
+                  </div>
+                )}
+
                 {item.id === "voyager-kids" && (
                   <div className="wsv2-saulbass-stage">
                     <div className="cel-frame">

@@ -293,16 +293,16 @@ export const COPY = {
       ],
     },
     stats: [
-      { count: 10, label: "Live case studies across SaaS, film & games" },
+      { count: 11, label: "Live case studies across SaaS, film & games" },
       { count: 12, label: "Classical animation principles checked per frame" },
       { count: 11, label: "Proprietary agent production skills in our pipeline" },
       { count: 2, label: "Native launch languages (English & Spanish)" },
     ],
     work: {
-      eyebrow: "Selected Work (10 Shipped & Framed Uncropped)",
+      eyebrow: "Selected Work (11 Shipped & Framed Uncropped)",
       title: "Motion, code & launched systems",
       filters: [
-        { id: "all", label: "All (10)" },
+        { id: "all", label: "All (11)" },
         { id: "launch", label: "Launch Kits & SaaS" },
         { id: "code", label: "Code Motion & Web" },
         { id: "animation", label: "Animation & Games" },
@@ -312,6 +312,27 @@ export const COPY = {
       watchFilm: "Watch Full Film",
       closeModal: "Close",
       items: [
+        {
+          id: "ramses-mania",
+          category: "code",
+          title: "Ramsés Mania",
+          meta: "Portfolio Web Concept #04 • Spatial WebGL Sphynx Comic • 2026",
+          intro: "A Ponpon Mania-inspired interactive WebGL graphic novel starring a hairless Sun-Pharaoh Sphynx cat.",
+          paragraphs: [
+            "Inspired by Awwwards-winning French indie web comics, every panel opens in stark B&W Ben-Day halftone ink — move your cursor to peek pop color or trigger each gag to unleash a custom GLSL chromatic shockwave.",
+            "Features a 2.5D spatial Three.js board with Bird's-Eye raycast overview, 2.5D frame-breaking cutouts, procedural Web Audio disco/foley synthesis, and a playable 15-second Sunbeam Finale mini-game.",
+          ],
+          facts: [
+            { label: "WebGL Engine", value: "Three.js Spatial Board + Custom GLSL Shockwaves" },
+            { label: "Mascot Star", value: "Ramsés the 100% Hairless Sphynx Pharaoh" },
+            { label: "Audio & Finale", value: "Procedural Web Audio Foley + 15s Sunbeam Game" },
+            { label: "Status", value: "Live Prototype (/work/ramses-mania, EN/ES)" },
+          ],
+          primaryHref: "/work/ramses-mania",
+          primaryLabel: "Read Interactive Comic →",
+          secondaryHref: "/contact",
+          secondaryLabel: "Commission WebGL Story →",
+        },
         {
           id: "voyager-kids",
           category: "code",
@@ -967,16 +988,16 @@ export const COPY = {
       ],
     },
     stats: [
-      { count: 10, label: "Casos reales en SaaS, cine y videojuegos" },
+      { count: 11, label: "Casos reales en SaaS, cine y videojuegos" },
       { count: 12, label: "Principios clásicos revisados en cada frame" },
       { count: 11, label: "Skills propietarios de producción en nuestro pipeline" },
       { count: 2, label: "Idiomas nativos de lanzamiento (Inglés y Español)" },
     ],
     work: {
-      eyebrow: "Trabajo Seleccionado (10 Reales · Cero Rostros Recortados)",
+      eyebrow: "Trabajo Seleccionado (11 Reales · Cero Rostros Recortados)",
       title: "Motion, código y sistemas publicados",
       filters: [
-        { id: "all", label: "Todos (10)" },
+        { id: "all", label: "Todos (11)" },
         { id: "launch", label: "Launch Kits & SaaS" },
         { id: "code", label: "Code Motion & Web" },
         { id: "animation", label: "Animación & Juegos" },
@@ -986,6 +1007,27 @@ export const COPY = {
       watchFilm: "Ver Corto Completo",
       closeModal: "Cerrar",
       items: [
+        {
+          id: "ramses-mania",
+          category: "code",
+          title: "Ramsés Mania",
+          meta: "Portafolio Web #04 • Cómic Espacial WebGL · Gato Sphynx • 2026",
+          intro: "Una novela gráfica interactiva en WebGL inspirada en Ponpon Mania protagonizada por un Sphynx pelón Faraón Solar.",
+          paragraphs: [
+            "Inspirada en cómics franceses premiados en Awwwards, cada viñeta arranca en tinta blanca y negra con trama halftone y estalla en color pop mediante ondas GLSL al interactuar con cada escena.",
+            "Incluye tablero espacial 3D con vista aérea raycasteada, recortes 2.5D que rompen el marco, síntesis foley y disco loop en Web Audio, más minijuego final de 15 segundos en español e inglés.",
+          ],
+          facts: [
+            { label: "Motor WebGL", value: "Tablero Three.js + Shaders GLSL B&N → Color" },
+            { label: "Mascota", value: "Ramsés · Gato Sphynx 100% Pelón Emperador Solar" },
+            { label: "Audio & Final", value: "Foley Web Audio Procedural + Minijuego Solar 15s" },
+            { label: "Estado", value: "Prototipo Vivo (/work/ramses-mania, EN/ES)" },
+          ],
+          primaryHref: "/work/ramses-mania",
+          primaryLabel: "Leer Cómic Interactivo →",
+          secondaryHref: "/contact",
+          secondaryLabel: "Encargar Historia WebGL →",
+        },
         {
           id: "voyager-kids",
           category: "code",
