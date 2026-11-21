@@ -1365,7 +1365,10 @@ export function NoSkuShowcase() {
         data-menu-open={menuOpen ? "true" : "false"}
       >
         <div className="ns-topbar-left">
-          <Link href="/" className="ns-topbar-brand">
+          <Link
+            href="https://the-juanimal-studio-git-v3-signature-director-juanimal-design.vercel.app"
+            className="ns-topbar-brand"
+          >
             ← JUANIMAL STUDIO
           </Link>
           <Link href="/work/vectra-twin" className="ns-topbar-link">
