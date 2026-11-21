@@ -1,134 +1,216 @@
 "use client";
 
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { useLanguage } from "@/components/LanguageProvider";
 import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
-import {
-  VoyagerBook3D,
-  VoyagerSpreadSpec,
-} from "@/components/voyager/VoyagerBook3D";
+import type { VoyagerSpreadSpec } from "./VoyagerBook3D";
+
+const VoyagerBook3D = dynamic(() => import("./VoyagerBook3D"), {
+  ssr: false,
+  loading: () => <div className="vg-loading-stage">...</div>,
+});
 
 const SPREADS: VoyagerSpreadSpec[] = [
   {
-    id: "hello",
+    id: "spread-01-hello",
     image: "/images/voyager/spread-01-hello.png",
+    navLabel: { en: "Look Up!", es: "¡Mira Arriba!" },
+    thumbPos: "58% 46%",
     title: {
-      en: "For Curious Kids & Grown-Ups",
-      es: "Para Niños Curiosos y Grandes",
+      en: "Look Up — A Tiny Robot Far Away",
+      es: "Mira Arriba — Una Nave Muy Lejana",
+    },
+    displayTop: {
+      en: "CHAPTER 1 • LOOK UP!",
+      es: "CAPÍTULO 1 • ¡MIRA ARRIBA!",
+    },
+    displayMain: {
+      en: "Hello,\nLittle Traveler",
+      es: "Hola,\nPequeña Viajera",
     },
     story: {
-      en: "Look up on a quiet evening and a billion tiny stars blink back. Long before you were born, a team of dreamers built a brave golden robot — Voyager 1 — and sent our planet's biggest 'hello' across the dark with Maca keeping watch.",
-      es: "Mira al cielo en una noche tranquila y mil millones de estrellitas te devuelven el guiño. Mucho antes de que nacieras, un equipo de soñadores construyó un valiente robot dorado —la Voyager 1— para enviar el 'hola' más grande de la Tierra.",
+      en: "Long before you were born, dreamers built Voyager 1—a brave golden explorer racing past the stars with Maca keeping watch from the garden.",
+      es: "Mucho antes de que nacieras, unos soñadores lanzaron a Voyager 1: una nave dorada que viaja entre estrellas mientras Maca vigila el cielo.",
     },
     macaFact: {
-      en: "Voyager 1 is about the size of a small compact car — except its white umbrella dish is 3.7 meters wide so it can whisper all the way home!",
-      es: "La Voyager 1 mide más o menos como un carro pequeño — ¡pero su plato blanco tipo paraguas mide 3.7 metros para poder susurrar hasta casa!",
+      en: "Voyager 1 left Earth in 1977 and has never come home—it is now the farthest human-made object in the entire universe!",
+      es: "Voyager 1 despegó en 1977 y nunca ha regresado: hoy es el objeto creado por humanos más lejano del universo.",
     },
     parentPrompt: {
-      en: "Ask together: If you could tape one drawing onto a spaceship, what would it show an alien friend?",
-      es: "Pregúntenlo juntos: Si pudieras pegar un solo dibujo en una nave espacial, ¿qué le mostrarías a un amigo extraterrestre?",
+      en: "Ask together: If you pointed a cardboard telescope at the sky tonight, what faraway world would you say hello to first?",
+      es: "Pregunta en familia: Si apuntaras un telescopio de cartón al cielo esta noche, ¿a qué mundo lejano saludarías primero?",
     },
+    accentColor: "#FFD166",
+    textSide: "right",
+    textAnchor: { x: 0.56, y: 0.14, align: "left" },
   },
   {
-    id: "launch",
+    id: "spread-02-launch",
     image: "/images/voyager/spread-02-launch.png",
+    navLabel: { en: "Blast Off", es: "Despegue" },
+    thumbPos: "77% 36%",
     title: {
-      en: "Blast Off! September 5, 1977",
-      es: "¡Despegue! 5 de Septiembre de 1977",
+      en: "Blast Off on a Pillar of Fire",
+      es: "Despegue en un Pilar de Fuego",
+    },
+    displayTop: {
+      en: "SEPTEMBER 1977 • TITAN IIIE",
+      es: "SEPTIEMBRE 1977 • DESPEGUE",
+    },
+    displayMain: {
+      en: "Up, Up &\nWay Out!",
+      es: "¡Más Alto\ny Más Lejos!",
     },
     story: {
-      en: "With a thunderous wax-crayon roar of orange and turquoise clouds, a Titan rocket boosted Voyager 1 past the treetops. Even the jungle tapir, curious monkey, and Maca cheered as humanity's longest road trip began!",
-      es: "Con un rugido de crayón naranja y nubes turquesa, un cohete Titan impulsó a la Voyager 1 sobre los árboles. ¡Hasta el tapir, el monito curioso y Maca celebraron el viaje más largo de la historia!",
+      en: "WHOOOOSH! On a bright morning, a giant orange rocket roared into the clouds—and Maca cheered as Voyager climbed above rainforests and oceans.",
+      es: "¡FUUUUM! Una mañana luminosa, un cohete gigante rugió hacia las nubes mientras Maca celebraba su vuelo sobre selvas y mares.",
     },
     macaFact: {
-      en: "Voyager left Earth cruising faster than 61,000 km per hour — quick enough to fly across the entire ocean in just a few minutes!",
-      es: "¡Salió de la Tierra volando a más de 61,000 km por hora — tan rápido que cruzaría un océano entero en pocos minutos!",
+      en: "Voyager speeds at more than 61,000 kilometers per hour—faster than twenty racing jets flying nose to tail!",
+      es: "Voyager viaja a más de 61.000 kilómetros por hora: ¡más rápido que veinte aviones de carreras juntos!",
     },
     parentPrompt: {
-      en: "Ask together: Which animals from Earth do you think would make the best co-pilots in space?",
-      es: "Pregúntenlo juntos: ¿Qué animales de la Tierra crees que serían los mejores copilotos espaciales?",
+      en: "Count down from 5 to 1 together and flap your brightest macaw wings like Maca climbing into the clouds!",
+      es: "¡Cuenten juntos del 5 al 1 y agiten sus alas de guacamaya como Maca subiendo hasta las nubes!",
     },
+    accentColor: "#E84A3A",
+    lightPaper: true,
+    textSide: "left",
+    textAnchor: { x: 0.06, y: 0.11, align: "left" },
   },
   {
-    id: "jupiter",
+    id: "spread-03-jupiter",
     image: "/images/voyager/spread-03-jupiter.png",
+    navLabel: { en: "Giant Swirls", es: "Nubes Gigantes" },
+    thumbPos: "38% 52%",
     title: {
-      en: "Hello, Giant Striped Jupiter",
-      es: "Hola, Gigante Rayado Júpiter",
+      en: "Jupiter's Giant Swirl & Volcanic Moons",
+      es: "Los Remolinos de Júpiter y sus Lunas",
+    },
+    displayTop: {
+      en: "CHAPTER 3 • JUPITER",
+      es: "CAPÍTULO 3 • JÚPITER",
+    },
+    displayMain: {
+      en: "A Storm\nAs Big As Earth",
+      es: "Una Tormenta\nColor Coral",
     },
     story: {
-      en: "Two years later, Voyager floated past Jupiter — a swirling swirl of terracotta, honey, and cinnamon clouds larger than a thousand Earths combined! Its cameras caught pizza-spotted volcanoes erupting on moon Io for the very first time.",
-      es: "Dos años después, la Voyager planeó junto a Júpiter — un remolino gigante de nubes terracota, miel y canela donde cabrían más de mil Tierras. ¡Sus cámaras descubrieron volcanes activos por primera vez en su luna Ío!",
+      en: "Voyager buzzed past stormy Jupiter and spotted volcanoes erupting on moon Io—tiny glowing sparks dancing beside clouds wide enough to swallow our whole world.",
+      es: "Voyager rozó las nubes gigantes de Júpiter y descubrió volcanes activos en su luna Ío junto a una tormenta donde cabría toda la Tierra.",
     },
     macaFact: {
-      en: "Jupiter's famous Great Red Spot isn't painted on — it's a giant spinning windstorm bigger than our entire planet Earth!",
-      es: "La famosa Gran Mancha Roja de Júpiter no está pintada — ¡es una tormenta gigante girando más grande que todo nuestro planeta Tierra!",
+      en: "Jupiter's Great Red Spot is a spinning storm larger than planet Earth that has been swirling for over three centuries!",
+      es: "La Gran Mancha Roja de Júpiter es un huracán más grande que la Tierra entera que lleva girando más de tres siglos.",
     },
     parentPrompt: {
-      en: "Ask together: Notice how Jupiter gets a 'gravity slingshot' boost — like swinging faster off a playground merry-go-round!",
-      es: "Pregúntenlo juntos: Júpiter impulsó a la nave con su gravedad — ¡como cuando saltas tomando vuelo en un carrusel!",
+      en: "Which crayon colors would you grab to draw Jupiter's striped clouds—tangerine, honey yellow, or hot volcanic cinnamon?",
+      es: "¿Qué crayones elegirías para pintar las nubes de Júpiter: mandarina, miel o rojo volcán?",
     },
+    accentColor: "#F4A236",
+    textSide: "left",
+    textAnchor: { x: 0.19, y: 0.56, align: "left" },
   },
   {
-    id: "saturn",
+    id: "spread-04-saturn",
     image: "/images/voyager/spread-04-saturn.png",
+    navLabel: { en: "Icy Rings", es: "Anillos de Hielo" },
+    thumbPos: "72% 72%",
     title: {
-      en: "Dancing on Saturn's Icy Hula Hoops",
-      es: "Bailando en los Aros de Saturno",
+      en: "Dancing Through Saturn's Icy Rings",
+      es: "Bailando en los Anillos de Saturno",
+    },
+    displayTop: {
+      en: "CHAPTER 4 • SATURN",
+      es: "CAPÍTULO 4 • SATURNO",
+    },
+    displayMain: {
+      en: "Skating\non Stardust",
+      es: "Patinando en\nHielo y Luz",
     },
     story: {
-      en: "Next came honey-gold Saturn, wearing glimmering pastel rings made of billions of floating icebergs and diamond dust. While a brave ginger kitten balanced on an ice ring, Voyager tilted north toward uncharted stars.",
-      es: "Luego llegó Saturno en tonos miel dorada, luciendo anillos pastel hechos de miles de millones de témpanos de hielo espacial. Mientras un gatito curioso hacía equilibrio sobre el hielo, Voyager tomó rumbo hacia las estrellas.",
+      en: "Then came Saturn's twinkling ribbon of ice and dust! Voyager tilted toward misty Titan before flinging onward toward the endless velvet night.",
+      es: "Después llegaron los anillos brillantes de Saturno, hechos de millones de cristales de hielo bailando antes de saltar al espacio profundo.",
     },
     macaFact: {
-      en: "Saturn's rings stretch hundreds of thousands of kilometers wide, yet in many places they are thinner than a backyard slide — sometimes only 10 meters thick!",
-      es: "Los anillos de Saturno miden cientos de miles de kilómetros de ancho, pero en muchas zonas son tan delgados como una casa pequeña — ¡unos 10 metros!",
+      en: "Saturn's rings stretch wider than Earth to the Moon, yet in many places they are thinner than a backyard slide!",
+      es: "Los anillos de Saturno son anchísimos, pero en muchas partes son más delgados que un tobogán del parque.",
     },
     parentPrompt: {
-      en: "Ask together: If Saturn's rings are sparkling snowballs, what would they sound like tumbling past our spaceship window?",
-      es: "Pregúntenlo juntos: Si los anillos son bolas de nieve brillantes, ¿cómo crees que sonarían rozando nuestra nave?",
+      en: "Look closely! Can you spot the cosmic cat gliding through Saturn's rainbow rings while Maca flies alongside Voyager?",
+      es: "¡Mira con lupa! ¿Ves al gatito espacial flotando en los anillos mientras Maca vuela junto a Voyager?",
     },
+    accentColor: "#98DCE6",
+    textSide: "left",
+    textAnchor: { x: 0.06, y: 0.56, align: "left" },
   },
   {
-    id: "record",
+    id: "spread-05-record",
     image: "/images/voyager/spread-05-record.png",
+    navLabel: { en: "Golden Song", es: "Disco de Oro" },
+    thumbPos: "74% 50%",
     title: {
       en: "The Golden Record — Earth's Mixtape",
-      es: "El Disco de Oro — Nuestra Cinta al Universo",
+      es: "El Disco de Oro — Canción del Planeta",
+    },
+    displayTop: {
+      en: "CHAPTER 5 • TIME CAPSULE",
+      es: "CAPÍTULO 5 • DISCO DE ORO",
+    },
+    displayMain: {
+      en: "Earth's\nTime Capsule",
+      es: "Nuestra Cápsula\nMusical",
     },
     story: {
-      en: "Bolted gently onto Voyager's golden side is a real copper record plated in shiny gold. Engraved with pulsar star maps and sound waves, it carries footsteps, laughter, humpback whales, Beethoven, Chuck Berry, and hellos in 55 tongues!",
-      es: "Atornillado al costado de la Voyager viaja un disco real bañado en oro puro. Lleva grabados un mapa de estrellas púlsar, cantos de ballenas, risas, guitarra rock, música clásica y saludos en 55 idiomas — ¡incluido nuestro 'Hola y saludos a todos'!",
+      en: "Bolted to Voyager's golden side rides a shimmering copper record filled with whale songs, laughter, thunder, guitars, and gentle hellos in 55 languages.",
+      es: "Sujeto al costado de la nave viaja un disco dorado con cantos de ballenas, risas, truenos, música y saludos en 55 idiomas.",
     },
     macaFact: {
-      en: "Scientists tucked a needle right beside the record AND drew step-by-step instructions on the cover so alien musicians could play Earth's songs!",
-      es: "¡Los científicos guardaron la aguja junto al disco y dibujaron las instrucciones en la tapa para que cualquier músico extraterrestre pudiera escucharnos!",
+      en: "A tiny six-year-old boy named Nick Sagan recorded Earth's warm greeting: 'Hello from the children of planet Earth!'",
+      es: "Un niño de seis años llamado Nick Sagan grabó el saludo más tierno del disco: «¡Hola de parte de los niños del planeta Tierra!».",
     },
     parentPrompt: {
-      en: "Ask together: Pick 1 song and 1 everyday sound from your kitchen or garden to add to our family Golden Record!",
-      es: "Pregúntenlo juntos: ¡Elijan 1 canción y 1 sonido cotidiano de su casa o jardín para añadirlo a su propio Disco de Oro!",
+      en: "Tap the Golden Record pill below! Pick 1 favorite song and 1 home sound you would pack inside our family time capsule.",
+      es: "¡Toca el botón del Disco de Oro! Elijan juntos 1 canción favorita y 1 sonido de casa para enviar a las estrellas.",
     },
+    accentColor: "#FFD166",
+    textSide: "left",
+    textAnchor: { x: 0.06, y: 0.09, align: "left" },
   },
   {
-    id: "dot",
+    id: "spread-06-dot",
     image: "/images/voyager/spread-06-dot.png",
+    navLabel: { en: "Blue Dot", es: "Punto Azul" },
+    thumbPos: "72% 48%",
     title: {
-      en: "One Pale Blue Dot — & Still Whispering",
-      es: "Un Punto Azul Pálido — Y Sigue Susurrando",
+      en: "One Tiny Pale Blue Dot — Our Home",
+      es: "Un Pequeño Punto Azul — Nuestro Hogar",
+    },
+    displayTop: {
+      en: "CHAPTER 6 • PALE BLUE DOT",
+      es: "CAPÍTULO 6 • PUNTO AZUL",
+    },
+    displayMain: {
+      en: "One Tiny\nBlue Home",
+      es: "Un Pequeño\nPunto Azul",
     },
     story: {
-      en: "From 6 billion kilometers away, Voyager turned its camera back one last time and captured Earth suspended in a golden sunbeam — just one fragile, shimmering pale blue dot holding every child, bird, ocean, and story we love.",
-      es: "A 6 mil millones de kilómetros, la Voyager giró su cámara por última vez y retrató a la Tierra suspendida en un rayo de sol — solo un frágil puntito azul pálido donde cabemos todos: niños, guacamayas, océanos y sueños.",
+      en: "Six billion kilometers away, Voyager looked back through a sunbeam and photographed Earth as one shimmering blue spark—holding every child, macaw, and dream.",
+      es: "A seis mil millones de kilómetros, Voyager miró atrás y fotografió la Tierra en un rayo de sol: un puntito azul donde cabe todo nuestro amor.",
     },
     macaFact: {
-      en: "Today Voyager 1 is over 24 billion kilometers from Earth inside Interstellar Space — the farthest human object ever built, still sending faint radio notes home!",
-      es: "Hoy la Voyager 1 viaja a más de 24 mil millones de km en el espacio interestelar — el objeto humano más lejano de la historia, ¡y todavía responde por radio!",
+      en: "Voyager 1 is now in interstellar space beyond our Sun, yet faint radio whispers still arrive on Earth more than 22 hours later!",
+      es: "Voyager 1 ya navega en el espacio interestelar: sus débiles susurros de radio tardan más de 22 horas en llegar a la Tierra.",
     },
     parentPrompt: {
-      en: "Ask together: Since everyone we have ever loved lives on that tiny blue marble, how should we care for it together?",
-      es: "Pregúntenlo juntos: Si todas las personas y animales que queremos viven en esa canica azulita, ¿cómo la cuidamos hoy entre todos?",
+      en: "Carl Sagan reminded us that seeing Earth so small teaches us to be kinder to one another and to care for our only pale blue dot.",
+      es: "Carl Sagan nos recordó que ver la Tierra tan chiquita nos invita a cuidarla con ternura y ser más amables entre todos.",
     },
+    accentColor: "#7CC8EA",
+    textSide: "left",
+    textAnchor: { x: 0.07, y: 0.09, align: "left" },
   },
 ];
 
@@ -137,207 +219,361 @@ interface RecordTrack {
   code: string;
   color: string;
   label: Record<"en" | "es", string>;
-  quote: Record<"en" | "es", string>;
-  detail: Record<"en" | "es", string>;
+  note: Record<"en" | "es", string>;
 }
 
 const RECORD_TRACKS: RecordTrack[] = [
   {
-    id: "spanish",
+    id: "greetings",
     code: "01",
-    color: "#E63946",
-    label: { en: "Earth Greetings (EN / ES)", es: "Saludos de la Tierra (ES / EN)" },
-    quote: {
-      en: "\"Hola y saludos a todos\" & \"Hello from the children of planet Earth\"",
-      es: "\"Hola y saludos a todos\" y \"Hello from the children of planet Earth\"",
-    },
-    detail: {
-      en: "Spoken among 55 human languages compiled by Carl Sagan & team in 1977 so every corner of Earth was represented.",
-      es: "Grabados entre 55 idiomas humanos reunidos por Carl Sagan en 1977 para representar a cada rincón de nuestro hogar.",
+    color: "#FFD166",
+    label: { en: "55 Hellos + Kids' Greeting", es: "55 Saludos + Voz Infantil" },
+    note: {
+      en: '"Hello from the children of planet Earth" in English plus warm greetings in Spanish ("Hola y saludos a todos"), Mandarin, Quechua & 51 more languages.',
+      es: '«¡Hola de parte de los niños del planeta Tierra!» en inglés, junto a «Hola y saludos a todos» en español, quechua y 52 idiomas más.',
     },
   },
   {
-    id: "whale",
+    id: "whales",
     code: "02",
-    color: "#2B7A78",
-    label: { en: "Humpback Whale Songs", es: "Canto de Ballenas Jorobadas" },
-    quote: {
-      en: "\"Deep ocean melodies echoing across the Milky Way\"",
-      es: "\"Melodías profundas del océano viajando por la Vía Láctea\"",
-    },
-    detail: {
-      en: "Humans weren't the only Earthlings invited — whale greetings let distant listeners know Earth's seas sing too.",
-      es: "No solo hablaron humanos — los cantos de ballena cuentan al universo que nuestros mares también saben cantar.",
+    color: "#98DCE6",
+    label: { en: "Humpback Whale Songs", es: "Cantos de Ballenas Jorobadas" },
+    note: {
+      en: "Deep underwater melodies recorded in the Pacific Ocean so alien listeners know the Earth sings even beneath its waves.",
+      es: "Melodías submarinas grabadas en el océano Pacífico para contarle al universo que la Tierra también canta bajo el agua.",
     },
   },
   {
-    id: "maca",
+    id: "earth-sounds",
     code: "03",
-    color: "#F4B942",
-    label: { en: "Maca's Tropical Hello", es: "Saludo Tropical de Maca" },
-    quote: {
-      en: "\"Squawk-chime! Rainforest flutes + Chuck Berry's guitar!\"",
-      es: "\"¡Flautas de selva, guacamayas y la guitarra de Chuck Berry!\"",
-    },
-    detail: {
-      en: "The real disc actually includes panpipes from Peru, crickets, rain, thunderstorms, Mozart, Bach, and 'Johnny B. Goode'!",
-      es: "¡El disco real incluye zampoñas andinas, grillos, lluvia, truenos, Mozart, Bach y 'Johnny B. Goode'!",
+    color: "#9BE0A2",
+    label: { en: "Laughter, Birds & Heartbeat", es: "Risas, Aves y Latidos" },
+    note: {
+      en: "An audio postcard of life on Earth: crackling campfires, rainforest birds calling like Maca, gentle rain, a kiss, and a human heartbeat.",
+      es: "Una postal sonora de la vida: fogatas crepitando, aves de la selva como Maca, lluvia suave, un beso y un latido del corazón.",
     },
   },
   {
-    id: "pulsar",
+    id: "johnny-b-goode",
     code: "04",
-    color: "#A8DADC",
-    label: { en: "14-Line Pulsar Star Map", es: "Mapa Estelar de 14 Púlsares" },
-    quote: {
-      en: "\" cosmic treasure lines pointing right back to our Sun\"",
-      es: "\"14 líneas cósmicas indicando justo dónde queda nuestro Sol\"",
-    },
-    detail: {
-      en: "Carved in gold aluminum so smart cosmic explorers could measure blinking pulsar stars and find Earth's exact street address.",
-      es: "Tallado en aluminio dorado para que exploradores del futuro puedan leer las estrellas púlsar y ubicarnos.",
+    color: "#E84A3A",
+    label: { en: "Chuck Berry — Rock & Roll", es: "Chuck Berry — Rock & Roll" },
+    note: {
+      en: '"Johnny B. Goode" blazing from an electric guitar so stars light-years away can tap their toes to joyful human rhythm.',
+      es: "«Johnny B. Goode» sonando a todo ritmo para demostrar que los humanos también sabemos bailar con guitarra eléctrica.",
     },
   },
   {
-    id: "dot",
+    id: "el-cascabel",
     code: "05",
-    color: "#FF85C0",
-    label: { en: "Feb 14, 1990 • Pale Blue Dot", es: "14 Feb 1990 • Punto Azul Pálido" },
-    quote: {
-      en: "\"Just 0.12 pixels wide inside a warm band of scattered sunlight\"",
-      es: "\"Apenas 0.12 píxeles de ancho flotando en un rayito de sol\"",
-    },
-    detail: {
-      en: "Voyager snapped 60 final family portraits of our solar system before switching cameras off to save nuclear battery power.",
-      es: "Voyager tomó 60 fotos finales de nuestro sistema solar antes de apagar sus cámaras para ahorrar batería camino a las estrellas.",
+    color: "#F4A236",
+    label: { en: "Peruvian Panpipes & El Cascabel", es: "Siku Peruano y El Cascabel" },
+    note: {
+      en: "Vibrant harp strings from Veracruz, Mexico and soaring Andean panpipes from Peru flying together into interstellar night.",
+      es: "Arpa jarocha de Veracruz (México) y zampoñas andinas del Perú viajando juntas hacia las estrellas más lejanas.",
     },
   },
 ];
 
 const UI_COPY = {
   en: {
-    studioBack: "← JUANIMAL STUDIO",
-    prevWork: "NO SKU #02",
-    coverLabel: "FRONT COVER",
-    backLabel: "RESOURCES & NOTES",
-    spreadOf: (n: number, total: number) => `PAGE 0${n} OF 0${total}`,
-    coverTopLine: "HOW TO TALK TO KIDS\nABOUT",
-    coverMainTitle: "Voyager 1",
-    coverTagline: "— A CRAYON GUIDE WITH MACA —",
-    backColophon: "THE JUANIMAL STUDIO • PORTFOLIO #03\n4.7B+ KM FROM HOME IN CRAYON",
-    openBookCta: "Open the Book →",
-    dragHint: "Drag pages horizontally, scroll wheel, or use ← → arrows",
-    factToggleOpen: "🦜 Hide Maca's Fact",
-    factToggleClosed: "🦜 Maca's Fact & Parent Question",
-    macaBadge: "MACA THE SCARLET MACAW SAYS:",
-    exploreRecordBtn: "◎ Spin the Golden Record",
+    backLabel: "Back to work",
+    logoAria: "Voyager 1 Storybook — Return to front cover",
+    openBookBtn: "Open Storybook",
+    prevAria: "Previous page",
+    nextAria: "Next page",
+    prevWord: "Prev",
+    nextWord: "Next",
+    navAria: "Illustrated storybook chapter selector",
+    coverLabel: "Cover",
+    endLabel: "The End",
+    tiltOn: "3D Tilt On",
+    tiltOff: "3D Tilt",
+    macaTrigger: "Maca's Fact & Parent Spark",
+    macaFactTitle: "Maca's Explorer Note",
+    parentPromptTitle: "Bedtime Question Together",
+    closePopoverAria: "Close Maca note",
+    exploreRecordBtn: "Spin the Golden Record",
     modalEyebrow: "VOYAGER 1 • GOLDEN RECORD PLAYER",
-    modalTitle: "Earth's Mixtape for the Stars",
-    modalClose: "Close ✕",
-    resourcesTitle: "Keep Exploring With Your Kids",
-    resourcesLead:
-      "Voyager 1 is still flying deeper into interstellar space every single second — curious kids welcome.",
+    modalTitle: "Earth's Golden Time Capsule",
+    modalSubtitle:
+      "Pick any engraved track below to spin the shiny Golden Record and see what humanity packed for faraway stars.",
+    closeModalAria: "Close Golden Record Explorer",
+    extraEyebrow: "MISSION ACCOMPLISHED • BEYOND THE STARS",
+    extraTitle: "Keep Exploring the Universe Together",
+    extraCopy:
+      "Voyager 1 is over 24 billion kilometers from home — still whispering science back to kids and grownups on Earth. Read our real-life mission picks:",
     resources: [
       {
-        verb: "Explore:",
         title: "NASA Eyes on the Solar System (Voyager Live)",
         href: "https://science.nasa.gov/mission/voyager/",
+        desc: "See exactly how far Voyager 1 is from Earth right this second.",
       },
       {
-        verb: "Listen:",
         title: "NASA Golden Record Sounds & Greetings",
         href: "https://science.nasa.gov/mission/voyager/golden-record-contents/",
+        desc: "Listen to the real 55 greetings and whale songs stored on the copper disc.",
       },
       {
-        verb: "Watch:",
-        title: "Carl Sagan — Pale Blue Dot Portrait",
+        title: "Pale Blue Dot Original Story",
         href: "https://science.nasa.gov/resource/voyager-1s-pale-blue-dot/",
+        desc: "Discover how NASA turned Voyager's camera around one last time.",
       },
       {
-        verb: "Play:",
         title: "NASA Space Place For Kids",
         href: "https://spaceplace.nasa.gov/",
+        desc: "Games, crafts, and starry experiments built for curious young astronauts.",
       },
     ],
-    readAgain: "↺ Read Again from Cover",
-    backHome: "← Portfolio Home",
+    replayBookBtn: "Read Again from Cover",
+    coverEyebrow: "SCARLET MACAW EDITION • BILINGUAL EN / ES",
+    coverMainTitle: "Voyager 1",
+    coverTagline: "An interactive 3D wax-crayon bedtime story about Earth's farthest little traveler.",
+    backColophon:
+      "Still racing softly beyond the Sun. Written in two languages for curious kids, dreaming parents, and one very loud scarlet macaw.",
   },
   es: {
-    studioBack: "← JUANIMAL STUDIO",
-    prevWork: "NO SKU #02",
-    coverLabel: "PORTADA",
-    backLabel: "RECURSOS Y NOTAS",
-    spreadOf: (n: number, total: number) => `PÁGINA 0${n} DE 0${total}`,
-    coverTopLine: "CÓMO HABLAR CON NIÑOS\nSOBRE LA",
-    coverMainTitle: "Voyager 1",
-    coverTagline: "— GUÍA EN CRAYÓN CON MACA —",
-    backColophon: "THE JUANIMAL STUDIO • PORTAFOLIO #03\nUN VIAJE EN CRAYÓN AL ESPACIO",
-    openBookCta: "Abrir el Libro →",
-    dragHint: "Arrastra la página con el mouse o usa las flechas ← →",
-    factToggleOpen: "🦜 Ocultar Dato de Maca",
-    factToggleClosed: "🦜 Dato de Maca + Pregunta en Familia",
-    macaBadge: "MACA LA GUACAMAYA ROJA DICE:",
-    exploreRecordBtn: "◎ Girar el Disco de Oro",
-    modalEyebrow: "VOYAGER 1 • REPRODUCTOR DEL DISCO DE ORO",
-    modalTitle: "Nuestra Mixtape Para las Estrellas",
-    modalClose: "Cerrar ✕",
-    resourcesTitle: "Para Seguir Explorando Juntos",
-    resourcesLead:
-      "La Voyager 1 sigue adentrándose en el espacio interestelar cada segundo — el mejor libro empieza haciendo preguntas.",
+    backLabel: "Volver al portafolio",
+    logoAria: "Voyager 1 — Volver a la portada",
+    openBookBtn: "Abrir el Libro",
+    prevAria: "Página anterior",
+    nextAria: "Página siguiente",
+    prevWord: "Atrás",
+    nextWord: "Seguir",
+    navAria: "Selector ilustrado de capítulos del cuento",
+    coverLabel: "Portada",
+    endLabel: "Final",
+    tiltOn: "Inclinación 3D Activa",
+    tiltOff: "Inclinación 3D",
+    macaTrigger: "Dato de Maca + Pregunta",
+    macaFactTitle: "Nota Exploradora de Maca",
+    parentPromptTitle: "Chispa para Conversar Antes de Dormir",
+    closePopoverAria: "Cerrar nota de Maca",
+    exploreRecordBtn: "Girar el Disco de Oro",
+    modalEyebrow: "VOYAGER 1 • TOCADISCOS CÓSMICO",
+    modalTitle: "La Cápsula Dorada del Planeta",
+    modalSubtitle:
+      "Toca cualquiera de los surcos abajo para hacer girar el Disco de Oro y descubrir qué sonidos envió la Tierra al universo.",
+    closeModalAria: "Cerrar Explorador del Disco de Oro",
+    extraEyebrow: "MISIÓN CUMPLIDA • MÁS ALLÁ DEL SOL",
+    extraTitle: "Sigamos Explorando el Universo Juntos",
+    extraCopy:
+      "Voyager 1 ya superó los 24 mil millones de kilómetros desde casa y aún envía ciencia a la Tierra. Sigue curioseando con enlaces reales de la NASA:",
     resources: [
       {
-        verb: "Explora:",
         title: "NASA Voyager — Misión en Tiempo Real",
         href: "https://science.nasa.gov/mission/voyager/",
+        desc: "Mira la distancia exacta a la que vuela Voyager 1 en este preciso instante.",
       },
       {
-        verb: "Escucha:",
-        title: "Los Saludos y Sonidos del Disco de Oro",
+        title: "Sonidos y Saludos del Disco de Oro",
         href: "https://science.nasa.gov/mission/voyager/golden-record-contents/",
+        desc: "Escucha los 55 saludos reales y los cantos de ballena grabados en el disco.",
       },
       {
-        verb: "Mira:",
-        title: "Carl Sagan — El Punto Azul Pálido",
+        title: "Historia Original del Punto Azul Pálido",
         href: "https://science.nasa.gov/resource/voyager-1s-pale-blue-dot/",
+        desc: "Descubre cómo la NASA giró la cámara de Voyager para fotografiar nuestro hogar.",
       },
       {
-        verb: "Juega:",
         title: "NASA Space Place en Español para Niños",
         href: "https://spaceplace.nasa.gov/sp/",
+        desc: "Juegos, manualidades y misterios estelares creados para pequeños astronautas.",
       },
     ],
-    readAgain: "↺ Volver a Leer desde Portada",
-    backHome: "← Volver al Portafolio",
+    replayBookBtn: "Volver a Leer desde Portada",
+    coverEyebrow: "EDICIÓN GUACAMAYA ROJA • BILINGÜE EN / ES",
+    coverMainTitle: "Voyager 1",
+    coverTagline: "Un cuento interactivo 3D en creyón de cera sobre nuestra viajera más lejana.",
+    backColophon:
+      "Volando suavemente más allá del Sol. Escrito en dos idiomas para niños curiosos, madres y padres soñadores y una guacamaya muy parlanchina.",
   },
-};
+} as const;
+
+function VoyagerHandLogo({
+  onClick,
+  ariaLabel,
+  subLabel,
+}: {
+  onClick: () => void;
+  ariaLabel: string;
+  subLabel: string;
+}) {
+  return (
+    <button
+      type="button"
+      className="vg-hand-logo-btn"
+      onClick={onClick}
+      aria-label={ariaLabel}
+    >
+      <svg
+        viewBox="0 0 212 46"
+        className="vg-hand-logo-svg"
+        role="img"
+        aria-hidden="true"
+      >
+        <g filter="url(#vgCrayonTex)">
+          {/* Tiny crayon planet emblem on the left */}
+          <ellipse
+            cx="24"
+            cy="22"
+            rx="16"
+            ry="6.5"
+            transform="rotate(-18 24 22)"
+            fill="none"
+            stroke="#98DCE6"
+            strokeWidth="2.4"
+            strokeLinecap="round"
+          />
+          <circle cx="24" cy="22" r="8.2" fill="#F4A236" stroke="#182046" strokeWidth="1.4" />
+          <path
+            d="M 10,26 Q 24,29 38,18"
+            fill="none"
+            stroke="#FFD166"
+            strokeWidth="2.1"
+            strokeLinecap="round"
+          />
+          {/* Tiny star spark */}
+          <path
+            d="M 192,10 L 195,15 L 201,15 L 196,19 L 198,25 L 192,21 L 186,25 L 188,19 L 183,15 L 189,15 Z"
+            fill="#FFD166"
+          />
+          {/* Hand-drawn warm coral crayon underline */}
+          <path
+            d="M 48,38 Q 112,42 180,35"
+            fill="none"
+            stroke="#E84A3A"
+            strokeWidth="3.2"
+            strokeLinecap="round"
+          />
+        </g>
+        <text
+          x="114"
+          y="29"
+          textAnchor="middle"
+          className="vg-hand-logo-word"
+        >
+          Voyager 1
+        </text>
+      </svg>
+      <span className="sr-only">{subLabel}</span>
+    </button>
+  );
+}
+
+function CrayonArrowSvg({ direction }: { direction: "prev" | "next" }) {
+  const isNext = direction === "next";
+  return (
+    <svg
+      viewBox="0 0 88 52"
+      className="vg-crayon-arrow-svg"
+      aria-hidden="true"
+    >
+      <g
+        filter="url(#vgCrayonTex)"
+        transform={isNext ? undefined : "translate(88 0) scale(-1 1)"}
+      >
+        {/* Warm coral outer wax outline */}
+        <path
+          d="M 12,27 Q 41,22 72,26"
+          fill="none"
+          stroke="#E84A3A"
+          strokeWidth="8.5"
+          strokeLinecap="round"
+        />
+        <path
+          d="M 55,10 Q 67,18 75,26 Q 66,34 55,42"
+          fill="none"
+          stroke="#E84A3A"
+          strokeWidth="8.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        {/* Golden crayon core highlight */}
+        <path
+          d="M 13,26 Q 42,22 71,26"
+          fill="none"
+          stroke="#FFD166"
+          strokeWidth="4.2"
+          strokeLinecap="round"
+        />
+        <path
+          d="M 56,11 Q 67,19 74,26 Q 66,34 56,41"
+          fill="none"
+          stroke="#FFF7E6"
+          strokeWidth="3.6"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </g>
+    </svg>
+  );
+}
 
 export function VoyagerBookShowcase() {
   const { lang, setLang } = useLanguage();
   const reduced = usePrefersReducedMotion();
-
-  const [page, setPage] = useState(0); // 0 = Cover, 1..6 = Spreads, 7 = Back Cover + Resources
-  const [factOpen, setFactOpen] = useState(false);
+  const maxPage = SPREADS.length + 1; // 7 (Back Cover)
+  const [page, setPage] = useState(0);
+  const [macaOpen, setMacaOpen] = useState(false);
   const [recordModalOpen, setRecordModalOpen] = useState(false);
   const [activeTrackIdx, setActiveTrackIdx] = useState(0);
-
+  const [hasGyroPermissionApi, setHasGyroPermissionApi] = useState(false);
+  const [gyroActive, setGyroActive] = useState(false);
   const wheelLockRef = useRef(0);
-  const maxPage = SPREADS.length + 1; // 7
 
   const ui = UI_COPY[lang];
+  const currentSpread =
+    page >= 1 && page <= SPREADS.length ? SPREADS[page - 1] : null;
+  const activeTrack = RECORD_TRACKS[activeTrackIdx] ?? RECORD_TRACKS[0];
+
+  useEffect(() => {
+    if (
+      typeof window !== "undefined" &&
+      typeof (
+        window.DeviceOrientationEvent as unknown as {
+          requestPermission?: () => Promise<string>;
+        }
+      )?.requestPermission === "function"
+    ) {
+      setHasGyroPermissionApi(true);
+    }
+  }, []);
+
+  const requestGyro = useCallback(async () => {
+    try {
+      const api = window.DeviceOrientationEvent as unknown as {
+        requestPermission?: () => Promise<string>;
+      };
+      if (api?.requestPermission) {
+        const res = await api.requestPermission();
+        if (res === "granted") {
+          setGyroActive(true);
+        }
+      }
+    } catch {
+      // Ignore permission rejection gracefully
+    }
+  }, []);
 
   const goToPage = useCallback(
     (next: number) => {
       const clamped = Math.max(0, Math.min(maxPage, next));
       setPage(clamped);
+      setMacaOpen(false);
+      if (clamped !== 5) {
+        setRecordModalOpen(false);
+      }
     },
     [maxPage]
   );
 
-  // Keyboard Navigation (Left/Right arrows + Escape modal)
+  // Keyboard navigation
   useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
+    const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
-        setRecordModalOpen(false);
+        if (recordModalOpen) setRecordModalOpen(false);
+        else if (macaOpen) setMacaOpen(false);
         return;
       }
       if (recordModalOpen) return;
@@ -347,63 +583,116 @@ export function VoyagerBookShowcase() {
         goToPage(page - 1);
       }
     };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [goToPage, page, recordModalOpen]);
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [page, macaOpen, recordModalOpen, goToPage]);
 
-  // Debounced mouse-wheel page turning
+  // Debounced wheel turn when modals are closed
   useEffect(() => {
     const onWheel = (e: WheelEvent) => {
-      if (recordModalOpen) return;
+      if (recordModalOpen || page >= maxPage) return;
+      if (Math.abs(e.deltaY) < 28 && Math.abs(e.deltaX) < 28) return;
       const now = performance.now();
-      if (now - wheelLockRef.current < 480) return;
-      const absX = Math.abs(e.deltaX);
-      const absY = Math.abs(e.deltaY);
-      const delta = absX > absY ? e.deltaX : e.deltaY;
-      if (Math.abs(delta) < 28) return;
-
+      if (now - wheelLockRef.current < 380) return;
       wheelLockRef.current = now;
-      if (delta > 0) goToPage(page + 1);
-      else goToPage(page - 1);
+      if (e.deltaY > 28 || e.deltaX > 28) {
+        goToPage(page + 1);
+      } else if (e.deltaY < -28 || e.deltaX < -28) {
+        goToPage(page - 1);
+      }
     };
     window.addEventListener("wheel", onWheel, { passive: true });
     return () => window.removeEventListener("wheel", onWheel);
-  }, [goToPage, page, recordModalOpen]);
+  }, [page, maxPage, recordModalOpen, goToPage]);
 
-  const currentSpread =
-    page >= 1 && page <= SPREADS.length ? SPREADS[page - 1] : null;
-  const activeTrack = RECORD_TRACKS[activeTrackIdx];
-
-  const statusText =
-    page === 0
-      ? ui.coverLabel
-      : page === maxPage
-        ? ui.backLabel
-        : ui.spreadOf(page, SPREADS.length);
+  const medallions = [
+    {
+      id: "cover",
+      image: "/images/voyager/cover.png",
+      thumbPos: "50% 42%",
+      label: { en: ui.coverLabel, es: UI_COPY.es.coverLabel },
+    },
+    ...SPREADS.map((sp) => ({
+      id: sp.id,
+      image: sp.image,
+      thumbPos: sp.thumbPos,
+      label: sp.navLabel,
+    })),
+    {
+      id: "back-cover",
+      image: "/images/voyager/back-cover.png",
+      thumbPos: "50% 44%",
+      label: { en: ui.endLabel, es: UI_COPY.es.endLabel },
+    },
+  ];
 
   return (
     <div className="vg-page">
-      {/* Subtle Cosmic Crayon Gallery Topbar */}
+      {/* Shared wax-crayon SVG grain filter */}
+      <svg
+        width="0"
+        height="0"
+        aria-hidden="true"
+        style={{ position: "absolute", pointerEvents: "none" }}
+      >
+        <defs>
+          <filter id="vgCrayonTex">
+            <feTurbulence
+              type="fractalNoise"
+              baseFrequency="0.065"
+              numOctaves="3"
+              seed="7"
+              result="noise"
+            />
+            <feDisplacementMap
+              in="SourceGraphic"
+              in2="noise"
+              scale="2.6"
+              xChannelSelector="R"
+              yChannelSelector="G"
+            />
+          </filter>
+        </defs>
+      </svg>
+
+      {/* Atmospheric star-speckled cosmos canvas */}
+      <div className="vg-cosmos-bg" aria-hidden="true" />
+
+      {/* Sticky Top Header Bar */}
       <header className="vg-topbar">
         <div className="vg-topbar-left">
-          <Link href="/" className="vg-top-brand">
-            {ui.studioBack}
-          </Link>
-          <Link href="/work/no-sku" className="vg-top-link">
-            {ui.prevWork}
+          <Link href="/" className="vg-back-btn">
+            <span aria-hidden="true">←</span>
+            <span>{ui.backLabel}</span>
           </Link>
         </div>
 
         <div className="vg-topbar-center">
-          <span className="vg-status-pill">{statusText}</span>
+          <VoyagerHandLogo
+            onClick={() => goToPage(0)}
+            ariaLabel={ui.logoAria}
+            subLabel={ui.coverMainTitle}
+          />
         </div>
 
         <div className="vg-topbar-right">
-          <div className="vg-lang-group" role="group" aria-label="Language">
+          {hasGyroPermissionApi ? (
+            <button
+              type="button"
+              className={`vg-tilt-btn ${gyroActive ? "is-active" : ""}`}
+              onClick={requestGyro}
+              aria-pressed={gyroActive}
+            >
+              ◎ {gyroActive ? ui.tiltOn : ui.tiltOff}
+            </button>
+          ) : null}
+
+          <div className="vg-lang-toggle" role="group" aria-label="Language">
             <button
               type="button"
               className={`vg-lang-btn ${lang === "en" ? "is-active" : ""}`}
               onClick={() => setLang("en")}
+              aria-pressed={lang === "en"}
             >
               EN
             </button>
@@ -411,320 +700,312 @@ export function VoyagerBookShowcase() {
               type="button"
               className={`vg-lang-btn ${lang === "es" ? "is-active" : ""}`}
               onClick={() => setLang("es")}
+              aria-pressed={lang === "es"}
             >
               ES
             </button>
           </div>
-          <button
-            type="button"
-            className="vg-record-btn"
-            onClick={() => setRecordModalOpen(true)}
-          >
-            <span className="vg-record-dot" aria-hidden="true" />
-            <span>{lang === "es" ? "DISCO DE ORO" : "GOLDEN RECORD"}</span>
-          </button>
         </div>
       </header>
 
-      {/* Main 3D Picture Book Theater */}
-      <main className="vg-stage-main">
+      {/* Main 3D Interactive Book Stage */}
+      <main className="vg-book-stage">
         <VoyagerBook3D
           page={page}
           onChangePage={goToPage}
           lang={lang}
           reduced={reduced}
+          gyroActive={gyroActive}
           spreads={SPREADS}
           coverImage="/images/voyager/cover.png"
           backCoverImage="/images/voyager/back-cover.png"
-          coverTopLine={ui.coverTopLine}
+          coverTopLine={ui.coverEyebrow}
           coverMainTitle={ui.coverMainTitle}
           coverTagline={ui.coverTagline}
           backColophon={ui.backColophon}
         />
 
-        {/* HTWKR Left / Right Crayon Navigation Arrows */}
-        <button
-          type="button"
-          className="vg-nav-arrow is-prev"
-          aria-label={lang === "es" ? "Página anterior" : "Previous page"}
-          disabled={page === 0}
-          onClick={() => goToPage(page - 1)}
-        >
-          <svg viewBox="0 0 28 28" fill="none" aria-hidden="true">
-            <path
-              d="M17.5 6.5 L9.5 14 L17.5 21.5"
-              stroke="currentColor"
-              strokeWidth="3.2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        </button>
+        {/* Hand-drawn Wax-Crayon Prev / Next Navigation Arrows */}
+        {page > 0 ? (
+          <button
+            type="button"
+            className="vg-crayon-arrow is-prev"
+            onClick={() => goToPage(page - 1)}
+            aria-label={ui.prevAria}
+          >
+            <CrayonArrowSvg direction="prev" />
+            <span className="vg-crayon-arrow-label">{ui.prevWord}</span>
+          </button>
+        ) : null}
 
-        <button
-          type="button"
-          className="vg-nav-arrow is-next"
-          aria-label={lang === "es" ? "Página siguiente" : "Next page"}
-          disabled={page === maxPage}
-          onClick={() => goToPage(page + 1)}
-        >
-          <svg viewBox="0 0 28 28" fill="none" aria-hidden="true">
-            <path
-              d="M10.5 6.5 L18.5 14 L10.5 21.5"
-              stroke="currentColor"
-              strokeWidth="3.2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        </button>
+        {page < maxPage ? (
+          <button
+            type="button"
+            className="vg-crayon-arrow is-next"
+            onClick={() => goToPage(page + 1)}
+            aria-label={ui.nextAria}
+          >
+            <CrayonArrowSvg direction="next" />
+            <span className="vg-crayon-arrow-label">{ui.nextWord}</span>
+          </button>
+        ) : null}
 
-        {/* Front Cover CTA & Drag Prompt */}
-        {page === 0 && (
-          <div className="vg-cover-overlay">
+        {/* Cover CTA Button */}
+        {page === 0 ? (
+          <div className="vg-cover-cta-wrap">
             <button
               type="button"
               className="vg-enter-btn"
               onClick={() => goToPage(1)}
             >
-              {ui.openBookCta}
+              <span>{ui.openBookBtn}</span>
+              <span aria-hidden="true">→</span>
             </button>
-            <p className="vg-drag-hint">{ui.dragHint}</p>
           </div>
-        )}
+        ) : null}
 
-        {/* Open Spread Editorial Story Caption + Expandable Maca Fact Card */}
-        {currentSpread && (
-          <section
-            className="vg-caption-card"
-            aria-label={currentSpread.title[lang]}
-          >
-            <div className="vg-caption-head">
-              <div className="vg-caption-meta">
-                <span className="vg-chapter-pill">
-                  0{page} / 0{SPREADS.length}
-                </span>
-                <h2>{currentSpread.title[lang]}</h2>
-              </div>
+        {/* Accessible screen-reader announcement + Optional Maca Fact / Parent Spark Dock */}
+        {currentSpread ? (
+          <>
+            <div className="sr-only" aria-live="polite">
+              {currentSpread.title[lang]} — {currentSpread.story[lang]}
+            </div>
 
-              <div className="vg-caption-actions">
-                {currentSpread.id === "record" && (
+            <div className="vg-maca-dock">
+              {macaOpen ? (
+                <section
+                  className="vg-maca-popover"
+                  aria-label={ui.macaFactTitle}
+                >
+                  <div className="vg-maca-popover-head">
+                    <span className="vg-maca-tag">
+                      🦜 {ui.macaFactTitle}
+                    </span>
+                    <button
+                      type="button"
+                      className="vg-maca-close"
+                      onClick={() => setMacaOpen(false)}
+                      aria-label={ui.closePopoverAria}
+                    >
+                      ×
+                    </button>
+                  </div>
+                  <p className="vg-maca-fact-text">
+                    {currentSpread.macaFact[lang]}
+                  </p>
+                  <div className="vg-maca-divider" />
+                  <p className="vg-maca-prompt-eyebrow">
+                    {ui.parentPromptTitle}
+                  </p>
+                  <p className="vg-maca-prompt-text">
+                    {currentSpread.parentPrompt[lang]}
+                  </p>
+                </section>
+              ) : null}
+
+              <div className="vg-maca-actions">
+                {currentSpread.id === "spread-05-record" ? (
                   <button
                     type="button"
-                    className="vg-mini-record-btn"
+                    className="vg-dock-pill is-gold"
                     onClick={() => setRecordModalOpen(true)}
                   >
-                    {ui.exploreRecordBtn}
+                    ◎ {ui.exploreRecordBtn}
                   </button>
-                )}
+                ) : null}
                 <button
                   type="button"
-                  className={`vg-fact-toggle ${factOpen ? "is-open" : ""}`}
-                  aria-expanded={factOpen}
-                  onClick={() => setFactOpen((o) => !o)}
+                  className={`vg-dock-pill ${macaOpen ? "is-open" : ""}`}
+                  onClick={() => setMacaOpen((v) => !v)}
+                  aria-expanded={macaOpen}
                 >
-                  {factOpen ? ui.factToggleOpen : ui.factToggleClosed}
+                  🦜 {ui.macaTrigger}
                 </button>
               </div>
             </div>
+          </>
+        ) : null}
 
-            <p className="vg-caption-story">{currentSpread.story[lang]}</p>
-
-            {factOpen && (
-              <div className="vg-fact-tray">
-                <div className="vg-fact-box">
-                  <span className="vg-fact-kicker">{ui.macaBadge}</span>
-                  <p>{currentSpread.macaFact[lang]}</p>
-                </div>
-                <p className="vg-parent-spark">
-                  {currentSpread.parentPrompt[lang]}
-                </p>
-              </div>
-            )}
-          </section>
-        )}
-
-        {/* HTWKR-Inspired Extra Resources Drawer Next to Closed Back Cover */}
-        {page === maxPage && (
-          <aside
-            className="vg-extra-resources"
-            aria-label={ui.resourcesTitle}
-          >
-            <span className="vg-res-eyebrow">VOYAGER 1 • 1977 → ∞</span>
-            <h2>{ui.resourcesTitle}</h2>
-            <p className="vg-res-lead">{ui.resourcesLead}</p>
-
-            <ul className="vg-res-list">
-              {ui.resources.map((item) => (
-                <li key={item.href}>
-                  <span className="vg-res-verb">{item.verb}</span>{" "}
-                  <a
-                    href={item.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    {item.title} ↗
-                  </a>
-                </li>
-              ))}
-            </ul>
-
-            <div className="vg-res-actions">
-              <button
-                type="button"
-                className="vg-res-primary"
-                onClick={() => goToPage(0)}
-              >
-                {ui.readAgain}
-              </button>
-              <Link href="/" className="vg-res-ghost">
-                {ui.backHome}
-              </Link>
-            </div>
-          </aside>
-        )}
-
-        {/* Bottom Scrubber Dots (Cover + 6 Spreads + Resources) */}
-        <nav className="vg-scrubber" aria-label="Book page selector">
-          {Array.from({ length: maxPage + 1 }).map((_, idx) => (
+        {/* Back-Cover Extra Resources Drawer */}
+        <aside
+          className={`vg-extra-resources ${page === maxPage ? "is-open" : ""}`}
+          aria-hidden={page !== maxPage}
+        >
+          <p className="vg-extra-eyebrow">{ui.extraEyebrow}</p>
+          <h2 className="vg-extra-title">{ui.extraTitle}</h2>
+          <p className="vg-extra-copy">{ui.extraCopy}</p>
+          <ul className="vg-resource-list">
+            {ui.resources.map((res) => (
+              <li key={res.href}>
+                <a
+                  href={res.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="vg-resource-link"
+                >
+                  <strong>{res.title} ↗</strong>
+                  <span>{res.desc}</span>
+                </a>
+              </li>
+            ))}
+          </ul>
+          <div className="vg-extra-actions">
             <button
-              key={idx}
               type="button"
-              className={`vg-scrub-dot ${page === idx ? "is-active" : ""}`}
-              onClick={() => goToPage(idx)}
-              aria-label={
-                idx === 0
-                  ? ui.coverLabel
-                  : idx === maxPage
-                    ? ui.backLabel
-                    : ui.spreadOf(idx, SPREADS.length)
-              }
-              title={
-                idx === 0
-                  ? ui.coverLabel
-                  : idx === maxPage
-                    ? ui.backLabel
-                    : ui.spreadOf(idx, SPREADS.length)
-              }
-            />
-          ))}
-        </nav>
+              className="vg-replay-btn"
+              onClick={() => goToPage(0)}
+            >
+              ↺ {ui.replayBookBtn}
+            </button>
+            <Link href="/" className="vg-portfolio-link">
+              {ui.backLabel}
+            </Link>
+          </div>
+        </aside>
       </main>
 
+      {/* Bottom Illustrated Chapter Medallion Nav */}
+      <nav className="vg-medallion-nav" aria-label={ui.navAria}>
+        {medallions.map((item, idx) => {
+          const isActive = page === idx;
+          const label = idx === 0 ? ui.coverLabel : idx === maxPage ? ui.endLabel : item.label[lang];
+          const arcId = `vg-medallion-arc-${idx}`;
+          return (
+            <button
+              key={item.id}
+              type="button"
+              className={`vg-medallion-btn ${isActive ? "is-active" : ""}`}
+              onClick={() => goToPage(idx)}
+              aria-label={`${idx + 1}. ${label}`}
+              aria-current={isActive ? "page" : undefined}
+              title={label}
+            >
+              {isActive ? (
+                <svg
+                  className="vg-medallion-arc-svg"
+                  viewBox="0 0 124 124"
+                  aria-hidden="true"
+                >
+                  <defs>
+                    <path id={arcId} d="M 16,66 A 46,46 0 1,1 108,66" />
+                  </defs>
+                  <text className="vg-medallion-arc-text">
+                    <textPath href={`#${arcId}`} startOffset="50%" textAnchor="middle">
+                      {`• ${label} •`}
+                    </textPath>
+                  </text>
+                </svg>
+              ) : null}
+              <span
+                className="vg-medallion-disc"
+                style={{
+                  backgroundImage: `url("${item.image}")`,
+                  backgroundPosition: item.thumbPos,
+                }}
+              />
+            </button>
+          );
+        })}
+      </nav>
+
       {/* Interactive Wax-Crayon Golden Record Explorer Modal */}
-      {recordModalOpen && (
+      {recordModalOpen ? (
         <div
           className="vg-modal-backdrop"
           role="dialog"
           aria-modal="true"
           aria-label={ui.modalTitle}
-          onClick={() => setRecordModalOpen(false)}
         >
-          <div
-            className="vg-modal-card"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="vg-modal-head">
-              <span>{ui.modalEyebrow}</span>
-              <button
-                type="button"
-                className="vg-modal-close"
-                onClick={() => setRecordModalOpen(false)}
-              >
-                {ui.modalClose}
-              </button>
-            </div>
+          <div className="vg-modal-card">
+            <button
+              type="button"
+              className="vg-modal-close"
+              onClick={() => setRecordModalOpen(false)}
+              aria-label={ui.closeModalAria}
+            >
+              ×
+            </button>
+
+            <p className="vg-modal-eyebrow">{ui.modalEyebrow}</p>
+            <h2 className="vg-modal-title">{ui.modalTitle}</h2>
+            <p className="vg-modal-subtitle">{ui.modalSubtitle}</p>
 
             <div className="vg-modal-grid">
-              {/* Hand-Drawn SVG Golden Record Vinyl Spinner */}
-              <div className="vg-disc-stage">
+              <div className="vg-record-stage">
                 <svg
-                  viewBox="0 0 240 240"
-                  className={`vg-vinyl-svg ${reduced ? "" : "is-spinning"}`}
+                  viewBox="0 0 260 260"
+                  className={`vg-record-svg ${!reduced ? "is-spinning" : ""}`}
                   aria-hidden="true"
                 >
+                  <defs>
+                    <radialGradient id="vgGoldGrad" cx="42%" cy="38%" r="62%">
+                      <stop offset="0%" stopColor="#FFF0A8" />
+                      <stop offset="42%" stopColor="#F2B63D" />
+                      <stop offset="78%" stopColor="#C97F17" />
+                      <stop offset="100%" stopColor="#7C4B0C" />
+                    </radialGradient>
+                  </defs>
                   <circle
-                    cx="120"
-                    cy="120"
-                    r="112"
-                    fill="#F4C44E"
-                    stroke="#181A24"
-                    strokeWidth="4"
+                    cx="130"
+                    cy="130"
+                    r="118"
+                    fill="url(#vgGoldGrad)"
+                    stroke="#FFF7E6"
+                    strokeWidth="2.5"
                   />
-                  {[98, 84, 70, 56].map((r) => (
+                  {[98, 86, 74, 62, 50].map((r) => (
                     <circle
                       key={r}
-                      cx="120"
-                      cy="120"
+                      cx="130"
+                      cy="130"
                       r={r}
                       fill="none"
-                      stroke="#9F6B13"
-                      strokeWidth="1.8"
-                      strokeDasharray="18 7 34 9"
-                      opacity="0.65"
+                      stroke="rgba(59, 34, 6, 0.36)"
+                      strokeWidth="1.2"
+                      strokeDasharray={r === 74 ? "6 4" : undefined}
                     />
                   ))}
-                  <circle
-                    cx="120"
-                    cy="120"
-                    r="36"
-                    fill="#E63946"
-                    stroke="#181A24"
-                    strokeWidth="3"
-                  />
-                  <circle
-                    cx="120"
-                    cy="120"
-                    r="24"
-                    fill="none"
-                    stroke="#FAF4E6"
-                    strokeWidth="1.5"
-                    strokeDasharray="4 4"
-                  />
-                  <circle
-                    cx="120"
-                    cy="120"
-                    r="9"
-                    fill="#181A24"
-                  />
+                  <circle cx="130" cy="130" r="32" fill="#2A1D0D" stroke="#FFD166" strokeWidth="2" />
+                  <circle cx="130" cy="130" r="7" fill="#FFF7E6" />
+                  {/* Etched hydrogen / stylus nod */}
+                  <line x1="88" y1="68" x2="108" y2="88" stroke="#FFF0B8" strokeWidth="1.8" />
+                  <circle cx="108" cy="88" r="3" fill={activeTrack.color} />
                 </svg>
-
-                <span
-                  className="vg-track-chip"
-                  style={{ borderColor: activeTrack.color }}
-                >
-                  TRACK {activeTrack.code}
-                </span>
               </div>
 
-              <div className="vg-modal-body">
-                <h2>{ui.modalTitle}</h2>
-                <div className="vg-track-pills">
-                  {RECORD_TRACKS.map((tr, i) => (
+              <div className="vg-track-list">
+                {RECORD_TRACKS.map((track, idx) => {
+                  const selected = idx === activeTrackIdx;
+                  return (
                     <button
-                      key={tr.id}
+                      key={track.id}
                       type="button"
-                      className={`vg-track-pill ${
-                        activeTrackIdx === i ? "is-active" : ""
-                      }`}
-                      style={{ "--tr-col": tr.color } as React.CSSProperties}
-                      onClick={() => setActiveTrackIdx(i)}
+                      className={`vg-track-btn ${selected ? "is-selected" : ""}`}
+                      onClick={() => setActiveTrackIdx(idx)}
+                      style={{
+                        borderColor: selected ? track.color : undefined,
+                      }}
                     >
-                      <span>{tr.code}</span>
-                      <span>{tr.label[lang]}</span>
+                      <span
+                        className="vg-track-code"
+                        style={{ backgroundColor: track.color }}
+                      >
+                        {track.code}
+                      </span>
+                      <span className="vg-track-text">
+                        <strong>{track.label[lang]}</strong>
+                        <span>{track.note[lang]}</span>
+                      </span>
                     </button>
-                  ))}
-                </div>
-
-                <div className="vg-track-readout">
-                  <p className="vg-track-quote">{activeTrack.quote[lang]}</p>
-                  <p className="vg-track-detail">{activeTrack.detail[lang]}</p>
-                </div>
+                  );
+                })}
               </div>
             </div>
           </div>
         </div>
-      )}
+      ) : null}
     </div>
   );
 }
+
+export default VoyagerBookShowcase;
