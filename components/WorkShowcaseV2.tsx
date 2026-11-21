@@ -260,7 +260,7 @@ export function WorkShowcaseV2() {
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src="/images/voyager/cover.png"
-                        alt="How to Talk to Kids About Voyager 1 wax-crayon front cover featuring Maca the Scarlet Macaw"
+                        alt="How to Talk to Kids About Voyager 1 wax-crayon front cover featuring Guaca the Macaw"
                         loading="lazy"
                       />
                     </div>
@@ -268,7 +268,7 @@ export function WorkShowcaseV2() {
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src="/images/voyager/spread-03-jupiter.png"
-                        alt="Wax-crayon picture book spread of Voyager 1 and Maca the Scarlet Macaw beside swirled Jupiter"
+                        alt="Wax-crayon picture book spread of Voyager 1 and Guaca the Macaw beside swirled Jupiter"
                         loading="lazy"
                       />
                     </div>

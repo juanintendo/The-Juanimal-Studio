@@ -317,7 +317,7 @@
   box-shadow: 0 16px 34px rgba(0, 0, 0, 0.56);
 }
 
-/* Optional Maca Fact & Parent Spark Dock (bottom-right above margin) */
+/* Optional Guaca Fact & Parent Spark Dock (bottom-right above margin) */
 .vg-maca-dock {
   position: fixed;
   right: 22px;
@@ -793,8 +793,8 @@
 
 .vg-modal-card {
   position: relative;
-  width: min(820px, 94vw);
-  max-height: 88dvh;
+  width: min(880px, 95vw);
+  max-height: 90dvh;
   overflow-y: auto;
   padding: 26px 28px;
   border-radius: 24px;
@@ -843,13 +843,16 @@
   display: grid;
   grid-template-columns: 240px 1fr;
   gap: 22px;
-  align-items: center;
+  align-items: start;
 }
 
 .vg-record-stage {
+  position: sticky;
+  top: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
+  padding-top: 8px;
 }
 
 .vg-record-svg {
@@ -873,26 +876,40 @@
 
 .vg-track-list {
   display: grid;
-  gap: 8px;
+  gap: 9px;
+}
+
+.vg-track-item {
+  border-radius: 15px;
+  background: rgba(255, 247, 230, 0.05);
+  border: 1.5px solid rgba(255, 247, 230, 0.14);
+  overflow: hidden;
+  transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.vg-track-item.is-expanded {
+  background: rgba(255, 247, 230, 0.09);
+  box-shadow: 0 12px 28px rgba(4, 6, 18, 0.52);
 }
 
 .vg-track-btn {
   appearance: none;
   cursor: pointer;
+  width: 100%;
   display: flex;
   align-items: flex-start;
   gap: 11px;
-  padding: 10px 12px;
-  border-radius: 14px;
-  background: rgba(255, 247, 230, 0.05);
-  border: 1.5px solid rgba(255, 247, 230, 0.14);
+  padding: 11px 13px;
+  border: none;
+  background: transparent;
   color: #fff7e6;
   text-align: left;
-  transition: background-color 0.18s ease, border-color 0.18s ease;
+  transition: background-color 0.18s ease;
 }
 
+.vg-track-btn:hover,
 .vg-track-btn.is-selected {
-  background: rgba(255, 247, 230, 0.12);
+  background: rgba(255, 247, 230, 0.05);
 }
 
 .vg-track-code {
@@ -909,9 +926,17 @@
 }
 
 .vg-track-text {
+  flex: 1 1 auto;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 3px;
+}
+
+.vg-track-head-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
 }
 
 .vg-track-text strong {
@@ -919,10 +944,116 @@
   color: #fff7e6;
 }
 
-.vg-track-text span {
+.vg-track-jb-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, rgba(255, 209, 102, 0.22), rgba(232, 74, 58, 0.26));
+  border: 1px solid rgba(255, 209, 102, 0.55);
+  color: #ffd166;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+
+.vg-track-text span:not(.vg-track-head-row):not(.vg-track-jb-badge) {
   font-size: 12px;
-  line-height: 1.4;
+  line-height: 1.42;
   color: rgba(255, 247, 230, 0.78);
+}
+
+.vg-track-play-hint {
+  flex: 0 0 auto;
+  align-self: center;
+  padding: 5px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 209, 102, 0.4);
+  background: rgba(255, 209, 102, 0.12);
+  color: #ffd166;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.vg-track-expand {
+  padding: 4px 13px 13px 52px;
+  display: grid;
+  gap: 10px;
+}
+
+.vg-video-switch {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.vg-video-chip {
+  appearance: none;
+  cursor: pointer;
+  padding: 5px 11px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 247, 230, 0.22);
+  background: rgba(255, 247, 230, 0.06);
+  color: rgba(255, 247, 230, 0.88);
+  font-size: 11.5px;
+  font-weight: 700;
+  transition: background-color 0.16s ease, border-color 0.16s ease, color 0.16s ease;
+}
+
+.vg-video-chip.is-active {
+  background: #ffd166;
+  border-color: #ffd166;
+  color: #14193a;
+}
+
+.vg-yt-shell {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: 14px;
+  overflow: hidden;
+  background: #090c20;
+  border: 1px solid rgba(255, 247, 230, 0.16);
+}
+
+.vg-yt-frame {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  display: block;
+}
+
+.vg-track-player-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.vg-track-player-title {
+  font-size: 12px;
+  color: rgba(255, 247, 230, 0.85);
+}
+
+.vg-yt-ext-link {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 11px;
+  border-radius: 999px;
+  background: rgba(255, 209, 102, 0.16);
+  border: 1px solid rgba(255, 209, 102, 0.55);
+  color: #ffd166;
+  font-size: 11.5px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: background-color 0.18s ease, transform 0.18s ease;
+}
+
+.vg-yt-ext-link:hover {
+  background: #ffd166;
+  color: #14193a;
 }
 
 /* Responsive Mobile Rules */
@@ -1022,6 +1153,14 @@
 
   .vg-modal-grid {
     grid-template-columns: 1fr;
+  }
+
+  .vg-record-stage {
+    position: static;
+  }
+
+  .vg-track-expand {
+    padding: 4px 12px 12px 12px;
   }
 
   .vg-record-svg {

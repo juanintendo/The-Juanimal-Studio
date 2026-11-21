@@ -43,8 +43,8 @@ const SPREADS: VoyagerSpreadSpec[] = [
       es: "Mira Arriba — Una Nave Muy Lejana",
     },
     story: {
-      en: "Long before you were born, dreamers launched Voyager 1—a brave golden explorer racing past the stars with Maca keeping watch.",
-      es: "Mucho antes de que nacieras, unos soñadores lanzaron a Voyager 1: una nave dorada que viaja entre estrellas con Maca mirando el cielo.",
+      en: "Long before you were born, dreamers launched Voyager 1—a brave golden explorer racing past the stars with Guaca keeping watch.",
+      es: "Mucho antes de que nacieras, unos soñadores lanzaron a Voyager 1: una nave dorada que viaja entre estrellas con Guaca mirando el cielo.",
     },
     macaFact: {
       en: "Voyager 1 left Earth in 1977 and has never come home—it is now the farthest human-made object in the entire universe!",
@@ -64,16 +64,16 @@ const SPREADS: VoyagerSpreadSpec[] = [
       es: "Despegue en un Pilar de Fuego",
     },
     story: {
-      en: "WHOOOOSH! On a bright September morning, a roaring orange rocket lifted Voyager past rainforests and oceans as Maca cheered.",
-      es: "¡FUUUUM! Una mañana luminosa de septiembre, un cohete gigante rugió hacia las nubes mientras Maca celebraba su viaje.",
+      en: "WHOOOOSH! On a bright September morning, a roaring orange rocket lifted Voyager past rainforests and oceans as Guaca cheered.",
+      es: "¡FUUUUM! Una mañana luminosa de septiembre, un cohete gigante rugió hacia las nubes mientras Guaca celebraba su viaje.",
     },
     macaFact: {
       en: "Voyager speeds at more than 61,000 kilometers per hour—faster than twenty racing jets flying nose to tail!",
       es: "Voyager viaja a más de 61.000 kilómetros por hora: ¡más rápido que veinte aviones de carreras juntos!",
     },
     parentPrompt: {
-      en: "Count down from 5 to 1 together and flap your brightest macaw wings like Maca climbing into the clouds!",
-      es: "¡Cuenten juntos del 5 al 1 y agiten sus alas de guacamaya como Maca subiendo hasta las nubes!",
+      en: "Count down from 5 to 1 together and flap your brightest macaw wings like Guaca climbing into the clouds!",
+      es: "¡Cuenten juntos del 5 al 1 y agiten sus alas de guacamaya como Guaca subiendo hasta las nubes!",
     },
   },
   {
@@ -114,8 +114,8 @@ const SPREADS: VoyagerSpreadSpec[] = [
       es: "Los anillos de Saturno son anchísimos, pero en muchas partes son más delgados que un tobogán del parque.",
     },
     parentPrompt: {
-      en: "Look closely! Can you spot the cosmic cat gliding through Saturn's rainbow rings while Maca flies alongside Voyager?",
-      es: "¡Mira con lupa! ¿Ves al gatito espacial flotando en los anillos mientras Maca vuela junto a Voyager?",
+      en: "Look closely! Can you spot the cosmic cat gliding through Saturn's rainbow rings while Guaca flies alongside Voyager?",
+      es: "¡Mira con lupa! ¿Ves al gatito espacial flotando en los anillos mientras Guaca vuela junto a Voyager?",
     },
   },
   {
@@ -162,12 +162,20 @@ const SPREADS: VoyagerSpreadSpec[] = [
   },
 ];
 
+interface RecordTrackVideo {
+  videoId: string;
+  title: Record<"en" | "es", string>;
+  chip?: Record<"en" | "es", string>;
+}
+
 interface RecordTrack {
   id: string;
   code: string;
   color: string;
   label: Record<"en" | "es", string>;
   note: Record<"en" | "es", string>;
+  badge?: Record<"en" | "es", string>;
+  videos: RecordTrackVideo[];
 }
 
 const RECORD_TRACKS: RecordTrack[] = [
@@ -180,6 +188,15 @@ const RECORD_TRACKS: RecordTrack[] = [
       en: '"Hello from the children of planet Earth" in English plus warm greetings in Spanish ("Hola y saludos a todos"), Mandarin, Quechua & 51 more languages.',
       es: '«¡Hola de parte de los niños del planeta Tierra!» en inglés, junto a «Hola y saludos a todos» en español, quechua y 52 idiomas más.',
     },
+    videos: [
+      {
+        videoId: "Ww8nJigowa8",
+        title: {
+          en: "NASA Golden Record — Greetings in 55 Languages",
+          es: "Disco de Oro NASA — Saludos en 55 Idiomas",
+        },
+      },
+    ],
   },
   {
     id: "whales",
@@ -190,6 +207,15 @@ const RECORD_TRACKS: RecordTrack[] = [
       en: "Deep underwater melodies recorded in the Pacific Ocean so alien listeners know the Earth sings even beneath its waves.",
       es: "Melodías submarinas grabadas en el océano Pacífico para contarle al universo que la Tierra también canta bajo el agua.",
     },
+    videos: [
+      {
+        videoId: "yZBMKyag1Gw",
+        title: {
+          en: "NASA Golden Record — Humpback Whale Songs",
+          es: "Disco de Oro NASA — Cantos de Ballenas",
+        },
+      },
+    ],
   },
   {
     id: "earth-sounds",
@@ -197,9 +223,18 @@ const RECORD_TRACKS: RecordTrack[] = [
     color: "#9BE0A2",
     label: { en: "Laughter, Birds & Heartbeat", es: "Risas, Aves y Latidos" },
     note: {
-      en: "An audio postcard of life on Earth: crackling campfires, rainforest birds calling like Maca, gentle rain, a kiss, and a human heartbeat.",
-      es: "Una postal sonora de la vida: fogatas crepitando, aves de la selva como Maca, lluvia suave, un beso y un latido del corazón.",
+      en: "An audio postcard of life on Earth: crackling campfires, rainforest birds calling like Guaca, gentle rain, a kiss, and a human heartbeat.",
+      es: "Una postal sonora de la vida: fogatas crepitando, aves de la selva como Guaca, lluvia suave, un beso y un latido del corazón.",
     },
+    videos: [
+      {
+        videoId: "HslOMs5gMSA",
+        title: {
+          en: "NASA Golden Record — The Sounds of Earth",
+          es: "Disco de Oro NASA — Los Sonidos de la Tierra",
+        },
+      },
+    ],
   },
   {
     id: "johnny-b-goode",
@@ -210,6 +245,28 @@ const RECORD_TRACKS: RecordTrack[] = [
       en: '"Johnny B. Goode" blazing from an electric guitar so stars light-years away can tap their toes to joyful human rhythm.',
       es: "«Johnny B. Goode» sonando a todo ritmo para demostrar que los humanos también sabemos bailar con guitarra eléctrica.",
     },
+    badge: {
+      en: "★ JB Favorite · Rock & Roll",
+      es: "★ Favorita JB · Rock & Roll",
+    },
+    videos: [
+      {
+        videoId: "Y-9Y4CCIWnM",
+        title: {
+          en: 'Chuck Berry — "Johnny B. Goode" (1958 Recording)',
+          es: 'Chuck Berry — "Johnny B. Goode" (Grabación 1958)',
+        },
+        chip: { en: "🎸 1958 Studio", es: "🎸 Estudio 1958" },
+      },
+      {
+        videoId: "6swgiM9vSEE",
+        title: {
+          en: 'Chuck Berry — "Johnny B. Goode" Live',
+          es: 'Chuck Berry — "Johnny B. Goode" En Vivo',
+        },
+        chip: { en: "⚡ Live Video", es: "⚡ En Vivo" },
+      },
+    ],
   },
   {
     id: "el-cascabel",
@@ -220,6 +277,24 @@ const RECORD_TRACKS: RecordTrack[] = [
       en: "Vibrant harp strings from Veracruz, Mexico and soaring Andean panpipes from Peru flying together into interstellar night.",
       es: "Arpa jarocha de Veracruz (México) y zampoñas andinas del Perú viajando juntas hacia las estrellas más lejanas.",
     },
+    videos: [
+      {
+        videoId: "1puYprEvB4U",
+        title: {
+          en: 'Lorenzo Barcelata — "El Cascabel" (Mexico)',
+          es: 'Lorenzo Barcelata — "El Cascabel" (México)',
+        },
+        chip: { en: "🎺 El Cascabel (MX)", es: "🎺 El Cascabel (MX)" },
+      },
+      {
+        videoId: "kG7WLgVEaKk",
+        title: {
+          en: "Peruvian Panpipes & Drum Song (Peru)",
+          es: "Siku y Tambor Peruano (Perú)",
+        },
+        chip: { en: "🎶 Panpipes (PE)", es: "🎶 Siku Peruano (PE)" },
+      },
+    ],
   },
 ];
 
@@ -237,15 +312,18 @@ const UI_COPY = {
     endLabel: "The End",
     tiltOn: "3D Tilt On",
     tiltOff: "3D Tilt",
-    macaTrigger: "Maca's Fact & Parent Spark",
-    macaFactTitle: "Maca's Explorer Note",
+    macaTrigger: "Guaca's Fact & Parent Spark",
+    macaFactTitle: "Guaca the Macaw's Explorer Note",
     parentPromptTitle: "Bedtime Question Together",
-    closePopoverAria: "Close Maca note",
+    closePopoverAria: "Close Guaca note",
     exploreRecordBtn: "Spin the Golden Record",
     modalEyebrow: "VOYAGER 1 • GOLDEN RECORD PLAYER",
     modalTitle: "Earth's Golden Time Capsule",
     modalSubtitle:
-      "Pick any engraved track below to spin the shiny Golden Record and see what humanity packed for faraway stars.",
+      "Pick any engraved track below to spin the shiny Golden Record, listen right inside the storybook, or open the real video on YouTube.",
+    watchOnYoutube: "Watch on YouTube ↗",
+    listenLabel: "Listen",
+    hidePlayerLabel: "Hide",
     closeModalAria: "Close Golden Record Explorer",
     extraEyebrow: "MISSION ACCOMPLISHED • BEYOND THE STARS",
     extraTitle: "Keep Exploring the Universe Together",
@@ -289,15 +367,18 @@ const UI_COPY = {
     endLabel: "Final",
     tiltOn: "Inclinación 3D Activa",
     tiltOff: "Inclinación 3D",
-    macaTrigger: "Dato de Maca + Pregunta",
-    macaFactTitle: "Nota Exploradora de Maca",
+    macaTrigger: "Dato de Guaca + Pregunta",
+    macaFactTitle: "Nota Exploradora de Guaca",
     parentPromptTitle: "Chispa para Conversar Antes de Dormir",
-    closePopoverAria: "Cerrar nota de Maca",
+    closePopoverAria: "Cerrar nota de Guaca",
     exploreRecordBtn: "Girar el Disco de Oro",
     modalEyebrow: "VOYAGER 1 • TOCADISCOS CÓSMICO",
     modalTitle: "La Cápsula Dorada del Planeta",
     modalSubtitle:
-      "Toca cualquiera de los surcos abajo para hacer girar el Disco de Oro y descubrir qué sonidos envió la Tierra al universo.",
+      "Toca cualquiera de los surcos abajo para girar el Disco de Oro, escuchar la música aquí mismo o abrir el video en YouTube.",
+    watchOnYoutube: "Abrir en YouTube ↗",
+    listenLabel: "Escuchar",
+    hidePlayerLabel: "Ocultar",
     closeModalAria: "Cerrar Explorador del Disco de Oro",
     extraEyebrow: "MISIÓN CUMPLIDA • MÁS ALLÁ DEL SOL",
     extraTitle: "Sigamos Explorando el Universo Juntos",
@@ -444,6 +525,8 @@ export function VoyagerBookShowcase() {
   const [macaOpen, setMacaOpen] = useState(false);
   const [recordModalOpen, setRecordModalOpen] = useState(false);
   const [activeTrackIdx, setActiveTrackIdx] = useState(0);
+  const [expandedTrackIdx, setExpandedTrackIdx] = useState<number | null>(null);
+  const [activeVideoSubIdx, setActiveVideoSubIdx] = useState(0);
   const [hasGyroPermissionApi, setHasGyroPermissionApi] = useState(false);
   const [gyroActive, setGyroActive] = useState(false);
   const wheelLockRef = useRef(0);
@@ -482,22 +565,28 @@ export function VoyagerBookShowcase() {
     }
   }, []);
 
+  const closeRecordModal = useCallback(() => {
+    setRecordModalOpen(false);
+    setExpandedTrackIdx(null);
+    setActiveVideoSubIdx(0);
+  }, []);
+
   const goToPage = useCallback(
     (next: number) => {
       const clamped = Math.max(0, Math.min(maxPage, next));
       setPage(clamped);
       setMacaOpen(false);
       if (clamped !== 5) {
-        setRecordModalOpen(false);
+        closeRecordModal();
       }
     },
-    [maxPage]
+    [maxPage, closeRecordModal]
   );
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
-        if (recordModalOpen) setRecordModalOpen(false);
+        if (recordModalOpen) closeRecordModal();
         else if (macaOpen) setMacaOpen(false);
         return;
       }
@@ -510,7 +599,7 @@ export function VoyagerBookShowcase() {
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [page, macaOpen, recordModalOpen, goToPage]);
+  }, [page, macaOpen, recordModalOpen, goToPage, closeRecordModal]);
 
   useEffect(() => {
     const onWheel = (e: WheelEvent) => {
@@ -825,12 +914,15 @@ export function VoyagerBookShowcase() {
           role="dialog"
           aria-modal="true"
           aria-label={ui.modalTitle}
+          onClick={(e) => {
+            if (e.target === e.currentTarget) closeRecordModal();
+          }}
         >
           <div className="vg-modal-card">
             <button
               type="button"
               className="vg-modal-close"
-              onClick={() => setRecordModalOpen(false)}
+              onClick={closeRecordModal}
               aria-label={ui.closeModalAria}
             >
               ×
@@ -899,27 +991,99 @@ export function VoyagerBookShowcase() {
               <div className="vg-track-list">
                 {RECORD_TRACKS.map((track, idx) => {
                   const selected = idx === activeTrackIdx;
+                  const expanded = idx === expandedTrackIdx;
+                  const safeSubIdx =
+                    expanded && activeVideoSubIdx < track.videos.length
+                      ? activeVideoSubIdx
+                      : 0;
+                  const currentVid = track.videos[safeSubIdx] ?? track.videos[0];
                   return (
-                    <button
+                    <div
                       key={track.id}
-                      type="button"
-                      className={`vg-track-btn ${selected ? "is-selected" : ""}`}
-                      onClick={() => setActiveTrackIdx(idx)}
+                      className={`vg-track-item ${expanded ? "is-expanded" : ""}`}
                       style={{
-                        borderColor: selected ? track.color : undefined,
+                        borderColor: selected || expanded ? track.color : undefined,
                       }}
                     >
-                      <span
-                        className="vg-track-code"
-                        style={{ backgroundColor: track.color }}
+                      <button
+                        type="button"
+                        className={`vg-track-btn ${selected ? "is-selected" : ""}`}
+                        onClick={() => {
+                          setActiveTrackIdx(idx);
+                          setActiveVideoSubIdx(0);
+                          setExpandedTrackIdx((cur) => (cur === idx ? null : idx));
+                        }}
+                        aria-expanded={expanded}
                       >
-                        {track.code}
-                      </span>
-                      <span className="vg-track-text">
-                        <strong>{track.label[lang]}</strong>
-                        <span>{track.note[lang]}</span>
-                      </span>
-                    </button>
+                        <span
+                          className="vg-track-code"
+                          style={{ backgroundColor: track.color }}
+                        >
+                          {track.code}
+                        </span>
+                        <span className="vg-track-text">
+                          <span className="vg-track-head-row">
+                            <strong>{track.label[lang]}</strong>
+                            {track.badge ? (
+                              <span className="vg-track-jb-badge">
+                                {track.badge[lang]}
+                              </span>
+                            ) : null}
+                          </span>
+                          <span>{track.note[lang]}</span>
+                        </span>
+                        <span className="vg-track-play-hint">
+                          {expanded ? `▾ ${ui.hidePlayerLabel}` : `▶ ${ui.listenLabel}`}
+                        </span>
+                      </button>
+
+                      {expanded && currentVid ? (
+                        <div className="vg-track-expand">
+                          {track.videos.length > 1 ? (
+                            <div className="vg-video-switch" role="tablist">
+                              {track.videos.map((v, subIdx) => (
+                                <button
+                                  key={v.videoId}
+                                  type="button"
+                                  role="tab"
+                                  aria-selected={safeSubIdx === subIdx}
+                                  className={`vg-video-chip ${safeSubIdx === subIdx ? "is-active" : ""}`}
+                                  onClick={() => setActiveVideoSubIdx(subIdx)}
+                                >
+                                  {v.chip ? v.chip[lang] : v.title[lang]}
+                                </button>
+                              ))}
+                            </div>
+                          ) : null}
+
+                          <div className="vg-yt-shell">
+                            <iframe
+                              key={currentVid.videoId}
+                              className="vg-yt-frame"
+                              src={`https://www.youtube-nocookie.com/embed/${currentVid.videoId}?rel=0&modestbranding=1`}
+                              title={currentVid.title[lang]}
+                              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                              allowFullScreen
+                              loading="lazy"
+                            />
+                          </div>
+
+                          <div className="vg-track-player-bar">
+                            <span className="vg-track-player-title">
+                              {currentVid.title[lang]}
+                            </span>
+                            <a
+                              className="vg-yt-ext-link"
+                              href={`https://www.youtube.com/watch?v=${currentVid.videoId}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              {ui.watchOnYoutube}
+                            </a>
+                          </div>
+                        </div>
+                      ) : null}
+                    </div>
                   );
                 })}
               </div>
