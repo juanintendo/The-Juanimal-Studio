@@ -1,0 +1,127 @@
+"use client";
+
+import Link from "next/link";
+import { useLanguage } from "@/components/LanguageProvider";
+import { setGalleryMuted } from "@/lib/gallery/galleryAudio";
+
+interface GalleryHeaderProps {
+  active: "home" | "about" | "case";
+  tone?: "paper" | "light";
+  muted: boolean;
+  onToggleMute: () => void;
+  onBrandClick?: () => void;
+}
+
+export function GalleryHeader({
+  active,
+  tone = "paper",
+  muted,
+  onToggleMute,
+  onBrandClick,
+}: GalleryHeaderProps) {
+  const { lang, setLang } = useLanguage();
+
+  const labels = {
+    en: {
+      brand: "JUANIMAL DESIGNS",
+      posters: "POSTERS",
+      about: "ABOUT",
+      merch: "MERCH",
+      soundOn: "SFX ON",
+      soundOff: "MUTED",
+    },
+    es: {
+      brand: "JUANIMAL DESIGNS",
+      posters: "PÓSTERS",
+      about: "SOBRE MÍ",
+      merch: "TIENDA",
+      soundOn: "SONIDO",
+      soundOff: "MUDO",
+    },
+  }[lang];
+
+  return (
+    <header className={`jd-header ${tone === "light" ? "is-light" : "is-paper"}`}>
+      <div className="jd-header-left">
+        {onBrandClick ? (
+          <button type="button" className="jd-brand-link" onClick={onBrandClick}>
+            {labels.brand}
+          </button>
+        ) : (
+          <Link href="/" className="jd-brand-link">
+            {labels.brand}
+          </Link>
+        )}
+      </div>
+
+      <nav className="jd-header-nav" aria-label="Gallery primary navigation">
+        {active !== "home" ? (
+          <Link href="/" className="jd-nav-link">
+            <span>{labels.posters}</span>
+            <ZigZagUnderline />
+          </Link>
+        ) : null}
+
+        <Link
+          href="/about"
+          className={`jd-nav-link ${active === "about" ? "is-current" : ""}`}
+        >
+          <span>{labels.about}</span>
+          <ZigZagUnderline />
+        </Link>
+
+        <Link href="/merch" className="jd-nav-link">
+          <span>{labels.merch}</span>
+          <ZigZagUnderline />
+        </Link>
+
+        <div className="jd-pill-group" role="group" aria-label="Language toggle">
+          <button
+            type="button"
+            className={`jd-pill-btn ${lang === "en" ? "is-active" : ""}`}
+            onClick={() => setLang("en")}
+            aria-pressed={lang === "en"}
+          >
+            EN
+          </button>
+          <button
+            type="button"
+            className={`jd-pill-btn ${lang === "es" ? "is-active" : ""}`}
+            onClick={() => setLang("es")}
+            aria-pressed={lang === "es"}
+          >
+            ES
+          </button>
+        </div>
+
+        <button
+          type="button"
+          className={`jd-mute-btn ${!muted ? "is-live" : ""}`}
+          onClick={() => {
+            setGalleryMuted(!muted);
+            onToggleMute();
+          }}
+          aria-pressed={!muted}
+          title={muted ? labels.soundOff : labels.soundOn}
+        >
+          {muted ? "🔇" : "🔊"}
+        </button>
+      </nav>
+    </header>
+  );
+}
+
+export function ZigZagUnderline({ className = "jd-zigzag-svg" }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      width="311"
+      height="6"
+      viewBox="0 0 311 6"
+      fill="none"
+      aria-hidden="true"
+    >
+      <path d="M0 1H155.026L144.122 5H311" vectorEffect="non-scaling-stroke" />
+    </svg>
+  );
+}

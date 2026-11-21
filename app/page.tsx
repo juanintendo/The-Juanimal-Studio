@@ -1,5 +1,6 @@
-import { HomeContent } from "@/components/HomeContent";
+import "@/app/gallery.css";
+import { PosterGalleryHome } from "@/components/gallery/PosterGalleryHome";
 
 export default function HomePage() {
-  return <HomeContent />;
+  return <PosterGalleryHome />;
 }

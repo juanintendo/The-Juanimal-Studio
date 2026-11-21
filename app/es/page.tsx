@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
-import { HomeContent } from "@/components/HomeContent";
+import "@/app/gallery.css";
+import { PosterGalleryHome } from "@/components/gallery/PosterGalleryHome";
 
 export const metadata: Metadata = {
-  title:
-    "The Juanimal Studio — Films de Lanzamiento, Product Motion y Web Cinematográfica",
+  title: "Juanimal Designs — Galería de Pósters, Motion & Sistemas WebGL",
   description:
-    "Launch kits, demos de producto centrados en UI, sistemas de motion interactivo y web scrollytelling para equipos SaaS e IA.",
+    "Pósters interactivos en WebGL, cómics espaciales, libros 3D y dirección creativa bilingüe por Juan Colombo.",
 };
 
 export default function SpanishHomePage() {
-  return <HomeContent />;
+  return <PosterGalleryHome />;
 }

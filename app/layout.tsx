@@ -69,6 +69,12 @@ export default function RootLayout({
       lang="en"
       className={`${archivoBlack.variable} ${montserrat.variable} ${yellowtail.variable} ${libreFranklin.variable}`}
     >
+      <head>
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700;800&family=Modak&family=Space+Mono:wght@400;700&display=swap"
+        />
+      </head>
       <body>
         <LanguageProvider>{children}</LanguageProvider>
       </body>

@@ -1,31 +1,13 @@
 import type { Metadata } from "next";
-import {
-  AboutApproach,
-  AboutCTA,
-  AboutFooter,
-  AboutHero,
-  AboutStory,
-} from "@/components/About";
-import { Nav } from "@/components/Nav";
-import { PageShell } from "@/components/PageShell";
-import { Stats } from "@/components/Stats";
+import "@/app/gallery.css";
+import { DragonAboutStage } from "@/components/gallery/DragonAboutStage";
 
 export const metadata: Metadata = {
-  title: "Studio & Director — The Juanimal Studio",
+  title: "About | Juanimal Designs — 4-World Interactive Dragon",
   description:
-    "Juan Colombo: graphic design, UX/UI, marketing, and code-driven motion. Human direction, agent-scale production, and our open R&D lab fuelorfool.ing.",
+    "Meet Juan Colombo (Juanimal Designs): explore all four illustrated Juanimal Dragon worlds via WebGL hover portals and interactive click transitions.",
 };
 
 export default function AboutPage() {
-  return (
-    <PageShell page="about">
-      <Nav active="about" />
-      <AboutHero />
-      <AboutStory />
-      <AboutApproach />
-      <Stats />
-      <AboutCTA />
-      <AboutFooter />
-    </PageShell>
-  );
+  return <DragonAboutStage />;
 }
