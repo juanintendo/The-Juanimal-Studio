@@ -112,6 +112,50 @@ function createDeskShadowTexture(): THREE.CanvasTexture {
   return tex;
 }
 
+function createStarSpriteTexture(rays: 4 | 5): THREE.CanvasTexture {
+  const size = 128;
+  const cx = size * 0.5;
+  const cy = size * 0.5;
+  const canvas = document.createElement("canvas");
+  canvas.width = size;
+  canvas.height = size;
+  const ctx = canvas.getContext("2d");
+  if (ctx) {
+    ctx.clearRect(0, 0, size, size);
+    const glow = ctx.createRadialGradient(cx, cy, 4, cx, cy, size * 0.48);
+    glow.addColorStop(0, "rgba(255, 232, 166, 0.54)");
+    glow.addColorStop(0.42, "rgba(255, 224, 148, 0.16)");
+    glow.addColorStop(1, "rgba(255, 224, 148, 0)");
+    ctx.fillStyle = glow;
+    ctx.fillRect(0, 0, size, size);
+
+    const outerR = rays === 5 ? 42 : 46;
+    const innerR = outerR * (rays === 5 ? 0.44 : 0.28);
+    ctx.beginPath();
+    for (let i = 0; i < rays * 2; i += 1) {
+      const ang = (i * Math.PI) / rays - Math.PI / 2;
+      const rad = i % 2 === 0 ? outerR : innerR;
+      const px = cx + Math.cos(ang) * rad;
+      const py = cy + Math.sin(ang) * rad;
+      if (i === 0) ctx.moveTo(px, py);
+      else ctx.lineTo(px, py);
+    }
+    ctx.closePath();
+    ctx.lineJoin = "round";
+    ctx.lineWidth = 6;
+    ctx.strokeStyle = "#fff8de";
+    ctx.stroke();
+    ctx.fillStyle = "#fff8de";
+    ctx.fill();
+  }
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.minFilter = THREE.LinearFilter;
+  tex.magFilter = THREE.LinearFilter;
+  tex.needsUpdate = true;
+  return tex;
+}
+
 function createEmptyTexture(): THREE.DataTexture {
   const tex = new THREE.DataTexture(new Uint8Array([0, 0, 0, 0]), 1, 1, THREE.RGBAFormat);
   tex.minFilter = THREE.LinearFilter;
@@ -353,12 +397,34 @@ export default function VoyagerBook3D({
 
     const scene = new THREE.Scene();
 
+    // Panoramic 1.95:1 open two-page spread geometry (4.05 x 4.15 per half)
+    const pageW = 4.05;
+    const pageH = 4.15;
+
     const width = container.clientWidth || 1200;
     const height = container.clientHeight || 720;
-    const aspect = width / height;
-    const camera = new THREE.PerspectiveCamera(aspect < 1 ? 45 : 34, aspect, 0.1, 100);
-    camera.position.set(0, 0, aspect < 1 ? 12.6 : 9.4);
+    const camera = new THREE.PerspectiveCamera(34, width / Math.max(1, height), 0.1, 100);
+    const fitCamera = (w: number, h: number) => {
+      const a = w / Math.max(1, h);
+      const isPortrait = a < 1;
+      const isCompactLandscape = !isPortrait && h < 500;
+      const fov = isPortrait ? 45 : 34;
+      let camZ = isPortrait ? 12.6 : 9.4;
+      if (isCompactLandscape) {
+        const halfTanV = Math.tan(THREE.MathUtils.degToRad(fov * 0.5));
+        const zForH = (pageH * 1.13) / (2 * halfTanV);
+        const zForW = (pageW * 2 * 1.14) / (2 * halfTanV * a);
+        camZ = Math.max(zForH, zForW);
+      }
+      camera.aspect = a;
+      camera.fov = fov;
+      camera.position.z = camZ;
+      camera.updateProjectionMatrix();
+      renderer.setSize(w, h);
+    };
+    camera.position.set(0, 0, 9.4);
     camera.lookAt(0, 0, 0);
+    fitCamera(width, height);
 
     const ambient = new THREE.AmbientLight(0xfff1dc, 1.38);
     scene.add(ambient);
@@ -375,31 +441,53 @@ export default function VoyagerBook3D({
     rimLight.position.set(-4.5, -2.5, 4.5);
     scene.add(rimLight);
 
-    // Floating depth starfield particles behind the storybook
-    const starCount = 130;
-    const starPositions = new Float32Array(starCount * 3);
-    for (let i = 0; i < starCount; i += 1) {
-      starPositions[i * 3] = (Math.random() - 0.5) * 20;
-      starPositions[i * 3 + 1] = (Math.random() - 0.5) * 12;
-      starPositions[i * 3 + 2] = -4.2 - Math.random() * 4.5;
-    }
-    const starGeo = new THREE.BufferGeometry();
-    starGeo.setAttribute("position", new THREE.BufferAttribute(starPositions, 3));
-    const starMat = new THREE.PointsMaterial({
-      color: 0xffe4a3,
-      size: 0.052,
+    // Floating depth starfield particles behind the storybook (illustrated 4- & 5-point little stars)
+    const starTex4 = createStarSpriteTexture(4);
+    const starTex5 = createStarSpriteTexture(5);
+
+    const makeStarGeo = (count: number) => {
+      const positions = new Float32Array(count * 3);
+      for (let i = 0; i < count; i += 1) {
+        positions[i * 3] = (Math.random() - 0.5) * 22;
+        positions[i * 3 + 1] = (Math.random() - 0.5) * 13;
+        positions[i * 3 + 2] = -4.2 - Math.random() * 4.5;
+      }
+      const geo = new THREE.BufferGeometry();
+      geo.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+      return geo;
+    };
+
+    const starGeoSmall = makeStarGeo(85);
+    const starMatSmall = new THREE.PointsMaterial({
+      color: 0xffebb8,
+      map: starTex4,
+      size: 0.24,
       transparent: true,
-      opacity: 0.50,
+      opacity: 0.72,
+      alphaTest: 0.02,
+      depthWrite: false,
+      sizeAttenuation: true,
     });
-    const starPoints = new THREE.Points(starGeo, starMat);
-    scene.add(starPoints);
+    const starPointsSmall = new THREE.Points(starGeoSmall, starMatSmall);
+    scene.add(starPointsSmall);
+
+    const starGeoBig = makeStarGeo(45);
+    const starMatBig = new THREE.PointsMaterial({
+      color: 0xffe49c,
+      map: starTex5,
+      size: 0.34,
+      transparent: true,
+      opacity: 0.84,
+      alphaTest: 0.02,
+      depthWrite: false,
+      sizeAttenuation: true,
+    });
+    const starPointsBig = new THREE.Points(starGeoBig, starMatBig);
+    scene.add(starPointsBig);
 
     const bookWrapper = new THREE.Group();
     scene.add(bookWrapper);
 
-    // Panoramic 1.95:1 open two-page spread geometry (4.05 x 4.15 per half)
-    const pageW = 4.05;
-    const pageH = 4.15;
     const segX = 28;
     const segY = 6;
     const maxAnisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy());
@@ -446,6 +534,8 @@ export default function VoyagerBook3D({
       rightCornerAlpha,
       leftCornerAlpha,
       deskShadowTex,
+      starTex4,
+      starTex5,
       emptyTex,
       fallbackCoverTex,
       fallbackPageTex,
@@ -696,7 +786,7 @@ export default function VoyagerBook3D({
       const relX = (e.clientX - rect.left) / rect.width;
       const cur = targetPageRef.current;
       if (cur === 0) {
-        if (relX > 0.25) onChangePageRef.current(1);
+        onChangePageRef.current(1);
       } else if (cur >= spreads.length + 1) {
         if (relX < 0.75) onChangePageRef.current(spreads.length);
       } else if (relX < 0.44) {
@@ -711,18 +801,19 @@ export default function VoyagerBook3D({
     renderer.domElement.addEventListener("pointerdown", onPointerDown);
     renderer.domElement.addEventListener("pointerup", onPointerUp);
 
+    let orientTimer: ReturnType<typeof setTimeout> | null = null;
     const onResize = () => {
       if (!container) return;
       const w = container.clientWidth || 1200;
       const h = container.clientHeight || 720;
-      const a = w / h;
-      camera.aspect = a;
-      camera.fov = a < 1 ? 45 : 34;
-      camera.position.z = a < 1 ? 12.6 : 9.4;
-      camera.updateProjectionMatrix();
-      renderer.setSize(w, h);
+      fitCamera(w, h);
+    };
+    const onOrientationChange = () => {
+      if (orientTimer) clearTimeout(orientTimer);
+      orientTimer = setTimeout(onResize, 140);
     };
     window.addEventListener("resize", onResize);
+    window.addEventListener("orientationchange", onOrientationChange);
 
     let rafId = 0;
     let prevTime = performance.now();
@@ -810,7 +901,12 @@ export default function VoyagerBook3D({
             ? THREE.MathUtils.lerp(0, -pageW * 0.5, 1 - openFactor)
             : 0;
 
-      starPoints.rotation.y = now * 0.000018 * factor;
+      starPointsSmall.rotation.y = now * 0.000018 * factor;
+      starPointsBig.rotation.y = -now * 0.000012 * factor;
+      if (!reducedRef.current) {
+        starMatSmall.opacity = 0.66 + Math.sin(now * 0.0014) * 0.16;
+        starMatBig.opacity = 0.78 + Math.cos(now * 0.0011 + 1.2) * 0.14;
+      }
       renderer.render(scene, camera);
       rafId = requestAnimationFrame(tick);
     };
@@ -820,10 +916,12 @@ export default function VoyagerBook3D({
     return () => {
       disposed = true;
       cancelAnimationFrame(rafId);
+      if (orientTimer) clearTimeout(orientTimer);
       swappableRef.current = [];
       window.removeEventListener("pointermove", onPointerMove);
       window.removeEventListener("deviceorientation", onDeviceOrientation);
       window.removeEventListener("resize", onResize);
+      window.removeEventListener("orientationchange", onOrientationChange);
       renderer.domElement.removeEventListener("pointerdown", onPointerDown);
       renderer.domElement.removeEventListener("pointerup", onPointerUp);
       if (renderer.domElement.parentNode === container) {
@@ -837,8 +935,10 @@ export default function VoyagerBook3D({
       });
       deskShadowMesh.geometry.dispose();
       deskShadowMat.dispose();
-      starGeo.dispose();
-      starMat.dispose();
+      starGeoSmall.dispose();
+      starMatSmall.dispose();
+      starGeoBig.dispose();
+      starMatBig.dispose();
       createdTextures.forEach((t) => t.dispose());
       renderer.dispose();
     };

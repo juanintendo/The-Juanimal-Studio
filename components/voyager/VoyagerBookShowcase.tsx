@@ -302,7 +302,6 @@ const UI_COPY = {
   en: {
     backLabel: "Back to work",
     logoAria: "Voyager 1 Storybook — Return to front cover",
-    openBookBtn: "Open Storybook",
     prevAria: "Previous page",
     nextAria: "Next page",
     prevWord: "Prev",
@@ -313,10 +312,14 @@ const UI_COPY = {
     tiltOn: "3D Tilt On",
     tiltOff: "3D Tilt",
     macaTrigger: "Guaca's Fact & Parent Spark",
+    macaTriggerShort: "Guaca's Fact",
     macaFactTitle: "Guaca the Macaw's Explorer Note",
     parentPromptTitle: "Bedtime Question Together",
     closePopoverAria: "Close Guaca note",
     exploreRecordBtn: "Spin the Golden Record",
+    exploreRecordShort: "Golden Record",
+    deviceHint: "Best experienced on a tablet or laptop",
+    dismissHintAria: "Dismiss viewing tip",
     modalEyebrow: "VOYAGER 1 • GOLDEN RECORD PLAYER",
     modalTitle: "Earth's Golden Time Capsule",
     modalSubtitle:
@@ -357,7 +360,6 @@ const UI_COPY = {
   es: {
     backLabel: "Volver al portafolio",
     logoAria: "Voyager 1 — Volver a la portada",
-    openBookBtn: "Abrir el Libro",
     prevAria: "Página anterior",
     nextAria: "Página siguiente",
     prevWord: "Atrás",
@@ -368,10 +370,14 @@ const UI_COPY = {
     tiltOn: "Inclinación 3D Activa",
     tiltOff: "Inclinación 3D",
     macaTrigger: "Dato de Guaca + Pregunta",
+    macaTriggerShort: "Dato de Guaca",
     macaFactTitle: "Nota Exploradora de Guaca",
     parentPromptTitle: "Chispa para Conversar Antes de Dormir",
     closePopoverAria: "Cerrar nota de Guaca",
     exploreRecordBtn: "Girar el Disco de Oro",
+    exploreRecordShort: "Disco de Oro",
+    deviceHint: "Recomendado en tablet o portátil para la mejor experiencia",
+    dismissHintAria: "Cerrar recomendación",
     modalEyebrow: "VOYAGER 1 • TOCADISCOS CÓSMICO",
     modalTitle: "La Cápsula Dorada del Planeta",
     modalSubtitle:
@@ -494,6 +500,7 @@ export function VoyagerBookShowcase() {
   const [activeVideoSubIdx, setActiveVideoSubIdx] = useState(0);
   const [hasGyroPermissionApi, setHasGyroPermissionApi] = useState(false);
   const [gyroActive, setGyroActive] = useState(false);
+  const [deviceHintDismissed, setDeviceHintDismissed] = useState(false);
   const wheelLockRef = useRef(0);
 
   const ui = UI_COPY[lang];
@@ -680,6 +687,33 @@ export function VoyagerBookShowcase() {
         </div>
       </header>
 
+      {!deviceHintDismissed ? (
+        <div className="vg-device-hint" role="note">
+          <svg
+            className="vg-device-hint-icon"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.9"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            <rect x="3" y="4" width="18" height="12" rx="2" />
+            <path d="M2 20h20" />
+          </svg>
+          <span>{ui.deviceHint}</span>
+          <button
+            type="button"
+            className="vg-device-hint-close"
+            onClick={() => setDeviceHintDismissed(true)}
+            aria-label={ui.dismissHintAria}
+          >
+            ×
+          </button>
+        </div>
+      ) : null}
+
       <main className="vg-book-stage">
         <VoyagerBook3D
           page={page}
@@ -717,19 +751,6 @@ export function VoyagerBookShowcase() {
           </button>
         ) : null}
 
-        {page === 0 ? (
-          <div className="vg-cover-cta-wrap">
-            <button
-              type="button"
-              className="vg-enter-btn"
-              onClick={() => goToPage(1)}
-            >
-              <span>{ui.openBookBtn}</span>
-              <span aria-hidden="true">→</span>
-            </button>
-          </div>
-        ) : null}
-
         {currentSpread ? (
           <>
             <div className="sr-only" aria-live="polite">
@@ -740,7 +761,16 @@ export function VoyagerBookShowcase() {
               {macaOpen ? (
                 <section className="vg-maca-popover" aria-label={ui.macaFactTitle}>
                   <div className="vg-maca-popover-head">
-                    <span className="vg-maca-tag">🦜 {ui.macaFactTitle}</span>
+                    <span className="vg-maca-tag">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src="/images/voyager/guaca-macaw-icon.png"
+                        alt=""
+                        className="vg-maca-tag-img"
+                        aria-hidden="true"
+                      />
+                      <span>{ui.macaFactTitle}</span>
+                    </span>
                     <button
                       type="button"
                       className="vg-maca-close"
@@ -767,10 +797,12 @@ export function VoyagerBookShowcase() {
                 {currentSpread.id === "spread-05" ? (
                   <button
                     type="button"
-                    className="vg-dock-pill is-gold"
+                    className="vg-dock-pill is-gold vg-record-trigger-pill"
                     onClick={() => setRecordModalOpen(true)}
                   >
-                    ◎ {ui.exploreRecordBtn}
+                    <span aria-hidden="true">◎</span>{" "}
+                    <span className="vg-label-full">{ui.exploreRecordBtn}</span>
+                    <span className="vg-label-compact">{ui.exploreRecordShort}</span>
                   </button>
                 ) : null}
                 <button
@@ -779,8 +811,16 @@ export function VoyagerBookShowcase() {
                   onClick={() => setMacaOpen((v) => !v)}
                   aria-expanded={macaOpen}
                 >
-                  <span className="vg-maca-badge" aria-hidden="true">🦜</span>
-                  <span className="vg-maca-label">{ui.macaTrigger}</span>
+                  <span className="vg-maca-badge" aria-hidden="true">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src="/images/voyager/guaca-macaw-icon.png"
+                      alt=""
+                      className="vg-maca-badge-img"
+                    />
+                  </span>
+                  <span className="vg-maca-label vg-label-full">{ui.macaTrigger}</span>
+                  <span className="vg-maca-label vg-label-compact">{ui.macaTriggerShort}</span>
                   <span className="vg-maca-sparkle" aria-hidden="true">✦</span>
                 </button>
               </div>
