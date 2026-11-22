@@ -292,6 +292,13 @@
   color: var(--jd-ink);
 }
 
+.jd-poster-caption.is-leaving {
+  opacity: 0;
+  transform: translate(-50%, 10px);
+  pointer-events: none;
+  transition: opacity 0.28s ease, transform 0.28s ease;
+}
+
 .jd-caption-title {
   font-family: var(--jd-sans);
   font-size: clamp(18px, 2.2vw, 24px);
@@ -509,7 +516,15 @@
   pointer-events: none;
 }
 
+.jd-about-logo-wrap {
+  position: relative;
+  display: inline-block;
+  line-height: 0;
+  pointer-events: none;
+}
+
 .jd-about-logo-top {
+  display: block;
   width: min(290px, 56vw);
   height: auto;
   pointer-events: none;
@@ -517,11 +532,56 @@
 }
 
 .jd-about-logo-bottom {
+  display: block;
   width: min(290px, 58vw);
   height: auto;
   pointer-events: none;
   margin-bottom: -2px;
   filter: drop-shadow(0 6px 14px rgba(21, 19, 26, 0.34));
+}
+
+.jd-about-logo-foil {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    115deg,
+    transparent 24%,
+    rgba(255, 248, 210, 0.32) 43%,
+    rgba(255, 255, 255, 0.96) 50%,
+    rgba(255, 242, 195, 0.35) 57%,
+    transparent 76%
+  );
+  background-size: 240% 240%;
+  mix-blend-mode: screen;
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+  animation: jd-foil-sweep 3.1s linear infinite;
+}
+
+.jd-about-logo-foil.is-delayed {
+  animation-delay: -1.35s;
+}
+
+@keyframes jd-foil-sweep {
+  0% {
+    background-position: 180% 0%;
+  }
+  100% {
+    background-position: -80% 0%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .jd-about-logo-foil {
+    animation: none;
+    background-position: 50% 0%;
+    opacity: 0.35;
+  }
 }
 
 .jd-about-agent-pill {
@@ -1378,6 +1438,10 @@
     transform: translateY(-50%);
     width: clamp(140px, 24vw, 220px);
     align-items: center;
+  }
+
+  .jd-about-logo-wrap {
+    width: 100%;
   }
 
   .jd-about-logo-top {

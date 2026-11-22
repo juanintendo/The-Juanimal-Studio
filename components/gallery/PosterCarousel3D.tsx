@@ -9,6 +9,7 @@ interface PosterCarousel3DProps {
   projects: GalleryProject[];
   jumpRequest: { idx: number; nonce: number } | null;
   reduced: boolean;
+  leaving?: boolean;
   onFocusChange: (idx: number) => void;
   onHoverChange: (idx: number | null) => void;
   onSelectProject: (project: GalleryProject) => void;
@@ -389,6 +390,7 @@ export default function PosterCarousel3D({
   projects,
   jumpRequest,
   reduced,
+  leaving = false,
   onFocusChange,
   onHoverChange,
   onSelectProject,
@@ -398,6 +400,7 @@ export default function PosterCarousel3D({
   const [webglReady, setWebglReady] = useState(true);
 
   const reducedRef = useRef(reduced);
+  const leavingRef = useRef(leaving);
   const onFocusRef = useRef(onFocusChange);
   const onHoverRef = useRef(onHoverChange);
   const onSelectRef = useRef(onSelectProject);
@@ -407,6 +410,7 @@ export default function PosterCarousel3D({
   const lastInputTimeRef = useRef(0);
 
   reducedRef.current = reduced;
+  leavingRef.current = leaving;
   onFocusRef.current = onFocusChange;
   onHoverRef.current = onHoverChange;
   onSelectRef.current = onSelectProject;
@@ -510,6 +514,7 @@ export default function PosterCarousel3D({
     let readyFired = false;
     let loadedInitialCount = 0;
     let introStartTime: number | null = null;
+    let leaveStartTime: number | null = null;
 
     const markLoaded = () => {
       loadedInitialCount += 1;
@@ -971,9 +976,23 @@ export default function PosterCarousel3D({
         // Left-to-right staggered Justine-style paper unroll reveal after initial ready
         let fold = reducedRef.current ? 0 : 1;
         let introShiftX = 0;
+        let leaveLiftY = 0;
+        if (leavingRef.current && leaveStartTime === null) {
+          leaveStartTime = now;
+        }
         if (reducedRef.current) {
           fold = 0;
           introShiftX = 0;
+        } else if (leaveStartTime !== null) {
+          // Justine Soulié animateOut: posters roll/fold back up (uFold 0 -> 1) when clicking ABOUT
+          const leaveElapsed = Math.max(0, (now - leaveStartTime) * 0.001);
+          const leaveProg = THREE.MathUtils.clamp(leaveElapsed / 0.5, 0, 1);
+          const cubicInOut =
+            leaveProg < 0.5
+              ? 4 * leaveProg * leaveProg * leaveProg
+              : 1 - Math.pow(-2 * leaveProg + 2, 3) * 0.5;
+          fold = cubicInOut;
+          leaveLiftY = cubicInOut * 0.24;
         } else if (introStartTime !== null) {
           const initRelX = modPositive(i * stride + loopW * 0.5, loopW) - loopW * 0.5;
           const delay =
@@ -989,7 +1008,7 @@ export default function PosterCarousel3D({
 
         // No hover zoom/pop — center relief comes from POSTER_VERT's smooth parabolic viewport bulge
         rig.group.position.x = relX + introShiftX;
-        rig.group.position.y = Math.sin(tSec * 0.85 + i * 1.1) * 0.014 * mScale;
+        rig.group.position.y = Math.sin(tSec * 0.85 + i * 1.1) * 0.014 * mScale + leaveLiftY;
         rig.group.position.z = 0;
         rig.group.rotation.y = arcRotY;
         rig.group.rotation.x = 0;

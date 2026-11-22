@@ -7,12 +7,14 @@ interface GalleryHeaderProps {
   active: "home" | "about" | "case";
   tone?: "paper" | "light";
   onBrandClick?: () => void;
+  onAboutClick?: (e: React.MouseEvent<HTMLAnchorElement>) => void;
 }
 
 export function GalleryHeader({
   active,
   tone = "paper",
   onBrandClick,
+  onAboutClick,
 }: GalleryHeaderProps) {
   const { lang, setLang } = useLanguage();
 
@@ -21,13 +23,11 @@ export function GalleryHeader({
       brand: "JUANIMAL DESIGNS",
       posters: "POSTERS",
       about: "ABOUT",
-      merch: "MERCH",
     },
     es: {
       brand: "JUANIMAL DESIGNS",
       posters: "PÓSTERS",
       about: "SOBRE MÍ",
-      merch: "TIENDA",
     },
   }[lang];
 
@@ -56,13 +56,9 @@ export function GalleryHeader({
         <Link
           href="/about"
           className={`jd-nav-link ${active === "about" ? "is-current" : ""}`}
+          onClick={onAboutClick}
         >
           <span>{labels.about}</span>
-          <ZigZagUnderline />
-        </Link>
-
-        <Link href="/merch" className="jd-nav-link">
-          <span>{labels.merch}</span>
           <ZigZagUnderline />
         </Link>
 

@@ -78,6 +78,8 @@ const ABOUT_FRAG = `
   uniform float uTransition;
   uniform float uTime;
   uniform float uMotionScale;
+  uniform float uCurrentWorldId;
+  uniform float uNextWorldId;
 
   vec2 computeSceneUv(vec2 screenUv, float parallaxStrength) {
     float viewAspect = uResolution.x / max(1.0, uResolution.y);
@@ -107,12 +109,43 @@ const ABOUT_FRAG = `
     return fract((p3.x + p3.y) * p3.z);
   }
 
+  vec2 rotateUV(vec2 uv, float angle) {
+    float c = cos(angle);
+    float s = sin(angle);
+    return mat2(c, -s, s, c) * (uv - 0.5) + 0.5;
+  }
+
+  float extraShine(vec2 uv, float t, float speed, float width, float phase) {
+    vec2 ruv = rotateUV(uv, 0.55);
+    float progress = mix(1.9, -1.9, fract(t * speed + phase));
+    return smoothstep(0.0, width, ruv.x + progress) - smoothstep(width, width * 2.0, ruv.x + progress);
+  }
+
+  vec3 applyWorldFoil(vec3 col, vec2 uv, float worldId, float t, float m) {
+    float topBand = smoothstep(0.66, 0.71, uv.y) * smoothstep(0.96, 0.91, uv.y) * smoothstep(0.18, 0.25, uv.x) * smoothstep(0.82, 0.75, uv.x);
+    float botBand = smoothstep(0.10, 0.14, uv.y) * smoothstep(0.34, 0.29, uv.y) * smoothstep(0.25, 0.32, uv.x) * smoothstep(0.75, 0.68, uv.x);
+    float shineTop = extraShine(uv, t, 0.34, 0.24, 0.12) * topBand * m;
+    float shineBot = extraShine(uv, t, 0.34, 0.24, 0.52) * botBand * m;
+    float shine = shineTop + shineBot;
+
+    if (worldId > 1.5 && worldId < 2.5) {
+      // Rain: metallic lime-gold foil sweep across Synthia-2 and The Agent
+      float isLime = smoothstep(0.54, 0.72, col.g) * smoothstep(0.54, 0.36, col.b);
+      col += vec3(0.32, 0.36, 0.16) * shine * isLime;
+    } else if (worldId > 2.5) {
+      // Rainbow: metallic rose-gold foil sweep across Synthia.2 and The Agent
+      float isPink = smoothstep(0.68, 0.85, col.r) * smoothstep(0.18, 0.34, col.r - col.g);
+      col += vec3(0.36, 0.26, 0.22) * shine * isPink;
+    }
+    return col;
+  }
+
   void main() {
     // Pixel-locked shared UVs so both worlds share 100% identical camera framing across the portal edge
     vec2 sceneUv = computeSceneUv(vUv, 1.0);
 
-    vec3 colA = texture2D(uCurrentTex, sceneUv).rgb;
-    vec3 colB = texture2D(uNextTex, sceneUv).rgb;
+    vec3 colA = applyWorldFoil(texture2D(uCurrentTex, sceneUv).rgb, sceneUv, uCurrentWorldId, uTime, uMotionScale);
+    vec3 colB = applyWorldFoil(texture2D(uNextTex, sceneUv).rgb, sceneUv, uNextWorldId, uTime, uMotionScale);
 
     float aspect = uResolution.x / max(1.0, uResolution.y);
     vec2 aspectScale = vec2(aspect, 1.0);
@@ -252,6 +285,8 @@ export function DragonAboutStage() {
       uTransition: { value: 0 },
       uTime: { value: 0 },
       uMotionScale: { value: 1 },
+      uCurrentWorldId: { value: 0 },
+      uNextWorldId: { value: 1 },
     };
 
     const quadGeo = new THREE.PlaneGeometry(2, 2);
@@ -364,16 +399,21 @@ export function DragonAboutStage() {
       if (isMorphing) {
         worldIdxRef.current = targetWorldIdx;
         uniforms.uCurrentTex.value = textures[targetWorldIdx];
+        uniforms.uCurrentWorldId.value = targetWorldIdx;
       }
       targetWorldIdx = normalized;
       setWorldIdx(targetWorldIdx);
       uniforms.uNextTex.value = textures[targetWorldIdx];
+      uniforms.uNextWorldId.value = targetWorldIdx;
       uniforms.uClickOrigin.value.set(uvX, uvY);
 
       if (reducedRef.current) {
+        const nextAfter = (targetWorldIdx + 1) % DRAGON_WORLDS.length;
         worldIdxRef.current = targetWorldIdx;
         uniforms.uCurrentTex.value = textures[targetWorldIdx];
-        uniforms.uNextTex.value = textures[(targetWorldIdx + 1) % DRAGON_WORLDS.length];
+        uniforms.uCurrentWorldId.value = targetWorldIdx;
+        uniforms.uNextTex.value = textures[nextAfter];
+        uniforms.uNextWorldId.value = nextAfter;
         uniforms.uTransition.value = 0;
         pMat.color.set(DRAGON_WORLDS[targetWorldIdx].particleHex);
         return;
@@ -472,7 +512,9 @@ export function DragonAboutStage() {
           setWorldIdx(targetWorldIdx);
           const nextAfter = (targetWorldIdx + 1) % DRAGON_WORLDS.length;
           uniforms.uCurrentTex.value = textures[targetWorldIdx];
+          uniforms.uCurrentWorldId.value = targetWorldIdx;
           uniforms.uNextTex.value = textures[nextAfter];
+          uniforms.uNextWorldId.value = nextAfter;
           uniforms.uTransition.value = 0;
           pMat.color.set(DRAGON_WORLDS[targetWorldIdx].particleHex);
           const nextId = DRAGON_WORLDS[targetWorldIdx].id;
@@ -585,13 +627,22 @@ export function DragonAboutStage() {
               >
                 {ui.contactBtn}
               </button>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                key={currentWorld.topLogoSrc}
-                src={currentWorld.topLogoSrc}
-                alt="Juan Colombo"
-                className="jd-about-logo-top"
-              />
+              <div className="jd-about-logo-wrap is-top" key={currentWorld.topLogoSrc}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={currentWorld.topLogoSrc}
+                  alt="Juan Colombo"
+                  className="jd-about-logo-top"
+                />
+                <span
+                  className="jd-about-logo-foil"
+                  style={{
+                    WebkitMaskImage: `url(${currentWorld.topLogoSrc})`,
+                    maskImage: `url(${currentWorld.topLogoSrc})`,
+                  }}
+                  aria-hidden="true"
+                />
+              </div>
             </>
           ) : null}
         </div>
@@ -618,13 +669,22 @@ export function DragonAboutStage() {
         {/* Lower bush mound sculpted title */}
         <div className="jd-about-bottom-hero">
           {currentWorld.bottomLogoSrc ? (
-            /* eslint-disable-next-line @next/next/no-img-element */
-            <img
-              key={currentWorld.bottomLogoSrc}
-              src={currentWorld.bottomLogoSrc}
-              alt="Art Director"
-              className="jd-about-logo-bottom"
-            />
+            <div className="jd-about-logo-wrap is-bottom" key={currentWorld.bottomLogoSrc}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={currentWorld.bottomLogoSrc}
+                alt="Art Director"
+                className="jd-about-logo-bottom"
+              />
+              <span
+                className="jd-about-logo-foil is-delayed"
+                style={{
+                  WebkitMaskImage: `url(${currentWorld.bottomLogoSrc})`,
+                  maskImage: `url(${currentWorld.bottomLogoSrc})`,
+                }}
+                aria-hidden="true"
+              />
+            </div>
           ) : null}
         </div>
 
@@ -639,7 +699,6 @@ export function DragonAboutStage() {
             <a href="https://fuelorfool.ing" target="_blank" rel="noreferrer">
               fuelorfool.ing
             </a>
-            <Link href="/merch">Merch</Link>
             <a href="mailto:synthia-2@ilands.app">Contact My Agent</a>
             <Link href="/contact">Contact</Link>
           </div>

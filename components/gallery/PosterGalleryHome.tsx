@@ -32,6 +32,7 @@ export function PosterGalleryHome() {
   const [focusIdx, setFocusIdx] = useState(0);
   const [hoverIdx, setHoverIdx] = useState<number | null>(null);
   const [captionHover, setCaptionHover] = useState(false);
+  const [leavingToAbout, setLeavingToAbout] = useState(false);
   const [jumpRequest, setJumpRequest] = useState<{ idx: number; nonce: number } | null>(null);
   const [curtainColor, setCurtainColor] = useState<string | null>(null);
 
@@ -83,6 +84,20 @@ export function PosterGalleryHome() {
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [activeProject, focusIdx, jumpTo, openProject]);
 
+  const handleAboutClick = useCallback(
+    (e: React.MouseEvent<HTMLAnchorElement>) => {
+      if (reduced) return;
+      e.preventDefault();
+      if (leavingToAbout) return;
+      setLeavingToAbout(true);
+      if (navTimerRef.current) clearTimeout(navTimerRef.current);
+      navTimerRef.current = setTimeout(() => {
+        router.push("/about");
+      }, 540);
+    },
+    [leavingToAbout, reduced, router]
+  );
+
   const showOpenCase = captionHover || hoverIdx !== null;
 
   return (
@@ -93,6 +108,7 @@ export function PosterGalleryHome() {
         active="home"
         tone="paper"
         onBrandClick={() => jumpTo(0)}
+        onAboutClick={handleAboutClick}
       />
 
       <main className="jd-home-stage">
@@ -100,6 +116,7 @@ export function PosterGalleryHome() {
           projects={GALLERY_PROJECTS}
           jumpRequest={jumpRequest}
           reduced={reduced}
+          leaving={leavingToAbout}
           onFocusChange={setFocusIdx}
           onHoverChange={setHoverIdx}
           onSelectProject={openProject}
@@ -109,7 +126,9 @@ export function PosterGalleryHome() {
 
       <button
         type="button"
-        className={`jd-poster-caption ${showOpenCase ? "is-hovered" : ""}`}
+        className={`jd-poster-caption ${showOpenCase ? "is-hovered" : ""} ${
+          leavingToAbout ? "is-leaving" : ""
+        }`}
         onClick={() => openProject(activeProject)}
         onMouseEnter={() => setCaptionHover(true)}
         onMouseLeave={() => setCaptionHover(false)}
