@@ -11,59 +11,50 @@ import { ZigZagPreloader } from "./ZigZagPreloader";
 interface DragonWorld {
   id: "day" | "night" | "rain" | "rainbow";
   textureSrc: string;
+  topLogoSrc?: string;
+  bottomLogoSrc?: string;
   label: { en: string; es: string };
   badge: { en: string; es: string };
-  titleFill: string;
-  titleStroke: string;
   headerTone: "paper" | "light";
   particleHex: string;
-  taglineBg: string;
 }
 
 const DRAGON_WORLDS: DragonWorld[] = [
   {
     id: "day",
     textureSrc: "/images/gallery/about/dragon-day.png",
+    topLogoSrc: "/images/gallery/about/title-juan-day.png",
+    bottomLogoSrc: "/images/gallery/about/title-role-day.png",
     label: { en: "☀ SHINE", es: "☀ DÍA" },
     badge: { en: "STUDIO MODE", es: "MODO ESTUDIO" },
-    titleFill: "#FFA62B",
-    titleStroke: "#C8670A",
     headerTone: "paper",
     particleHex: "#FFF4B8",
-    taglineBg: "transparent",
   },
   {
     id: "night",
     textureSrc: "/images/gallery/about/dragon-night.png",
+    topLogoSrc: "/images/gallery/about/title-juan-night.png",
+    bottomLogoSrc: "/images/gallery/about/title-role-night.png",
     label: { en: "🌙 MECHA", es: "🌙 MECHA" },
     badge: { en: "CYBER RIG", es: "MODO MECHA" },
-    titleFill: "#C7BAFF",
-    titleStroke: "#6E5EC8",
     headerTone: "light",
     particleHex: "#FFE670",
-    taglineBg: "transparent",
   },
   {
     id: "rain",
     textureSrc: "/images/gallery/about/dragon-rain.png",
-    label: { en: "🌧 DEVSAURUS", es: "🌧 DEVSAURUS" },
-    badge: { en: "STORM & CODE", es: "TORMENTA & CÓDIGO" },
-    titleFill: "#FF9F8C",
-    titleStroke: "#BD4E41",
+    label: { en: "🌧 SYNTHIA-2", es: "🌧 SYNTHIA-2" },
+    badge: { en: "SYNTHIA-2 · THE AGENT", es: "SYNTHIA-2 · LA AGENTE" },
     headerTone: "light",
     particleHex: "#DDF0FF",
-    taglineBg: "transparent",
   },
   {
     id: "rainbow",
     textureSrc: "/images/gallery/about/dragon-rainbow.png",
-    label: { en: "🌈 COSMIC", es: "🌈 CÓSMICO" },
-    badge: { en: "TECH WIZARD", es: "MAGO CREATIVO" },
-    titleFill: "#FFE462",
-    titleStroke: "#C78E18",
+    label: { en: "🌈 AGENT", es: "🌈 AGENTE" },
+    badge: { en: "SYNTHIA.2 · THE AGENT", es: "SYNTHIA.2 · LA AGENTE" },
     headerTone: "paper",
     particleHex: "#FFFDF2",
-    taglineBg: "transparent",
   },
 ];
 
@@ -173,28 +164,22 @@ export function DragonAboutStage() {
   const ui = {
     en: {
       contactBtn: "CONTACT ME",
-      topWord: "JUANIMAL DESIGNS",
-      bottomWord: "CREATIVE DIRECTOR",
       leftBadgeTop: "VENEZUELA → WORLD",
       leftBadgeSub: "SINCE 2016",
       rightBadgeTop: "DIRECTION & CODE",
       rightBadgeSub: "TECH WIZARD",
-      tagline: "I'LL BE THERE PIXEL OR CODE",
-      morphHint: "Move cursor to peek portal · Click anywhere to morph Dragon",
+      morphHint: "Move cursor to peek portal · Click anywhere to morph world",
       closeDrawer: "Close",
       contactCta: "Book a Launch Call →",
       labLink: "Visit fuelorfool.ing ↗",
     },
     es: {
       contactBtn: "CONTÁCTAME",
-      topWord: "JUANIMAL DESIGNS",
-      bottomWord: "DIRECTOR CREATIVO",
       leftBadgeTop: "VENEZUELA → MUNDO",
       leftBadgeSub: "DESDE 2016",
       rightBadgeTop: "DIRECCIÓN & CÓDIGO",
       rightBadgeSub: "TECH WIZARD",
-      tagline: "ESTARÉ EN PÍXEL O CÓDIGO",
-      morphHint: "Pasa el cursor para espiar otro mundo · Haz clic para mutar al Dragón",
+      morphHint: "Pasa el cursor para espiar otro mundo · Haz clic para cambiar de mundo",
       closeDrawer: "Cerrar",
       contactCta: "Agendar Llamada →",
       labLink: "Visitar fuelorfool.ing ↗",
@@ -240,6 +225,14 @@ export function DragonAboutStage() {
 
     const textures: THREE.Texture[] = DRAGON_WORLDS.map(() => fallbackTex);
     const createdTextures: THREE.Texture[] = [fallbackTex];
+    DRAGON_WORLDS.forEach((w) => {
+      [w.topLogoSrc, w.bottomLogoSrc].forEach((src) => {
+        if (src) {
+          const pre = new window.Image();
+          pre.src = src;
+        }
+      });
+    });
     const loader = new THREE.TextureLoader();
     let disposed = false;
     let readySent = false;
@@ -361,14 +354,20 @@ export function DragonAboutStage() {
 
     triggerMorphRef.current = (nextTarget: number, uvX = 0.5, uvY = 0.5) => {
       const normalized = ((nextTarget % DRAGON_WORLDS.length) + DRAGON_WORLDS.length) % DRAGON_WORLDS.length;
-      if (isMorphing || normalized === worldIdxRef.current) return;
+      if ((isMorphing && normalized === targetWorldIdx) || (!isMorphing && normalized === worldIdxRef.current)) {
+        return;
+      }
+      if (isMorphing) {
+        worldIdxRef.current = targetWorldIdx;
+        uniforms.uCurrentTex.value = textures[targetWorldIdx];
+      }
       targetWorldIdx = normalized;
+      setWorldIdx(targetWorldIdx);
       uniforms.uNextTex.value = textures[targetWorldIdx];
       uniforms.uClickOrigin.value.set(uvX, uvY);
 
       if (reducedRef.current) {
         worldIdxRef.current = targetWorldIdx;
-        setWorldIdx(targetWorldIdx);
         uniforms.uCurrentTex.value = textures[targetWorldIdx];
         uniforms.uNextTex.value = textures[(targetWorldIdx + 1) % DRAGON_WORLDS.length];
         uniforms.uTransition.value = 0;
@@ -571,37 +570,26 @@ export function DragonAboutStage() {
           </div>
         )}
 
-        {/* Top center Contact trigger + curved hero name aligned inside sky clearing */}
+        {/* Top center Contact trigger + hand-lettered logo aligned inside sky clearing (Day & Night only) */}
         <div className="jd-about-top-hero">
-          <button
-            type="button"
-            className="jd-about-contact-pill"
-            onClick={() => setDrawerOpen(true)}
-          >
-            {ui.contactBtn}
-          </button>
-
-          <svg
-            className="jd-arched-wordmark"
-            viewBox="0 0 760 112"
-            aria-label={ui.topWord}
-            style={{ filter: "drop-shadow(0 3px 6px rgba(21, 19, 26, 0.25))" }}
-          >
-            <defs>
-              <path id="jd-top-arch" d="M 60 94 Q 380 28 700 94" />
-            </defs>
-            <text
-              className="jd-arched-text"
-              fill={currentWorld.titleFill}
-              stroke={currentWorld.titleStroke}
-              strokeWidth="3.5"
-              paintOrder="stroke fill"
-            >
-              <textPath href="#jd-top-arch" startOffset="50%" textAnchor="middle">
-                {ui.topWord}
-              </textPath>
-            </text>
-          </svg>
+          {currentWorld.topLogoSrc ? (
+            <>
+              <button
+                type="button"
+                className="jd-about-contact-pill"
+                onClick={() => setDrawerOpen(true)}
+              >
+                {ui.contactBtn}
+              </button>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                key={currentWorld.topLogoSrc}
+                src={currentWorld.topLogoSrc}
+                alt="Juan Colombo"
+                className="jd-about-logo-top"
+              />
+            </>
+          ) : null}
         </div>
 
         {/* Left & Right floating identity badges matching justinesoulie.fr/about */}
@@ -623,34 +611,28 @@ export function DragonAboutStage() {
           <span>{ui.rightBadgeSub}</span>
         </div>
 
-        {/* Lower bush mound sculpted title + world morph dock */}
+        {/* Lower bush mound sculpted title + Contact My Agent pill + world morph dock */}
         <div className="jd-about-bottom-hero">
-          <svg
-            className="jd-lower-wordmark"
-            viewBox="0 0 820 110"
-            aria-label={ui.bottomWord}
-            style={{ filter: "drop-shadow(0 3px 6px rgba(21, 19, 26, 0.28))" }}
-          >
-            <text
-              x="410"
-              y="78"
-              textAnchor="middle"
-              className="jd-arched-text is-sub"
-              fill={currentWorld.titleFill}
-              stroke={currentWorld.titleStroke}
-              strokeWidth="3.5"
-              paintOrder="stroke fill"
-            >
-              {ui.bottomWord}
-            </text>
-          </svg>
+          {currentWorld.bottomLogoSrc ? (
+            /* eslint-disable-next-line @next/next/no-img-element */
+            <img
+              key={currentWorld.bottomLogoSrc}
+              src={currentWorld.bottomLogoSrc}
+              alt="Art Director"
+              className="jd-about-logo-bottom"
+            />
+          ) : null}
 
-          <div className="jd-about-tagline">
-            {ui.tagline}
-          </div>
+          <a
+            href="mailto:synthia-2@ilands.app"
+            className="jd-about-agent-pill"
+            title="synthia-2@ilands.app"
+          >
+            CONTACT MY AGENT
+          </a>
 
           <div className="jd-about-controls">
-            <div className="jd-world-switcher" role="group" aria-label="Dragon worlds">
+            <div className="jd-world-switcher" role="group" aria-label="About worlds">
               {DRAGON_WORLDS.map((w, idx) => (
                 <button
                   key={w.id}
