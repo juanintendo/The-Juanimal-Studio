@@ -13,7 +13,7 @@
 
 2. **WebGL Infinite Poster Carousel Home (`/`, `/es` — `PosterCarousel3D.tsx`, `PosterGalleryHome.tsx`):**
    - **10 `900×1200` (`3:4`) Gallery Posters (`public/images/gallery/posters/poster-01..10.png`):**
-     `01 Ramsés Mania`, `02 Voyager 1`, `03 NO SKU™`, `04 Vectra Twin // AI`, `05 Frame by Agents`, `06 fuelorfool.ing`, `07 Keys to My Heart`, `08 Mina AI Grow House`, `09 Synthia: Club of the Dead`, and `10 GTA VI: Saul Bass Countdown`.
+     `01 Ramses`, `02 Voyager 1`, `03 NO SKU™`, `04 Vectra Twin // AI`, `05 Frame by Agents`, `06 Fuel or Fool` (Jester Cobra Ref 1 edition), `07 Molotov Love`, `08 Keys to My Heart` (starring Claudia), `09 The Illusion of Agency`, and `10 Club of the Dead` (Synthia-2 rhythm RPG).
    - **Custom GLSL Crumpled Paper Cloth Shader (`POSTER_VERT`, `POSTER_FRAG`):**
      - Tangent-space crumpled-paper normal map (`/images/gallery/paper-normals.png`) + velocity-driven S-wave paper bending (`uVelocity`), pointer 3D tilt/lift, specular highlight along creases, seamless modulo horizontal wrapping, wheel/drag/touch/arrow inertia, and smooth color-curtain transition into `/poster-work/[slug]`.
    - Includes a clean bottom archival dock + **Interactive Toys** quick launcher linking directly to all playable WebGL prototypes (`/work/ramses-mania`, `/work/voyager-kids`, `/work/no-sku`, `/work/vectra-twin`) and the 4-world Dragon `/about` experience.

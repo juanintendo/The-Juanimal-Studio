@@ -18,7 +18,7 @@ const RamsesComicStage3D = dynamic(() => import("./RamsesComicStage3D"), {
   ssr: false,
   loading: () => (
     <div className="rm-loading-stage">
-      <span>RAMSÉS IS WARMING UP…</span>
+      <span>RAMSES IS WARMING UP…</span>
     </div>
   ),
 });
@@ -38,7 +38,7 @@ const COMIC_BEATS: ComicBeat[] = [
   {
     num: "01",
     tag: { en: "ISSUE #04 · COVER", es: "EDICIÓN #04 · PORTADA" },
-    speaker: { en: "RAMSÉS SPEAKS", es: "DICE RAMSÉS" },
+    speaker: { en: "RAMSES SPEAKS", es: "DICE RAMSES" },
     line: {
       en: "Zero fur. Maximum hubris. The radiator is set to 19°C — utterly unacceptable for a Solar Pharaoh.",
       es: "Cero pelo. Ego infinito. El radiador está en 19°C: una ofensa imperdonable para un Faraón Solar.",
@@ -51,7 +51,7 @@ const COMIC_BEATS: ComicBeat[] = [
   {
     num: "02",
     tag: { en: "CH. 01 · TRAGIC REALITY", es: "CAP. 01 · REALIDAD TRÁGICA" },
-    speaker: { en: "RAMSÉS (SHIVERING)", es: "RAMSÉS (TEMBLANDO)" },
+    speaker: { en: "RAMSES (SHIVERING)", es: "RAMSES (TEMBLANDO)" },
     line: {
       en: "My skin touches crisp air! Humans wear wool sweaters and expect me to survive like a peasant?!",
       es: "¡Me da brisa en la piel! ¿Los humanos usan suéteres y esperan que sobreviva como un plebeyo?",
@@ -77,7 +77,7 @@ const COMIC_BEATS: ComicBeat[] = [
   {
     num: "04",
     tag: { en: "CH. 03 · GRAVITY AUDIT", es: "CAP. 03 · TEST DE GRAVEDAD" },
-    speaker: { en: "RAMSÉS (DEADPAN)", es: "RAMSÉS (IMPASIBLE)" },
+    speaker: { en: "RAMSES (DEADPAN)", es: "RAMSES (IMPASIBLE)" },
     line: {
       en: "Ignored my dinner by four minutes. Gravity must be scientifically tested with your ceramic mug.",
       es: "Ignoraste mi cena cuatro minutos. Habrá que comprobar si la gravedad funciona con tu taza.",
@@ -103,7 +103,7 @@ const COMIC_BEATS: ComicBeat[] = [
   {
     num: "06",
     tag: { en: "CH. 05 · 3:00 AM ZOOMIES", es: "CAP. 05 · DISCO 3:00 AM" },
-    speaker: { en: "DJ RAMSÉS", es: "DJ RAMSÉS" },
+    speaker: { en: "DJ RAMSES", es: "DJ RAMSES" },
     line: {
       en: "Everyone asleep? Time to steal the chunky periwinkle headphones and throw couch cushions into orbit!",
       es: "¿Todos dormidos? Hora de ponerse los audífonos y lanzar cojines rosas al ritmo del bajo.",
@@ -116,7 +116,7 @@ const COMIC_BEATS: ComicBeat[] = [
   {
     num: "07",
     tag: { en: "CH. 06 · ASCENSION", es: "CAP. 06 · ASCENSIÓN" },
-    speaker: { en: "EMPEROR RAMSÉS I", es: "EMPERADOR RAMSÉS I" },
+    speaker: { en: "EMPEROR RAMSES I", es: "EMPERADOR RAMSES I" },
     line: {
       en: "Warm toes acquired. Star shades locked. Kneel before the bald Sun-Emperor of Apartment 4B!",
       es: "Patitas calientes. Gafas de estrella listas. ¡Inclínense ante el Emperador Pelón del Piso 4B!",
@@ -131,8 +131,8 @@ const COMIC_BEATS: ComicBeat[] = [
     tag: { en: "CH. 07 · GRAND FINALE", es: "CAP. 07 · GRAN FINAL" },
     speaker: { en: "SUNBEAM MINI-GAME", es: "MINIJUEGO SOLAR" },
     line: {
-      en: "Help Ramsés stay toasted inside the drifting golden beam for 15 glorious seconds!",
-      es: "¡Ayuda a Ramsés a mantenerse tostadito dentro del rayo dorado durante 15 segundos gloriosos!",
+      en: "Help Ramses stay toasted inside the drifting golden beam for 15 glorious seconds!",
+      es: "¡Ayuda a Ramses a mantenerse tostadito dentro del rayo dorado durante 15 segundos gloriosos!",
     },
     actionLabel: { en: "🎮 Play Finale", es: "🎮 Jugar Final" },
     onomatopoeia: { en: "TOASTY!!", es: "¡¡TOSTADITO!!" },
@@ -442,10 +442,10 @@ export function RamsesManiaShowcase() {
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/images/ramses/ramses-badge.png"
-              alt="Ramsés Sphynx mascot"
+              alt="Ramses Sphynx mascot"
               className="rm-brand-badge"
             />
-            <span className="rm-brand-wordmark">RAMSÉS MANIA</span>
+            <span className="rm-brand-wordmark">RAMSES</span>
           </button>
         </div>
 

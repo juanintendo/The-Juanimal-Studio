@@ -3,9 +3,9 @@ import { RamsesManiaShowcase } from "@/components/ramses/RamsesManiaShowcase";
 
 export const metadata: Metadata = {
   title:
-    "Ramsés Mania — Interactive WebGL Sphynx Comic — The Juanimal Studio",
+    "Ramses — Interactive WebGL Sphynx Comic — The Juanimal Studio",
   description:
-    "Portfolio Web Concept #04: Ponpon Mania-inspired spatial Three.js graphic novel starring Ramsés, our 100% hairless Sphynx Sun-Pharaoh, with GLSL B&W-to-pop-color waves, Web Audio foley, and playable sunbeam finale (EN / ES).",
+    "Portfolio Web Concept #04: Spatial Three.js graphic novel starring Ramses, our 100% hairless Sphynx Sun-Pharaoh, with GLSL B&W-to-pop-color waves, Web Audio foley, and playable sunbeam mini-game (EN / ES).",
 };
 
 export default function RamsesManiaPage() {

@@ -918,7 +918,7 @@ export default function RamsesComicStage3D({
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={fallbackSrc}
-          alt={`Ramsés Mania Panel ${num}`}
+          alt={`Ramses Panel ${num}`}
           className="rm-fallback-img"
         />
       </div>

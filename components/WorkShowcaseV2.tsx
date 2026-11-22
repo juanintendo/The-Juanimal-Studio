@@ -260,7 +260,7 @@ export function WorkShowcaseV2() {
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src="/images/ramses/card-cover.png"
-                        alt="Ramsés Mania French indie comic splash featuring hairless Sphynx cat atop radiator"
+                        alt="Ramses French indie comic splash featuring hairless Sphynx cat atop radiator"
                         loading="lazy"
                       />
                     </div>
@@ -268,7 +268,7 @@ export function WorkShowcaseV2() {
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src="/images/ramses/card-disco.png"
-                        alt="DJ Ramsés 3AM Disco Zoomies pop-color comic panel with headphones and turntables"
+                        alt="DJ Ramses 3AM Disco Zoomies pop-color comic panel with headphones and turntables"
                         loading="lazy"
                       />
                     </div>

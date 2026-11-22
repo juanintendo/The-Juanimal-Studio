@@ -1,4 +1,4 @@
-// Procedural Web Audio API foley & 116 BPM disco loop for Ramsés Mania.
+// Procedural Web Audio API foley & 116 BPM disco loop for Ramses.
 // Lazy-initialized only on user gesture; respects mute state and cleans up on unmount.
 
 export type ComicSfxKind =

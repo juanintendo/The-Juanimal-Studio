@@ -17,7 +17,7 @@ const COPY = {
     eyebrow: "PANEL 08 • PLAYABLE FINALE",
     title: "Hold the Sunbeam!",
     subtitle:
-      "Move Ramsés (mouse, touch, or ← → keys) to bask in the warm golden beam, grab cozy socks & crowns (+25), and dodge freezing snowflakes (-10)!",
+      "Move Ramses (mouse, touch, or ← → keys) to bask in the warm golden beam, grab cozy socks & crowns (+25), and dodge freezing snowflakes (-10)!",
     startBtn: "Start 15s Basking Run →",
     replayBtn: "↺ Play Again",
     boardBtn: "⊞ View Full Board",
@@ -43,7 +43,7 @@ const COPY = {
     eyebrow: "VIÑETA 08 • FINAL JUGABLE",
     title: "¡Caza el Rayo de Sol!",
     subtitle:
-      "Mueve a Ramsés (ratón, tacto o flechas ← →) dentro del rayo dorado, atrapa medias calientes y coronas (+25) y esquiva copos helados (-10).",
+      "Mueve a Ramses (ratón, tacto o flechas ← →) dentro del rayo dorado, atrapa medias calientes y coronas (+25) y esquiva copos helados (-10).",
     startBtn: "¡Jugar Ronda de 15s! →",
     replayBtn: "↺ Jugar Otra Vez",
     boardBtn: "⊞ Ver Tablero Completo",
@@ -406,7 +406,7 @@ export default function RamsesSunbeamGame({
         else drawFlake(d.x, d.y, d.rot);
       }
 
-      // Draw Ramsés mascot sprite with warm glow when in beam or shivering
+      // Draw Ramses mascot sprite with warm glow when in beam or shivering
       const inBeamNow = Math.abs(playerX - sunX) < 84;
       const shakeX = shiverMs > 0 ? Math.sin(now * 0.09) * 6 : 0;
       const bobY = inBeamNow ? Math.sin(now * 0.012) * 4 : 0;

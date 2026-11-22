@@ -2076,7 +2076,7 @@ export function VectraTwinShowcase() {
         </div>
       </header>
 
-      {/* MONUMENTAL TALL VERTICAL POSTER HERO (Wembi 1870/2380 Proportions) */}
+      {/* MONUMENTAL TALL VERTICAL POSTER HERO (1870/2380 Editorial Proportions) */}
       <section
         className="vt-hero-frame"
         onMouseMove={(e) => {
@@ -2448,7 +2448,7 @@ export function VectraTwinShowcase() {
         </div>
       </nav>
 
-      {/* WEMBI FANNING 5-CARD RECAP DECK (#menu) */}
+      {/* FANNING 5-CARD RECAP DECK (#menu) */}
       {recapOpen && (
         <div
           className="vt-deck-backdrop"

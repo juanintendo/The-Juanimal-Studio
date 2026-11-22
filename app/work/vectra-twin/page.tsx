@@ -4,7 +4,7 @@ import { VectraTwinShowcase } from "@/components/VectraTwinShowcase";
 export const metadata: Metadata = {
   title: "Vectra Twin // AI — Portfolio Web Concept — The Juanimal Studio",
   description:
-    "Wembi-inspired B2B digital twin showcase with electric key-lime scroll-scrubbed typography, auto-hiding WHAT/HOW/WHY/WHERE mini-nav, interactive RECAP matrix, and 60fps cursor telemetry.",
+    "Editorial spatial B2B digital twin showcase with electric scroll-scrubbed typography, auto-hiding WHAT/HOW/WHY/WHERE mini-nav, interactive RECAP matrix, and 60fps cursor telemetry.",
 };
 
 export default function VectraTwinPage() {

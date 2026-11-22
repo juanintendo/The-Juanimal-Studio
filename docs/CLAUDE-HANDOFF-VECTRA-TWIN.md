@@ -12,7 +12,7 @@
 
 **Vectra Twin // AI** is Portfolio Website #01 in Juanimal Studio's new curated showcase series inside the `juanimal-2026` v3 revamp. The goal was twofold:
 
-1. **Motion & Scroll Choreography Benchmark:** Emulate the cognitive focus and scroll-driven storytelling cadence of `https://www.wembi.ai/en` — where every scroll stop feels like a self-contained hero — without cloning its lime-green/black visual skin.
+1. **Motion & Scroll Choreography Benchmark:** Architectural pinned scroll-driven storytelling cadence — where every scroll stop feels like a self-contained hero — rendered in an original palette and spatial UI language.
 2. **Service Blueprint:** Frame an industrial/AI Digital Twin offering (`Data → Device → Application` and `Data Acquisition → Full Control → Prediction`) that Juanimal Studio can showcase as an interactive reference for future client commissions, and document cleanly in **fuelorfool.ing**.
 
 Key creative principles applied during iteration:
@@ -130,9 +130,9 @@ Encoding baseline for all 4 loops: audio stripped (`-an`), `yuv420p`, `crf 21`, 
 ### Local Commit Progression on `v3-signature-director`
 - `96a7d00` — `v3: standalone thick return nav logo + flagship portfolio #01 Vectra Twin (/work/vectra-twin)`
 - `14ca803` — `v3: add /work/vect alias route for /work/vectra-twin`
-- `d3ea772` — `v3: Wembi pinned 3-step scroll tempo, smooth #c6d8e6/#f97279/#2a72a3 gradients, Swiss Neo-Grotesque type, clean dot cursor & Apple frosted glass split nav`
-- `db57c8e` — `v3: Wembi fluid type proportions, zero-void hero frames, directional mouse-push pill towers & hover-expanding frosted glass nav`
-- `a7f7e15` — `v3: fix sticky scroll pinning (overflow-x: clip), Wembi fanning 5-card Recap deck + roll-up hover, 12px cursor & clean footer`
+- `d3ea772` — `v3: pinned 3-step scroll tempo, smooth #c6d8e6/#f97279/#2a72a3 gradients, Swiss Neo-Grotesque type, clean dot cursor & Apple frosted glass split nav`
+- `db57c8e` — `v3: fluid type proportions, zero-void hero frames, directional mouse-push pill towers & hover-expanding frosted glass nav`
+- `a7f7e15` — `v3: fix sticky scroll pinning (overflow-x: clip), fanning 5-card Recap deck + roll-up hover, 12px cursor & clean footer`
 - `343cf09` — `v3: tall 1870/2380 vertical poster Hero with full-width VECTRA wordmark, gooey twin-dot bullet & Flow video hook`
 - `34356cf` — `v3: master 4 Flow 1080p loops to web MP4/posters & wire live across Vectra Twin hero, towers, steppers & Home card`
 
@@ -141,6 +141,6 @@ Encoding baseline for all 4 loops: audio stripped (`-an`), `yuv420p`, `crf 21`, 
 ## 7. Suggested Angle for Claude When Writing for `fuelorfool.ing`
 
 If documenting this project as a **fuelorfool.ing** case study, highlight the intersection of **human art direction + AI-native web engineering**:
-- **How we didn't copy a template:** Took the cognitive *pacing* of `wembi.ai` (sticky chapters, vertical hero hook, tactile bottom dock) and translated it into an original palette (`#c6d8e6`, `#f97279`, `#2a72a3`, `#0d1520`) and AI Digital Twin narrative.
+- **Bespoke System Architecture:** Pairs architectural sticky chapters, vertical hero proportions, and a tactile bottom dock with an original palette (`#c6d8e6`, `#f97279`, `#2a72a3`, `#0d1520`) and AI Digital Twin narrative.
 - **Physics & timing details that make the UX feel expensive:** Damped scroll inertia (`0.11`), multi-stop `42%` text waves locking at `82%`, directional spring kicks (`k=0.085, damp=0.78`) with `0.35x` inner text parallax, and zero-overlap footer handling (`.is-footer-clear`).
 - **Co-creation pipeline:** Human director curating bespoke palette references and **Google Flow** video generations (`Videos_AG`) → Agent auditing frames, mathematically cropping/mastering MP4 loops via `ffmpeg` (zero CSS `object-fit: cover` distortion), debugging subtle CSS specs (`overflow-x: clip` sticky fix), and shipping a compiled Next.js experience.

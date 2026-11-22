@@ -29,7 +29,7 @@ export const GALLERY_PROJECTS: GalleryProject[] = [
   {
     slug: "ramses-mania",
     num: "01",
-    title: "RAMSÉS MANIA",
+    title: "RAMSES",
     subtitle: {
       en: "INTERACTIVE WEBGL SPHYNX COMIC + SUNBEAM GAME",
       es: "CÓMIC WEBGL DE GATO SPHYNX + MINIJUEGO SOLAR",
@@ -44,8 +44,8 @@ export const GALLERY_PROJECTS: GalleryProject[] = [
     accentTextHex: "#15131A",
     posterSrc: "/images/gallery/posters/poster-01.png",
     summary: {
-      en: "A Ponpon Mania-inspired spatial comic board starring Ramsés, our 100% hairless Sun-Pharaoh cat freezing at 19°C.",
-      es: "Cómic espacial WebGL inspirado en Ponpon Mania protagonizado por Ramsés, nuestro faraón pelón congelándose a 19°C.",
+      en: "An interactive spatial WebGL comic board starring Ramses, our 100% hairless Sun-Pharaoh cat freezing at 19°C.",
+      es: "Cómic espacial WebGL protagonizado por Ramses, nuestro faraón pelón congelándose a 19°C.",
     },
     storyParagraphs: {
       en: [
@@ -212,7 +212,7 @@ export const GALLERY_PROJECTS: GalleryProject[] = [
     accentTextHex: "#090D16",
     posterSrc: "/images/gallery/posters/poster-04.png",
     summary: {
-      en: "Wembi-caliber architectural AI portal translating complex spatial telemetry into luminous, scroll-coupled storytelling.",
+      en: "Architectural spatial AI portal translating complex spatial telemetry into luminous, scroll-coupled storytelling.",
       es: "Portal arquitectónico de IA espacial que convierte telemetría compleja en narrativa visual luminosa sincronizada al scroll.",
     },
     storyParagraphs: {
@@ -301,23 +301,23 @@ export const GALLERY_PROJECTS: GalleryProject[] = [
   {
     slug: "fuelorfool",
     num: "06",
-    title: "FUELORFOOL.ING",
+    title: "FUEL OR FOOL",
     subtitle: {
-      en: "38 KB PURE JS FILM · VARIABLE TYPE LAB",
-      es: "FILM EN 38 KB DE JS PURO · LAB EXPERIMENTAL",
+      en: "38 KB PURE JS FILM · JESTER COBRA LAB",
+      es: "FILM EN 38 KB DE JS PURO · LAB DE LA COBRA",
     },
     year: "2026",
     role: {
-      en: "Creative Coding · Kinetic Typography · Spring Physics",
-      es: "Creative Coding · Tipografía Variable · Físicas",
+      en: "Creative Coding · Mascot Direction · Spring Physics",
+      es: "Creative Coding · Mascota Cobra · Físicas",
     },
     stack: "Canvas 2D · Archivo Variable · Zero Video",
-    accentHex: "#244BFF",
-    accentTextHex: "#FAF7F2",
+    accentHex: "#EE1C16",
+    accentTextHex: "#FFFDF6",
     posterSrc: "/images/gallery/posters/poster-06.png",
     summary: {
-      en: "A 15-second crisp studio opening compiled into 38 KB of deterministic draw(t) JavaScript with zero video files.",
-      es: "Apertura de estudio de 15 segundos comprimida en 38 KB de JavaScript determinista draw(t) sin archivos de video.",
+      en: "Fuel or fooling. We do both — a 15-second live-drawn studio opening compiled into 38 KB of pure deterministic JS featuring our halftone Jester Cobra.",
+      es: "Fuel or fooling. Hacemos ambas cosas: apertura de 15 segundos dibujada en vivo con 38 KB de JS puro junto a nuestra Cobra Arlequín.",
     },
     storyParagraphs: {
       en: [
@@ -335,46 +335,97 @@ export const GALLERY_PROJECTS: GalleryProject[] = [
     isInteractiveToy: false,
     galleryFrames: [
       {
-        src: "/images/v3/ag-xsheet-stage-poster.png",
-        caption: { en: "Deterministic draw(t) Timeline", es: "Línea Temporal draw(t)" },
+        src: "/media/fof/snake-jester.webp",
+        caption: { en: "Halftone Jester Cobra Mascot", es: "Cobra Arlequín en Halftone" },
       },
       {
-        src: "/images/v3/ag-director-emblem.png",
-        caption: { en: "Director Optics · Red/Blue Rig", es: "Óptica de Director" },
+        src: "/media/fof/station.webp",
+        caption: { en: "Interactive Service Station Stage", es: "Escenario Estación de Servicio" },
       },
       {
-        src: "/images/fba/lab-guide-strip.png",
-        caption: { en: "Lab Timing & Spacing Strip", es: "Tira de Timing del Lab" },
+        src: "/media/fof/stage.webp",
+        caption: { en: "Deterministic draw(t) Architecture", es: "Arquitectura draw(t) en Vivo" },
+      },
+    ],
+  },
+  {
+    slug: "molotov-love",
+    num: "07",
+    title: "MOLOTOV LOVE",
+    subtitle: {
+      en: "CARACAS 1997 SKA VIDEO · VARIABLE TYPE MOTION",
+      es: "VIDEOCLIP CARACAS 1997 · TIPOGRAFÍA VARIABLE",
+    },
+    year: "2026",
+    role: {
+      en: "Music Video Direction · Kinetic Typography · Halftones",
+      es: "Dirección Musical · Tipografía Cinética · Halftones",
+    },
+    stack: "Variable Fonts · 12fps Ink Plates · Desorden Público",
+    accentHex: "#0C6B6D",
+    accentTextHex: "#FAF7F2",
+    posterSrc: "/images/gallery/posters/poster-07.png",
+    summary: {
+      en: "A love letter to a love letter: an animated music video for Desorden Público's Caracas 1997 ska anthem driven by beat-locked halftone inflation.",
+      es: "Una carta de amor a una carta de amor: videoclip animado para el clásico ska caraqueño de Desorden Público con tipografía que late al ritmo.",
+    },
+    storyParagraphs: {
+      en: [
+        "Built from found Caracas textures, etched skeleton ska performers, and cobalt blue print halftones of Torre La Previsora stepping on twos (12fps) while variable type axes swell on every downbeat.",
+      ],
+      es: [
+        "Construido entre grabados de esqueletos ska, tramas halftone cobalto de Torre La Previsora a 12fps y ejes tipográficos variables sincronizados al beat.",
+      ],
+    },
+    liveHref: "https://fuelorfool.ing/work/04-molotov-love/",
+    liveExternal: true,
+    liveLabel: {
+      en: "VIEW ON FUELORFOOL.ING ↗",
+      es: "VER EN FUELORFOOL.ING ↗",
+    },
+    isInteractiveToy: false,
+    galleryFrames: [
+      {
+        src: "/media/fof/molotov-hey-poster.webp",
+        caption: { en: "HEY! — Ska Skeleton Performer", es: "HEY! — Esqueleto Ska en Vivo" },
+      },
+      {
+        src: "/images/gallery/cases/molotov-coro.webp",
+        caption: { en: "Chorus Kinetic Print Frame", es: "Cuadro de Coro en Serigrafía" },
+      },
+      {
+        src: "/images/gallery/cases/molotov-inversion.webp",
+        caption: { en: "Caracas 1997 · La Previsora Halftone", es: "Caracas 1997 · Torre La Previsora" },
       },
     ],
   },
   {
     slug: "keys-to-my-heart",
-    num: "07",
+    num: "08",
     title: "KEYS TO MY HEART",
     subtitle: {
-      en: "MUSICAL LAUNCH FILM · 7 ANIMATION ERAS",
-      es: "CORTOMETRAJE MUSICAL · 7 ERAS DE ANIMACIÓN",
+      en: "MUSICAL FILM STARRING CLAUDIA · 7 ANIMATION ERAS",
+      es: "FILM MUSICAL CON CLAUDIA · 7 ERAS DE ANIMACIÓN",
     },
     year: "2026",
     role: {
-      en: "Director · Character Pipeline · Beat Sync",
-      es: "Director · Pipeline de Personajes · Ritmo BPM",
+      en: "Director · Claudia Pipeline · 122.5 BPM Sync",
+      es: "Director · Pipeline de Claudia · Ritmo BPM",
     },
-    stack: "122.5 BPM · 7 Era Look-Devs · HyperFrames",
-    accentHex: "#D99B26",
-    accentTextHex: "#15131A",
-    posterSrc: "/images/gallery/posters/poster-07.png",
+    stack: "Claudia Model Chain · 122.5 BPM · 7 Visual Eras",
+    accentHex: "#D6333B",
+    accentTextHex: "#FAF7F2",
+    posterSrc: "/images/gallery/posters/poster-08.png",
     summary: {
-      en: "Three minutes and sixteen seconds synchronized to 122.5 BPM — one heroine crossing a century of animation history.",
-      es: "3:16 sincronizados a 122.5 BPM: una protagonista viajando por un siglo de estilos desde los años 20 hasta el 3D moderno.",
+      en: "Starring Claudia: a frozen gallery portrait learns all twelve classical principles of animation across 3:16 @ 122.5 BPM with her orange star surviving every visual era.",
+      es: "Protagonizado por Claudia: un retrato congelado aprende los doce principios clásicos de la animación en 3:16 a 122.5 BPM con su estrella intacta en 7 eras.",
     },
     storyParagraphs: {
       en: [
-        "Translates the Illusion of Agency into an animated musical voyage spanning 1920s ink-and-paper, 1940s cel shading, 1970s groovy silkscreen, 1990s cel-anime, and crisp 3D.",
+        "Directed for the $CLAUDIA video challenge with $0 commercial video-gen spend: Claudia evolves seamlessly from 1926 pencil tests and silent black-ink slapstick to 1950s pin-up cel, 1990s anime, and 3D.",
       ],
       es: [
-        "Traduce The Illusion of Agency en un viaje musical por tintas de los 20, sombreado de los 40, psicodelia setentera, anime noventero y 3D actual.",
+        "Dirigido para el reto $CLAUDIA con presupuesto cero en generación de video: Claudia atraviesa pruebas de lápiz de 1926, tinta silenciosa, cel de los 50, anime noventero y 3D.",
       ],
     },
     liveHref: "/work/keys-to-my-heart",
@@ -385,171 +436,128 @@ export const GALLERY_PROJECTS: GalleryProject[] = [
     isInteractiveToy: false,
     galleryFrames: [
       {
-        src: "/images/v3/ag-keys-vs-agents-diptych.png",
-        caption: { en: "Keyframes & Agent Clean-Up", es: "Keyframes y Limpieza" },
+        src: "/images/gallery/cases/claudia-title.webp",
+        caption: { en: "1926 Title Card · Juanimal Cartoons", es: "Título 1926 · Juanimal Cartoons" },
       },
       {
-        src: "/images/fba/keys.webp",
-        caption: { en: "Walk Cycle Breakdown", es: "Desglose de Ciclo de Caminata" },
+        src: "/images/gallery/cases/claudia-pinup.webp",
+        caption: { en: "1950s Diner Pin-Up Cel", es: "Cel Pin-Up Años 50" },
       },
       {
-        src: "/images/fba/05-1970s.webp",
-        caption: { en: "1970s Look-Dev Model Sheet", es: "Model Sheet Era 1970s" },
+        src: "/images/gallery/cases/claudia-90s.webp",
+        caption: { en: "1990s Anime Botanical Look-Dev", es: "Look-Dev Anime Noventero" },
       },
       {
-        src: "/images/fba/pose-tada.webp",
-        caption: { en: "Hero Finale Pose", es: "Pose Final de Escenario" },
+        src: "/images/gallery/cases/claudia-3d.webp",
+        caption: { en: "1920s Ink vs 3D Studio Desk", es: "Tinta 1920 vs Claudia 3D" },
       },
     ],
   },
   {
-    slug: "minas-house",
-    num: "08",
-    title: "MINA AI GROW HOUSE",
+    slug: "illusion-of-agency",
+    num: "09",
+    title: "THE ILLUSION OF AGENCY",
     subtitle: {
-      en: "SPATIAL HOME & COMPANIONSHIP PRODUCT UX",
-      es: "UX ESPACIAL & HOGAR PARA INTELIGENCIA ARTIFICIAL",
+      en: "12 PRINCIPLES IN CODE × AGENT VERIFICATION",
+      es: "12 PRINCIPIOS EN CÓDIGO × PIPELINES DE AGENTES",
     },
     year: "2026",
     role: {
-      en: "Product Design · Spatial UX · World Direction",
-      es: "Diseño de Producto · UX Espacial · Mundo",
+      en: "Methodology · Agent Self-Checks · Direction",
+      es: "Metodología · Self-Checks en Código · Dirección",
     },
-    stack: "Interactive Rooms · Memory Architecture · Brand",
-    accentHex: "#2A5448",
+    stack: "12 Animation Principles · Pass/Fail QA · Model Lock",
+    accentHex: "#2B4CB3",
     accentTextHex: "#FAF7F2",
-    posterSrc: "/images/gallery/posters/poster-08.png",
+    posterSrc: "/images/gallery/posters/poster-09.png",
     summary: {
-      en: "What if an AI had a living house — memory rooms, habits, a botanical garden, and companionship instead of just chat boxes?",
-      es: "¿Y si una IA tuviera su propia casa viva con habitaciones, memoria, jardín botánico y compañía más allá de un chat?",
+      en: "An agent skill & research film turning Disney's 12 Principles of Animation into strict pass/fail engineering checks that keep Claudia on model.",
+      es: "Research y skill agéntico que convierte los 12 Principios de la Animación en tests binarios de código para mantener a Claudia fiel al modelo.",
     },
     storyParagraphs: {
       en: [
-        "Explores long-term human-AI collaboration through isometric architectural space, custom character identity (Mina & Luna), and quiet ambient product rituals.",
+        "Any model will claim an animation feels weighty. Writing spacing recipes, squash volume preservation (scaleX × scaleY = 1), and silhouette locks as automated tests turns human keys into repeatable pipeline truth.",
       ],
       es: [
-        "Explora colaboración humano-IA a largo plazo mediante arquitectura isométrica, identidad de personaje y rituales cotidianos calmos.",
+        "Cualquier agente dirá que su animación tiene peso; definir arcos, conservación de volumen y chequeos en código convierte la dirección humana en calidad verificable.",
       ],
     },
-    liveHref: "/work/minas-house",
+    liveHref: "https://fuelorfool.ing/work/03-illusion-of-agency/",
+    liveExternal: true,
     liveLabel: {
-      en: "VISIT MINA HOUSE ↗",
-      es: "VISITAR MINA HOUSE ↗",
+      en: "READ ON FUELORFOOL.ING ↗",
+      es: "LEER EN FUELORFOOL.ING ↗",
     },
     isInteractiveToy: false,
     galleryFrames: [
       {
-        src: "/images/work/case-minas-house-v1.webp",
-        caption: { en: "Case Study · Architectural Overview", es: "Arquitectura del Caso" },
+        src: "/images/gallery/cases/claudia-pencil.webp",
+        caption: { en: "Draw Me Twelve · Pencil Test Sheet", es: "Hoja de Prueba a Lápiz" },
       },
       {
-        src: "/images/work/mina-luna-v1.webp",
-        caption: { en: "Mina & Luna Character Key", es: "Ilustración Mina y Luna" },
+        src: "/images/gallery/cases/claudia-dance.webp",
+        caption: { en: "Keyframes & Principle Choreography", es: "Keyframes y Coreografía" },
       },
       {
-        src: "/images/work/mina-portrait-v1.webp",
-        caption: { en: "Character Study Portrait", es: "Retrato de Personaje" },
+        src: "/images/fba/lab-guide-strip.png",
+        caption: { en: "4-Pose Model Sheet & Spacing Lock", es: "Bloqueo de Poses y Espaciado" },
       },
     ],
   },
   {
     slug: "club-of-the-dead",
-    num: "09",
+    num: "10",
     title: "CLUB OF THE DEAD",
     subtitle: {
-      en: "GAME MOTION · BEAT-LOCKED SPRITE PIPELINE",
-      es: "MOTION PARA VIDEOJUEGOS · SPRITES A RITMO",
+      en: "SYNTHIA-2 · BEAT-LOCKED ROCKABILLY RHYTHM RPG",
+      es: "SYNTHIA-2 · RPG RÍTMICO ROCKABILLY CUADRO A CUADRO",
     },
     year: "2026",
     role: {
-      en: "Game Art Direction · Sprite Sheet Rigs",
-      es: "Dirección de Arte Arcade · Sprite Sheets",
+      en: "Game Art Direction · Frame-by-Frame Combat · Sprites",
+      es: "Dirección Arcade · Combate Cuadro a Cuadro · Sprites",
     },
-    stack: "Pixel/Anime Sprite Pipeline · BPM Dance Loops",
-    accentHex: "#8B3DFF",
-    accentTextHex: "#FAF7F2",
-    posterSrc: "/images/gallery/posters/poster-09.png",
+    stack: "1024px Sprites · <0.5px Jitter · 4-Day Agent Sprint",
+    accentHex: "#0B2428",
+    accentTextHex: "#F5E4B8",
+    posterSrc: "/images/gallery/posters/poster-10.png",
     summary: {
-      en: "Four days from a bare gray prototype card to a rhythm-locked neon dancefloor with full character sprite animation.",
-      es: "Cuatro días de una carta gris a una pista de baile neón sincronizada al beat con pipeline completo de sprites.",
+      en: "Update 01 of Synthia-2: Club of the Dead — a rockabilly rhythm RPG where every mace swing lands on the beat, built from grey test card to dancing cemetery club in four days.",
+      es: "RPG rítmico rockabilly protagonizado por Synthia-2 y el club de los muertos bailando al tempo, llevado de tarjeta gris a escena viva en 4 días.",
     },
     storyParagraphs: {
       en: [
-        "Built in our open fuelorfool.ing lab to stress-test rapid game-art production: locking idle, groove, and hype animations straight to tempo cues.",
+        "Starring feathered rockabilly brawler Synthia-2 facing the lightning Vampire Ringmaster and his werewolf mount in front of a cemetery skeleton trio.",
+        "Every character locks strictly to 1024px sprite sheets with grounded feet at (512, 900) and under 0.5px head jitter across combo, feral, and berserk states.",
       ],
       es: [
-        "Construido en nuestro laboratorio fuelorfool.ing para validar producción ágil de arte arcade con loops atados al ritmo.",
+        "Protagonizado por Synthia-2 y su mazo de púas frente al Domador Vampiro y su hombre lobo bajo la luna llena y una banda esqueleto rockabilly.",
+        "Cada personaje respeta hojas de 1024px con pies fijados en (512, 900) y menos de 0.5px de vibración en combos y estado berserk.",
       ],
     },
     liveHref: "https://fuelorfool.ing/club-of-the-dead/",
     liveExternal: true,
     liveLabel: {
-      en: "OPEN ON FUELORFOOL.ING ↗",
-      es: "ABRIR EN FUELORFOOL.ING ↗",
+      en: "PLAY DEMO ON FUELORFOOL.ING ↗",
+      es: "VER DEMO EN FUELORFOOL.ING ↗",
     },
     isInteractiveToy: false,
     galleryFrames: [
       {
-        src: "/images/fba/06-1990s.webp",
-        caption: { en: "1990s Action Character Sheet", es: "Hoja de Acción Noventera" },
+        src: "/images/gallery/cases/cotd-faceoff.webp",
+        caption: { en: "Synthia-2 vs Vampire Werewolf Showdown", es: "Duelo Synthia-2 vs Vampiro & Hombre Lobo" },
       },
       {
-        src: "/images/fba/use-game.webp",
-        caption: { en: "Game Engine Integration", es: "Integración Motor Arcade" },
+        src: "/media/fof/cine-moon.webp",
+        caption: { en: "Moonlit Cemetery Arrival Keyframe", es: "Escena Cinematográfica Bajo la Luna" },
       },
       {
-        src: "/images/merch/poster-devsaurus-v1.webp",
-        caption: { en: "DevSaurus Mascot Culture", es: "Cultura Mascota DevSaurus" },
-      },
-    ],
-  },
-  {
-    slug: "gta6-saulbass",
-    num: "10",
-    title: "SAUL BASS COUNTDOWN",
-    subtitle: {
-      en: "9:16 CUT-PAPER CODE FILM · 34s @ 24FPS",
-      es: "FILM VERTICAL EN PAPEL RECORTADO · 34s @ 24FPS",
-    },
-    year: "2026",
-    role: {
-      en: "Title Design · GSAP Choreography · Cut-Paper",
-      es: "Diseño de Títulos · Coreografía GSAP · Papel",
-    },
-    stack: "HyperFrames · GSAP · Stepped 12fps Cuts",
-    accentHex: "#E83D22",
-    accentTextHex: "#FAF7F2",
-    posterSrc: "/images/gallery/posters/poster-10.png",
-    summary: {
-      en: "1960s Saul Bass cut-paper title sequence energy colliding with a global time-zone countdown from New Zealand to Mexico.",
-      es: "Energía de créditos años 60 a lo Saul Bass cruzada con una cuenta regresiva por husos horarios de Nueva Zelanda a México.",
-    },
-    storyParagraphs: {
-      en: [
-        "Zero soft fades, zero blur — 100% hard-edged paper wipes, stretched condensed typography, and stepped 12 draws-per-second rhythm written entirely in code.",
-      ],
-      es: [
-        "Cero difuminados ni fades suaves: cortes duros en papel, tipografía ultra condensada y ritmo a 12 cuadros por segundo programado cuadro a cuadro.",
-      ],
-    },
-    liveHref: "/contact",
-    liveLabel: {
-      en: "COMMISSION A LAUNCH FILM ↗",
-      es: "COMISIONAR UN FILM ↗",
-    },
-    isInteractiveToy: false,
-    galleryFrames: [
-      {
-        src: "/images/gallery/posters/poster-10.png",
-        caption: { en: "Cut-Paper Keyframe Study", es: "Estudio Gráfico en Papel Recortado" },
+        src: "/media/fof/combat-poster.webp",
+        caption: { en: "Beat-Locked Heavy Finish Combat HUD", es: "Combate Rítmico Sincronizado al Beat" },
       },
       {
-        src: "/images/service-web.png",
-        caption: { en: "Launch Kit Film Pipeline", es: "Pipeline Launch Kit" },
-      },
-      {
-        src: "/images/brand-logotype-v2.png",
-        caption: { en: "The Juanimal Studio Stamp", es: "Sello The Juanimal Studio" },
+        src: "/images/gallery/cases/cotd-berserk.webp",
+        caption: { en: "Synthia-2 Berserk Combo State", es: "Estado Berserk de Synthia-2" },
       },
     ],
   },
