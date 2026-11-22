@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import * as THREE from "three";
 import { useLanguage } from "@/components/LanguageProvider";
 import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
@@ -76,6 +77,7 @@ const ABOUT_FRAG = `
   uniform float uHoverActive;
   uniform vec2 uClickOrigin;
   uniform float uTransition;
+  uniform float uPageProgress;
   uniform float uTime;
   uniform float uMotionScale;
   uniform float uCurrentWorldId;
@@ -109,46 +111,133 @@ const ABOUT_FRAG = `
     return fract((p3.x + p3.y) * p3.z);
   }
 
+  vec4 mod289(vec4 x) {
+    return x - floor(x * (1.0 / 289.0)) * 289.0;
+  }
+
+  vec4 permute(vec4 x) {
+    return mod289(((x * 34.0) + 1.0) * x);
+  }
+
+  vec4 taylorInvSqrt(vec4 r) {
+    return 1.79284291400159 - 0.85373472095314 * r;
+  }
+
+  vec2 fade2(vec2 t) {
+    return t * t * t * (t * (t * 6.0 - 15.0) + 10.0);
+  }
+
+  float noise2d(vec2 P) {
+    vec4 Pi = floor(P.xyxy) + vec4(0.0, 0.0, 1.0, 1.0);
+    vec4 Pf = fract(P.xyxy) - vec4(0.0, 0.0, 1.0, 1.0);
+    Pi = mod289(Pi);
+    vec4 ix = Pi.xzxz;
+    vec4 iy = Pi.yyww;
+    vec4 fx = Pf.xzxz;
+    vec4 fy = Pf.yyww;
+    vec4 i = permute(permute(ix) + iy);
+    vec4 gx = fract(i * (1.0 / 41.0)) * 2.0 - 1.0;
+    vec4 gy = abs(gx) - 0.5;
+    vec4 tx = floor(gx + 0.5);
+    gx = gx - tx;
+    vec2 g00 = vec2(gx.x, gy.x);
+    vec2 g10 = vec2(gx.y, gy.y);
+    vec2 g01 = vec2(gx.z, gy.z);
+    vec2 g11 = vec2(gx.w, gy.w);
+    vec4 norm = taylorInvSqrt(vec4(dot(g00, g00), dot(g01, g01), dot(g10, g10), dot(g11, g11)));
+    g00 *= norm.x;
+    g01 *= norm.y;
+    g10 *= norm.z;
+    g11 *= norm.w;
+    float n00 = dot(g00, vec2(fx.x, fy.x));
+    float n10 = dot(g10, vec2(fx.y, fy.y));
+    float n01 = dot(g01, vec2(fx.z, fy.z));
+    float n11 = dot(g11, vec2(fx.w, fy.w));
+    vec2 fade_xy = fade2(Pf.xy);
+    vec2 n_x = mix(vec2(n00, n01), vec2(n10, n11), fade_xy.x);
+    float n_xy = mix(n_x.x, n_x.y, fade_xy.y);
+    return 2.3 * n_xy;
+  }
+
+  float powerInOut(float x, float power) {
+    return x < 0.5
+      ? pow(x * 2.0, power) * 0.5
+      : (1.0 - pow(1.0 - (x * 2.0 - 1.0), power)) * 0.5 + 0.5;
+  }
+
   vec2 rotateUV(vec2 uv, float angle) {
     float c = cos(angle);
     float s = sin(angle);
     return mat2(c, -s, s, c) * (uv - 0.5) + 0.5;
   }
 
+  vec2 rotateUvPivot(vec2 uv, float angle, vec2 pivot) {
+    float s = sin(angle);
+    float c = cos(angle);
+    vec2 p = uv - pivot;
+    return vec2(p.x * c - p.y * s, p.x * s + p.y * c) + pivot;
+  }
+
+  vec2 scaleUvPivot(vec2 uv, vec2 scale, vec2 pivot) {
+    return (uv - pivot) * scale + pivot;
+  }
+
+  // Slow, soft, letter-tinted metallic sheen matching Justine's ya/wa About title shaders
   float extraShine(vec2 uv, float t, float speed, float width, float phase) {
-    vec2 ruv = rotateUV(uv, 0.55);
-    float progress = mix(1.9, -1.9, fract(t * speed + phase));
+    vec2 ruv = rotateUV(uv, 0.52);
+    float progress = mix(2.2, -2.2, fract(t * speed + phase));
     return smoothstep(0.0, width, ruv.x + progress) - smoothstep(width, width * 2.0, ruv.x + progress);
   }
 
   vec3 applyWorldFoil(vec3 col, vec2 uv, float worldId, float t, float m) {
     float topBand = smoothstep(0.66, 0.71, uv.y) * smoothstep(0.96, 0.91, uv.y) * smoothstep(0.18, 0.25, uv.x) * smoothstep(0.82, 0.75, uv.x);
     float botBand = smoothstep(0.10, 0.14, uv.y) * smoothstep(0.34, 0.29, uv.y) * smoothstep(0.25, 0.32, uv.x) * smoothstep(0.75, 0.68, uv.x);
-    float shineTop = extraShine(uv, t, 0.34, 0.24, 0.12) * topBand * m;
-    float shineBot = extraShine(uv, t, 0.34, 0.24, 0.52) * botBand * m;
+    float shineTop = extraShine(uv, t, 0.13, 0.34, 0.10) * topBand * m;
+    float shineBot = extraShine(uv, t, 0.13, 0.34, 0.52) * botBand * m;
     float shine = shineTop + shineBot;
 
     if (worldId > 1.5 && worldId < 2.5) {
-      // Rain: metallic lime-gold foil sweep across Synthia-2 and The Agent
+      // Rain: soft lime-chartreuse sheen in the exact hue of Synthia-2 & The Agent letters
       float isLime = smoothstep(0.54, 0.72, col.g) * smoothstep(0.54, 0.36, col.b);
-      col += vec3(0.32, 0.36, 0.16) * shine * isLime;
+      col += vec3(0.11, 0.16, 0.03) * shine * isLime;
     } else if (worldId > 2.5) {
-      // Rainbow: metallic rose-gold foil sweep across Synthia.2 and The Agent
+      // Rainbow: soft warm coral-rose sheen in the exact hue of Synthia.2 & The Agent letters
       float isPink = smoothstep(0.68, 0.85, col.r) * smoothstep(0.18, 0.34, col.r - col.g);
-      col += vec3(0.36, 0.26, 0.22) * shine * isPink;
+      col += vec3(0.15, 0.05, 0.07) * shine * isPink;
     }
     return col;
   }
 
   void main() {
+    float aspect = uResolution.x / max(1.0, uResolution.y);
+    vec2 aspectScale = vec2(aspect, 1.0);
+
+    // Justine Soulié qa whirlpool page transition between Home (#f4f0ed) and About
+    float uPow = aspect > 1.0 ? 7.0 : 4.0;
+    vec2 wUv = vUv * 2.0 - 1.0;
+    if (aspect < 1.0) {
+      wUv.x *= aspect;
+    } else {
+      wUv.y /= aspect;
+    }
+    wUv = wUv * 0.5 + 0.5;
+
+    float coef = 1.4;
+    float noise = noise2d(
+      rotateUvPivot(wUv, powerInOut(distance(vUv, vec2(0.5)), 2.0) * uPow, vec2(0.5)) * 3.0 + uTime * 0.08
+    );
+    vec2 swirlMaskUv = mix(rotateUvPivot(wUv, noise, vec2(noise)), wUv, uPageProgress);
+    float rad = 0.5 * coef * uPageProgress;
+    float whirlpoolMask = 1.0 - smoothstep(rad - 0.005, rad + 0.005, length(swirlMaskUv - vec2(0.5)));
+
+    vec2 nUv = scaleUvPivot(rotateUvPivot(vUv, noise * 0.5, vec2(0.5)), vec2(1.0 + noise), vec2(0.5));
+    vec2 tUv = scaleUvPivot(mix(nUv, vUv, uPageProgress), vec2(mix(1.13, 1.0, uPageProgress)), vec2(0.5));
+
     // Pixel-locked shared UVs so both worlds share 100% identical camera framing across the portal edge
-    vec2 sceneUv = computeSceneUv(vUv, 1.0);
+    vec2 sceneUv = computeSceneUv(tUv, 1.0);
 
     vec3 colA = applyWorldFoil(texture2D(uCurrentTex, sceneUv).rgb, sceneUv, uCurrentWorldId, uTime, uMotionScale);
     vec3 colB = applyWorldFoil(texture2D(uNextTex, sceneUv).rgb, sceneUv, uNextWorldId, uTime, uMotionScale);
-
-    float aspect = uResolution.x / max(1.0, uResolution.y);
-    vec2 aspectScale = vec2(aspect, 1.0);
 
     // Circular hover portal peeking directly into NEXT Dragon world (clean Justine Soulie lens edge)
     vec2 hVec = (vUv - uHoverUv) * aspectScale;
@@ -179,6 +268,10 @@ const ABOUT_FRAG = `
     float grain = (hash12(floor(vUv * uResolution * 0.5) + fract(uTime * 12.0) * 100.0) - 0.5) * 0.042 * uMotionScale;
     finalRgb = clamp(finalRgb + grain, 0.0, 1.0);
 
+    // Blend with Home cream paper background (#f4f0ed) outside the whirlpool vortex
+    vec3 homePaperBg = vec3(0.957, 0.941, 0.929);
+    finalRgb = mix(homePaperBg, finalRgb, whirlpoolMask);
+
     gl_FragColor = vec4(finalRgb, 1.0);
   }
 `;
@@ -186,17 +279,37 @@ const ABOUT_FRAG = `
 export function DragonAboutStage() {
   const { lang, t } = useLanguage();
   const reduced = usePrefersReducedMotion();
+  const router = useRouter();
 
   const hostRef = useRef<HTMLDivElement>(null);
   const [ready, setReady] = useState(false);
+  const [skipPreloader, setSkipPreloader] = useState(false);
+  const [leavingToHome, setLeavingToHome] = useState(false);
   const [webglReady, setWebglReady] = useState(true);
   const [worldIdx, setWorldIdx] = useState(0);
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   const worldIdxRef = useRef(0);
+  const leavingRef = useRef(false);
+  const navTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const triggerMorphRef = useRef<((targetIdx: number, uvX?: number, uvY?: number) => void) | null>(null);
   const reducedRef = useRef(reduced);
   reducedRef.current = reduced;
+  leavingRef.current = leavingToHome;
+
+  useEffect(() => {
+    try {
+      if (window.sessionStorage.getItem("jd_whirlpool_handoff") === "1") {
+        window.sessionStorage.removeItem("jd_whirlpool_handoff");
+        setSkipPreloader(true);
+      }
+    } catch {
+      // ignore
+    }
+    return () => {
+      if (navTimerRef.current) clearTimeout(navTimerRef.current);
+    };
+  }, []);
 
   const ui = {
     en: {
@@ -253,7 +366,7 @@ export function DragonAboutStage() {
     camera.position.z = 2;
 
     const fallbackTex = new THREE.DataTexture(
-      new Uint8Array([224, 240, 232, 255]),
+      new Uint8Array([244, 240, 237, 255]),
       1,
       1,
       THREE.RGBAFormat
@@ -273,6 +386,8 @@ export function DragonAboutStage() {
     const loader = new THREE.TextureLoader();
     let disposed = false;
     let readySent = false;
+    let enterStartTime: number | null = null;
+    let leaveStartTime: number | null = null;
 
     const uniforms = {
       uCurrentTex: { value: textures[0] },
@@ -287,6 +402,7 @@ export function DragonAboutStage() {
       uMotionScale: { value: 1 },
       uCurrentWorldId: { value: 0 },
       uNextWorldId: { value: 1 },
+      uPageProgress: { value: reducedRef.current ? 1 : 0 },
     };
 
     const quadGeo = new THREE.PlaneGeometry(2, 2);
@@ -345,6 +461,7 @@ export function DragonAboutStage() {
     const readyTimer = setTimeout(() => {
       if (!readySent) {
         readySent = true;
+        enterStartTime = performance.now();
         setReady(true);
       }
     }, 1200);
@@ -370,6 +487,7 @@ export function DragonAboutStage() {
             uniforms.uCurrentTex.value = tex;
             if (!readySent) {
               readySent = true;
+              enterStartTime = performance.now();
               setReady(true);
             }
           }
@@ -381,6 +499,7 @@ export function DragonAboutStage() {
         () => {
           if (idx === 0 && !readySent) {
             readySent = true;
+            enterStartTime = performance.now();
             setReady(true);
           }
         }
@@ -492,6 +611,24 @@ export function DragonAboutStage() {
 
       uniforms.uTime.value = tSec;
       uniforms.uMotionScale.value = mScale;
+
+      if (leavingRef.current && leaveStartTime === null) {
+        leaveStartTime = now;
+      }
+
+      let pageProg = 0;
+      if (reducedRef.current) {
+        pageProg = leavingRef.current ? 0 : 1;
+      } else if (leaveStartTime !== null) {
+        const t = THREE.MathUtils.clamp(((now - leaveStartTime) * 0.001) / 0.6, 0, 1);
+        pageProg = 1 - t * t * t;
+      } else if (enterStartTime !== null) {
+        const t = THREE.MathUtils.clamp(((now - enterStartTime) * 0.001) / 1.15, 0, 1);
+        pageProg = 1 - Math.pow(1 - t, 3);
+      }
+      uniforms.uPageProgress.value = pageProg;
+      points.visible = pageProg > 0.35;
+
       uniforms.uPointer.value.lerp(
         new THREE.Vector2(pointerX, pointerY),
         Math.min(1, dt * 7)
@@ -591,15 +728,37 @@ export function DragonAboutStage() {
     triggerMorphRef.current?.(idx, 0.5, 0.5);
   }, []);
 
+  const handlePostersClick = useCallback(
+    (e: React.MouseEvent<HTMLAnchorElement>) => {
+      if (reduced) return;
+      e.preventDefault();
+      if (leavingToHome) return;
+      setLeavingToHome(true);
+      try {
+        window.sessionStorage.setItem("jd_whirlpool_handoff", "1");
+      } catch {
+        // ignore
+      }
+      if (navTimerRef.current) clearTimeout(navTimerRef.current);
+      navTimerRef.current = setTimeout(() => {
+        router.push("/");
+      }, 600);
+    },
+    [leavingToHome, reduced, router]
+  );
+
   return (
     <div
-      className={`jd-gallery-root jd-about-page is-world-${currentWorld.id}`}
+      className={`jd-gallery-root jd-about-page is-world-${currentWorld.id} ${
+        leavingToHome ? "is-page-leaving" : ""
+      }`}
     >
-      <ZigZagPreloader ready={ready} />
+      {!skipPreloader ? <ZigZagPreloader ready={ready} /> : null}
 
       <GalleryHeader
         active="about"
         tone={currentWorld.headerTone}
+        onPostersClick={handlePostersClick}
       />
 
       <main className="jd-about-stage">

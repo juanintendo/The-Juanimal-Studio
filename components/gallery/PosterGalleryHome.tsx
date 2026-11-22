@@ -29,6 +29,7 @@ export function PosterGalleryHome() {
   const ui = COPY[lang];
 
   const [ready, setReady] = useState(false);
+  const [skipPreloader, setSkipPreloader] = useState(false);
   const [focusIdx, setFocusIdx] = useState(0);
   const [hoverIdx, setHoverIdx] = useState<number | null>(null);
   const [captionHover, setCaptionHover] = useState(false);
@@ -39,6 +40,14 @@ export function PosterGalleryHome() {
   const navTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
+    try {
+      if (window.sessionStorage.getItem("jd_whirlpool_handoff") === "1") {
+        window.sessionStorage.removeItem("jd_whirlpool_handoff");
+        setSkipPreloader(true);
+      }
+    } catch {
+      // ignore
+    }
     return () => {
       if (navTimerRef.current) clearTimeout(navTimerRef.current);
     };
@@ -90,10 +99,15 @@ export function PosterGalleryHome() {
       e.preventDefault();
       if (leavingToAbout) return;
       setLeavingToAbout(true);
+      try {
+        window.sessionStorage.setItem("jd_whirlpool_handoff", "1");
+      } catch {
+        // ignore
+      }
       if (navTimerRef.current) clearTimeout(navTimerRef.current);
       navTimerRef.current = setTimeout(() => {
         router.push("/about");
-      }, 540);
+      }, 520);
     },
     [leavingToAbout, reduced, router]
   );
@@ -102,7 +116,7 @@ export function PosterGalleryHome() {
 
   return (
     <div className="jd-gallery-root jd-home-page">
-      <ZigZagPreloader ready={ready} />
+      {!skipPreloader ? <ZigZagPreloader ready={ready} /> : null}
 
       <GalleryHeader
         active="home"

@@ -8,6 +8,7 @@ interface GalleryHeaderProps {
   tone?: "paper" | "light";
   onBrandClick?: () => void;
   onAboutClick?: (e: React.MouseEvent<HTMLAnchorElement>) => void;
+  onPostersClick?: (e: React.MouseEvent<HTMLAnchorElement>) => void;
 }
 
 export function GalleryHeader({
@@ -15,6 +16,7 @@ export function GalleryHeader({
   tone = "paper",
   onBrandClick,
   onAboutClick,
+  onPostersClick,
 }: GalleryHeaderProps) {
   const { lang, setLang } = useLanguage();
 
@@ -39,7 +41,7 @@ export function GalleryHeader({
             {labels.brand}
           </button>
         ) : (
-          <Link href="/" className="jd-brand-link">
+          <Link href="/" className="jd-brand-link" onClick={onPostersClick}>
             {labels.brand}
           </Link>
         )}
@@ -47,7 +49,7 @@ export function GalleryHeader({
 
       <nav className="jd-header-nav" aria-label="Gallery primary navigation">
         {active !== "home" ? (
-          <Link href="/" className="jd-nav-link">
+          <Link href="/" className="jd-nav-link" onClick={onPostersClick}>
             <span>{labels.posters}</span>
             <ZigZagUnderline />
           </Link>
