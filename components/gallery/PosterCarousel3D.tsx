@@ -112,6 +112,32 @@ const POSTER_FRAG = `
     return mat2(c, -s, s, c) * (uv - 0.5) + 0.5;
   }
 
+  vec2 rotateUvPivot(vec2 uv, float angle, vec2 pivot) {
+    float s = sin(angle);
+    float c = cos(angle);
+    vec2 p = uv - pivot;
+    return vec2(p.x * c - p.y * s, p.x * s + p.y * c) + pivot;
+  }
+
+  vec2 scaleUvPivot(vec2 uv, vec2 scale, vec2 pivot) {
+    return (uv - pivot) * scale + pivot;
+  }
+
+  // Exact speech-balloon mask for poster 09 BRRT (excludes outer cream paper and curling receipt ribbon)
+  float brrtMask(vec2 p) {
+    float dx = p.x - 0.52;
+    float outerL = max(0.0, 0.20 - p.x);
+    float yBot = 0.650
+      + 0.106 * smoothstep(0.28, 0.50, p.x)
+      - 0.028 * exp(-pow((p.x - 0.415) / 0.055, 2.0))
+      + 0.72 * pow(outerL, 1.6)
+      + 0.060 * smoothstep(0.80, 0.89, p.x);
+    float yTop = 0.974 + 0.048 * dx - 0.55 * dx * dx - 0.03 * smoothstep(0.82, 0.90, p.x);
+    float xM = smoothstep(0.125, 0.145, p.x) * smoothstep(0.900, 0.880, p.x);
+    float yM = smoothstep(yBot - 0.012, yBot + 0.012, p.y) * smoothstep(yTop + 0.012, yTop - 0.012, p.y);
+    return xM * yM;
+  }
+
   // Diagonal sweeping foil/gloss band matching Justine's Extra shine shader
   float extraShine(vec2 uv, float t, float speed, float width, float phase) {
     vec2 ruv = rotateUV(uv, 0.55);
@@ -137,6 +163,8 @@ const POSTER_FRAG = `
     // Subtle non-destructive artwork-space micro-motion before texture lookup (motion-gated)
     vec2 artUv = baseUv;
     float m = uMotionScale;
+    float brrtZone = 0.0;
+    float brrtHoverActive = 0.0;
 
     if (id < 0.5) {
       // 00 RAMSES: rising radiator heat haze
@@ -159,6 +187,18 @@ const POSTER_FRAG = `
       // 09 BRRT: subtle printer paper-feed wave along the curling ticket ribbon on hover
       float ticketBand = smoothstep(0.24, 0.32, baseUv.y) * smoothstep(0.76, 0.66, baseUv.y);
       artUv.y += sin(baseUv.y * 42.0 - uTime * 6.0) * 0.0011 * ticketBand * vHitDist * m;
+
+      // Justine Soulié createTypo: Liquid UV Displacement + Radial Swirl/Pinch Warp ("Liquify") strictly on BRRT balloon
+      brrtZone = brrtMask(baseUv);
+      vec2 hitUv = uHit + vec2(0.5);
+      brrtHoverActive = brrtMask(hitUv) * uHover;
+      float brrtHoverDist = clamp(1.0 - distance(baseUv, hitUv) / 0.30, 0.0, 1.0) * brrtHoverActive;
+      vec2 liquidUv = baseUv;
+      liquidUv.y += sin(uTime * 1.8 + baseUv.x * 6.0 + baseUv.y * 6.0) * (0.0042 + 0.0055 * brrtHoverActive) * m;
+      liquidUv.x += cos(uTime * 1.4 + baseUv.y * 7.0) * (0.0020 + 0.0035 * brrtHoverActive) * m;
+      liquidUv = rotateUvPivot(liquidUv, -brrtHoverDist * 0.55 * m, hitUv);
+      liquidUv = scaleUvPivot(liquidUv, vec2(1.0 - brrtHoverDist * 0.28 * m), hitUv);
+      artUv = mix(artUv, liquidUv, brrtZone * m);
     }
 
     vec4 tex = texture2D(uMap, clamp(artUv, 0.001, 0.999));
@@ -289,18 +329,25 @@ const POSTER_FRAG = `
       // Logical hover: nocturnal cyan-magenta rim flashlight around cursor
       col += vec3(0.18, 0.08, 0.16) * cursorMask * step(0.45, baseUv.y) + vec3(0.07, 0.17, 0.18) * cursorMask * step(baseUv.y, 0.55);
     } else {
-      // 09 BRRT: rising 80mm thermal print-head scan light + cobalt halftone glow + Extra balloon shine
+      // 09 BRRT: rising 80mm thermal print-head scan light + cobalt halftone glow + Justine Typo salmon-to-pink pulse
       float isCobalt = smoothstep(0.50, 0.76, col.b) * smoothstep(0.32, 0.16, col.r);
-      float isTicket = step(0.74, lum) * smoothstep(0.26, 0.34, baseUv.y) * smoothstep(0.76, 0.68, baseUv.y);
+      float isTicket = step(0.74, lum) * smoothstep(0.26, 0.34, baseUv.y) * smoothstep(0.76, 0.68, baseUv.y) * (1.0 - brrtZone);
       float sweepY = fract(uTime * 0.36);
       float printHead = exp(-pow((baseUv.y - mix(0.26, 0.74, sweepY)) * 12.0, 2.0)) * isTicket * m;
       col += vec3(0.14, 0.16, 0.20) * printHead;
       col += vec3(0.04, 0.08, 0.18) * (0.5 + 0.5 * sin(uTime * 2.5)) * isCobalt * m;
 
-      float brrtLogo = step(0.65, baseUv.y) * step(0.74, lum);
-      col += vec3(0.20, 0.20, 0.24) * extraShine(baseUv, uTime, 0.33, 0.24, 0.45) * brrtLogo * m;
-      // Logical hover: cool electric riso highlight around cursor over ticket & printer
-      col += vec3(0.10, 0.15, 0.26) * cursorMask * (0.45 + 0.65 * isCobalt + 0.45 * isTicket);
+      // Vertical gradient color pulse on BRRT letters (salmon -> hot pink) active strictly when hovering BRRT
+      float brrtLetters = brrtZone * smoothstep(0.62, 0.78, lum);
+      float pulseGrad = abs(mod(baseUv.y * 1.4 + uTime * 0.5, 1.0) - 0.5) * 2.0;
+      vec3 salmonCol = vec3(1.00, 0.48, 0.42);
+      vec3 pinkCol   = vec3(1.00, 0.16, 0.45);
+      vec3 brrtPulse = mix(salmonCol, pinkCol, pulseGrad) * (0.92 + 0.08 * lum);
+      col = mix(col, brrtPulse, brrtLetters * brrtHoverActive * 0.90);
+
+      col += vec3(0.20, 0.20, 0.24) * extraShine(baseUv, uTime, 0.33, 0.24, 0.45) * brrtLetters * m;
+      // Logical hover: cool electric riso highlight around cursor over ticket & printer (muted on BRRT so pulse reads cleanly)
+      col += vec3(0.10, 0.15, 0.26) * cursorMask * (0.45 + 0.65 * isCobalt + 0.45 * isTicket) * (1.0 - brrtZone * 0.85);
     }
 
     // Tactile paper-crease relief shading + micro paper fiber grain blended like Justine's posters
