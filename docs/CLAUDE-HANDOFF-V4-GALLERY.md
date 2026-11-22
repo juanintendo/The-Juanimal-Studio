@@ -12,9 +12,9 @@
    - Top navigation pairs `JUANIMAL DESIGNS` with `ABOUT` (using Justine's lightning zig-zag underline `<path d="M0 1H155.026L144.122 5H311" />`), `MERCH`, live `EN / ES` language switch, and Web Audio mute pill.
 
 2. **WebGL Infinite Poster Carousel Home (`/`, `/es` — `PosterCarousel3D.tsx`, `PosterGalleryHome.tsx`):**
-   - **9 `900×1200` (`3:4`) Gallery Posters (`public/images/gallery/posters/poster-01..09.png`):**
-     `01 Ramses`, `02 Voyager 1`, `03 NO SKU™`, `04 Vectra Twin // AI`, `05 Frame by Agents`, `06 Fuel or Fool` (Jester Cobra Ref 1 edition), `07 Molotov Love` (Desorden Público 3-skeleton vintage Caracas 1997 concert gig poster featuring Horacio + Trombonist + Bassist), `08 Keys to My Heart` (starring Claudia — textless animation rag-paper portrait), and `09 Club of the Dead` (Rockabilly Rhythm RPG key-art poster with Synthia, Roxy Ratrod, Nikola Stardust & Howlin' Wolfgang + custom 3D logo).
-   - *(Note: `illusion-of-agency` was consolidated with `keys-to-my-heart` since both belong to the Claudia film.)*
+   - **10 `900×1200` (`3:4`) Gallery Posters (`public/images/gallery/posters/poster-01..10.png`):**
+     `01 Ramses`, `02 Voyager 1`, `03 NO SKU™`, `04 Vectra Twin // AI`, `05 Frame by Agents`, `06 Fuel or Fool` (Jester Cobra Ref 1 edition), `07 Molotov Love` (custom Vince Ray-inspired black/crimson/cream 3-color gig illustration with Horacio + brass/sax skeletons), `08 Keys to My Heart` (starring Claudia — textless animation sheet + custom 1920s hand-lettered logo), `09 Club of the Dead` (custom nocturnal Kustom Kulture key-art starring Synthia + hearse hot rod), and `10 BRRT` (tactile thermal receipt printer riso poster).
+   - *(Note: `illusion-of-agency` was consolidated with `keys-to-my-heart`, and Arcadio Labs was held back by user request.)*
    - **Custom GLSL Crumpled Paper Cloth Shader (`POSTER_VERT`, `POSTER_FRAG`):**
      - Tangent-space crumpled-paper normal map (`/images/gallery/paper-normals.png`) + velocity-driven S-wave paper bending (`uVelocity`), pointer 3D tilt/lift, specular highlight along creases, seamless modulo horizontal wrapping, wheel/drag/touch/arrow inertia, and smooth color-curtain transition into `/poster-work/[slug]`.
    - Includes a clean bottom archival dock + **Interactive Toys** quick launcher linking directly to all playable WebGL prototypes (`/work/ramses-mania`, `/work/voyager-kids`, `/work/no-sku`, `/work/vectra-twin`) and the 4-world Dragon `/about` experience.

@@ -514,6 +514,53 @@ export const GALLERY_PROJECTS: GalleryProject[] = [
       },
     ],
   },
+  {
+    slug: "brrt-receipts",
+    num: "10",
+    title: "BRRT",
+    subtitle: {
+      en: "THERMAL RECEIPT BRAND EDITOR · 58 & 80 MM",
+      es: "EDITOR DE TICKETS TÉRMICOS · 58 Y 80 MM",
+    },
+    year: "2026",
+    role: {
+      en: "Product Design · Thermal Dithering · Mascot",
+      es: "Diseño de Producto · Trama Térmica · Mascota",
+    },
+    stack: "Thermal 1-Bit Engine · 58/80mm Roll Sim · Live Editor",
+    accentHex: "#1547E5",
+    accentTextHex: "#FAF7F2",
+    posterSrc: "/images/gallery/posters/poster-10.png",
+    summary: {
+      en: "Tu ticket. Tu sello. A tactile live receipt designer that stamps any shop logo, custom artwork, and message onto 58mm and 80mm thermal rolls with crisp B&W dithering.",
+      es: "Tu ticket. Tu sello. Un editor táctil para imprimir el logo, ilustraciones y mensajes de tu local sobre rollos térmicos de 58 y 80 mm en tiempo real.",
+    },
+    storyParagraphs: {
+      en: [
+        "Built so indie cafés, shops, and bakeries give their paper receipts the exact same personality as their storefront — swap headers, drop artwork behind the receipt text with tunable contrast, and preview live B&W thermal ink output before printing.",
+      ],
+      es: [
+        "Pensado para que cafés y locales independientes pongan su sello personal hasta en el recibo: sube tu logotipo o ilustración de fondo con intensidad ajustable, reordena bloques tocando el ticket y compara rollos de 58 y 80 mm en vivo.",
+      ],
+    },
+    liveHref: "https://taller-de-ticket.juanintendo.chatgpt.site/producto/",
+    liveExternal: true,
+    liveLabel: {
+      en: "OPEN BRRT EDITOR ↗",
+      es: "PROBAR EDITOR BRRT ↗",
+    },
+    isInteractiveToy: false,
+    galleryFrames: [
+      {
+        src: "/images/gallery/cases/brrt-mascot.png",
+        caption: { en: "BRRT Thermal Printer Mascot", es: "Mascota Impresora Térmica BRRT" },
+      },
+      {
+        src: "/images/gallery/cases/brrt-ticket.webp",
+        caption: { en: "80mm 1-Bit Thermal Receipt Preview", es: "Vista Previa Térmica 80 mm en B&N" },
+      },
+    ],
+  },
 ];
 
 export function getGalleryProject(slug: string): GalleryProject | undefined {
