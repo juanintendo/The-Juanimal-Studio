@@ -36,6 +36,7 @@ const POSTER_VERT = `
 
   uniform float uVelocity;
   uniform float uHover;
+  uniform float uBrrtHover;
   uniform float uTime;
   uniform float uMotionScale;
   uniform float uIndex;
@@ -92,6 +93,7 @@ const POSTER_FRAG = `
   uniform sampler2D uMap;
   uniform sampler2D uNormals;
   uniform float uHover;
+  uniform float uBrrtHover;
   uniform float uTime;
   uniform float uMotionScale;
   uniform float uIndex;
@@ -128,13 +130,12 @@ const POSTER_FRAG = `
     float dx = p.x - 0.52;
     float outerL = max(0.0, 0.20 - p.x);
     float yBot = 0.650
-      + 0.106 * smoothstep(0.28, 0.50, p.x)
-      - 0.028 * exp(-pow((p.x - 0.415) / 0.055, 2.0))
+      + 0.098 * smoothstep(0.24, 0.49, p.x)
       + 0.72 * pow(outerL, 1.6)
       + 0.060 * smoothstep(0.80, 0.89, p.x);
     float yTop = 0.974 + 0.048 * dx - 0.55 * dx * dx - 0.03 * smoothstep(0.82, 0.90, p.x);
     float xM = smoothstep(0.125, 0.145, p.x) * smoothstep(0.900, 0.880, p.x);
-    float yM = smoothstep(yBot - 0.012, yBot + 0.012, p.y) * smoothstep(yTop + 0.012, yTop - 0.012, p.y);
+    float yM = smoothstep(yBot - 0.010, yBot + 0.010, p.y) * smoothstep(yTop + 0.010, yTop - 0.010, p.y);
     return xM * yM;
   }
 
@@ -188,17 +189,19 @@ const POSTER_FRAG = `
       float ticketBand = smoothstep(0.24, 0.32, baseUv.y) * smoothstep(0.76, 0.66, baseUv.y);
       artUv.y += sin(baseUv.y * 42.0 - uTime * 6.0) * 0.0011 * ticketBand * vHitDist * m;
 
-      // Justine Soulié createTypo: Liquid UV Displacement + Radial Swirl/Pinch Warp ("Liquify") strictly on BRRT balloon
+      // Justine Soulié createTypo: Liquid UV Displacement + Radial Swirl/Pinch Warp ("Liquify") clamped strictly inside BRRT balloon
       brrtZone = brrtMask(baseUv);
       vec2 hitUv = uHit + vec2(0.5);
-      brrtHoverActive = brrtMask(hitUv) * uHover;
-      float brrtHoverDist = clamp(1.0 - distance(baseUv, hitUv) / 0.30, 0.0, 1.0) * brrtHoverActive;
+      vec2 brrtPivot = vec2(clamp(hitUv.x, 0.20, 0.82), clamp(hitUv.y, 0.70, 0.90));
+      brrtHoverActive = uBrrtHover;
+      float brrtHoverDist = clamp(1.0 - distance(baseUv, brrtPivot) / 0.30, 0.0, 1.0) * brrtHoverActive;
       vec2 liquidUv = baseUv;
-      liquidUv.y += sin(uTime * 1.8 + baseUv.x * 6.0 + baseUv.y * 6.0) * (0.0042 + 0.0055 * brrtHoverActive) * m;
-      liquidUv.x += cos(uTime * 1.4 + baseUv.y * 7.0) * (0.0020 + 0.0035 * brrtHoverActive) * m;
-      liquidUv = rotateUvPivot(liquidUv, -brrtHoverDist * 0.55 * m, hitUv);
-      liquidUv = scaleUvPivot(liquidUv, vec2(1.0 - brrtHoverDist * 0.28 * m), hitUv);
-      artUv = mix(artUv, liquidUv, brrtZone * m);
+      liquidUv.y += sin(uTime * 1.8 + baseUv.x * 6.0 + baseUv.y * 6.0) * (0.0038 + 0.0045 * brrtHoverActive) * m;
+      liquidUv.x += cos(uTime * 1.4 + baseUv.y * 7.0) * (0.0018 + 0.0028 * brrtHoverActive) * m;
+      liquidUv = rotateUvPivot(liquidUv, -brrtHoverDist * 0.26 * m, brrtPivot);
+      liquidUv = scaleUvPivot(liquidUv, vec2(1.0 - brrtHoverDist * 0.15 * m), brrtPivot);
+      float safeWarp = brrtZone * brrtMask(liquidUv);
+      artUv = mix(artUv, liquidUv, safeWarp * m);
     }
 
     vec4 tex = texture2D(uMap, clamp(artUv, 0.001, 0.999));
@@ -300,7 +303,7 @@ const POSTER_FRAG = `
 
       float isBoneTitle = step(0.68, baseUv.y) * smoothstep(0.62, 0.80, lum);
       float foil = extraShine(baseUv, uTime, 0.30, 0.26, 0.3) * isBoneTitle * m;
-      col += vec3(0.22, 0.18, 0.10) * foil;
+      col += vec3(0.28, 0.23, 0.12) * foil;
       // Logical hover: stokes flames into bright hot amber glow + warm stage light under cursor
       col += vec3(0.28, 0.12, 0.03) * cursorMask * (0.35 + isFlame * 1.2) + vec3(0.12, 0.09, 0.05) * cursorMask * (1.0 - isFlame);
     } else if (id < 7.5) {
@@ -329,7 +332,7 @@ const POSTER_FRAG = `
       // Logical hover: nocturnal cyan-magenta rim flashlight around cursor
       col += vec3(0.18, 0.08, 0.16) * cursorMask * step(0.45, baseUv.y) + vec3(0.07, 0.17, 0.18) * cursorMask * step(baseUv.y, 0.55);
     } else {
-      // 09 BRRT: rising 80mm thermal print-head scan light + cobalt halftone glow + Justine Typo salmon-to-pink pulse
+      // 09 BRRT: rising 80mm thermal print-head scan light + cobalt halftone glow + seamless cream gradient pulse
       float isCobalt = smoothstep(0.50, 0.76, col.b) * smoothstep(0.32, 0.16, col.r);
       float isTicket = step(0.74, lum) * smoothstep(0.26, 0.34, baseUv.y) * smoothstep(0.76, 0.68, baseUv.y) * (1.0 - brrtZone);
       float sweepY = fract(uTime * 0.36);
@@ -337,16 +340,16 @@ const POSTER_FRAG = `
       col += vec3(0.14, 0.16, 0.20) * printHead;
       col += vec3(0.04, 0.08, 0.18) * (0.5 + 0.5 * sin(uTime * 2.5)) * isCobalt * m;
 
-      // Vertical gradient color pulse on BRRT letters (salmon -> hot pink) active strictly when hovering BRRT
-      float brrtLetters = brrtZone * smoothstep(0.62, 0.78, lum);
+      // Seamless cream-palette vertical gradient pulse strictly inside BRRT letters on hover
+      float brrtLetters = brrtZone * brrtMask(artUv) * smoothstep(0.62, 0.78, lum);
       float pulseGrad = abs(mod(baseUv.y * 1.4 + uTime * 0.5, 1.0) - 0.5) * 2.0;
-      vec3 salmonCol = vec3(1.00, 0.48, 0.42);
-      vec3 pinkCol   = vec3(1.00, 0.16, 0.45);
-      vec3 brrtPulse = mix(salmonCol, pinkCol, pulseGrad) * (0.92 + 0.08 * lum);
-      col = mix(col, brrtPulse, brrtLetters * brrtHoverActive * 0.90);
+      vec3 creamWarm = vec3(1.00, 0.96, 0.85);
+      vec3 creamCool = vec3(0.84, 0.92, 1.00);
+      vec3 brrtPulse = mix(creamWarm, creamCool, pulseGrad) * (0.94 + 0.06 * lum);
+      col = mix(col, brrtPulse, brrtLetters * brrtHoverActive * 0.72);
 
       col += vec3(0.20, 0.20, 0.24) * extraShine(baseUv, uTime, 0.33, 0.24, 0.45) * brrtLetters * m;
-      // Logical hover: cool electric riso highlight around cursor over ticket & printer (muted on BRRT so pulse reads cleanly)
+      // Logical hover: cool electric riso highlight around cursor over ticket & printer (muted on BRRT so shimmer reads cleanly)
       col += vec3(0.10, 0.15, 0.26) * cursorMask * (0.45 + 0.65 * isCobalt + 0.45 * isTicket) * (1.0 - brrtZone * 0.85);
     }
 
@@ -548,12 +551,14 @@ export default function PosterCarousel3D({
       mesh: THREE.Mesh;
       shadowMesh: THREE.Mesh;
       hoverVal: number;
+      brrtHoverVal: number;
       targetHit: THREE.Vector2;
       uniforms: {
         uMap: { value: THREE.Texture };
         uNormals: { value: THREE.Texture };
         uVelocity: { value: number };
         uHover: { value: number };
+        uBrrtHover: { value: number };
         uTime: { value: number };
         uMotionScale: { value: number };
         uIndex: { value: number };
@@ -590,6 +595,7 @@ export default function PosterCarousel3D({
         uNormals: { value: sharedNormals.value },
         uVelocity: { value: 0 },
         uHover: { value: 0 },
+        uBrrtHover: { value: 0 },
         uTime: { value: 0 },
         uMotionScale: { value: 1 },
         uIndex: { value: idx },
@@ -622,6 +628,7 @@ export default function PosterCarousel3D({
         mesh,
         shadowMesh,
         hoverVal: 0,
+        brrtHoverVal: 0,
         targetHit: new THREE.Vector2(0, 0),
         uniforms,
       });
@@ -865,12 +872,29 @@ export default function PosterCarousel3D({
         rig.hoverVal = THREE.MathUtils.lerp(
           rig.hoverVal,
           isHov ? 1 : 0,
-          Math.min(1, dt * 10)
+          Math.min(1, dt * (isHov ? 10 : 4.2))
         );
         if (!isHov) {
           rig.targetHit.set(0, 0);
         }
-        rig.uniforms.uHit.value.lerp(rig.targetHit, Math.min(1, dt * 11));
+        rig.uniforms.uHit.value.lerp(
+          rig.targetHit,
+          Math.min(1, dt * (isHov ? 11 : 3.2))
+        );
+
+        let brrtTarget = 0;
+        if (rig.project.slug === "brrt-receipts" && isHov) {
+          const px = rig.targetHit.x + 0.5;
+          const py = rig.targetHit.y + 0.5;
+          if (px >= 0.13 && px <= 0.89 && py >= 0.65 && py <= 0.97) {
+            brrtTarget = 1;
+          }
+        }
+        rig.brrtHoverVal = THREE.MathUtils.lerp(
+          rig.brrtHoverVal,
+          brrtTarget,
+          Math.min(1, dt * (brrtTarget > rig.brrtHoverVal ? 7.5 : 2.6))
+        );
 
         const distNorm = THREE.MathUtils.clamp(Math.abs(relX) / (stride * 1.45), 0, 1);
         const arcRotY = THREE.MathUtils.clamp(-relX * 0.028, -0.16, 0.16);
@@ -885,6 +909,7 @@ export default function PosterCarousel3D({
         const focusW = THREE.MathUtils.clamp(1.0 - distNorm * 0.72, 0.3, 1.0);
         rig.uniforms.uVelocity.value = reducedRef.current ? 0 : smoothVel;
         rig.uniforms.uHover.value = rig.hoverVal;
+        rig.uniforms.uBrrtHover.value = rig.brrtHoverVal;
         rig.uniforms.uTime.value = tSec + i * 1.3;
         rig.uniforms.uMotionScale.value = mScale;
         rig.uniforms.uBump.value = mScale;

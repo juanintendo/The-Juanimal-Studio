@@ -368,6 +368,7 @@ export const GALLERY_PROJECTS: GalleryProject[] = [
     accentHex: "#0C6B6D",
     accentTextHex: "#FAF7F2",
     posterSrc: "/images/gallery/posters/poster-07.png",
+    posterVideoSrc: "/images/gallery/posters/poster-07.mp4",
     summary: {
       en: "A love letter to a love letter: an animated music video for Desorden Público's Caracas 1997 ska anthem driven by beat-locked halftone inflation.",
       es: "Una carta de amor a una carta de amor: videoclip animado para el clásico ska caraqueño de Desorden Público con tipografía que late al ritmo.",
