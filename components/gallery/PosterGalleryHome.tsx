@@ -23,8 +23,6 @@ const COPY = {
     gamesTitle: "PLAYABLE WORLDS & WEB TOYS",
     dragonCard: "Dragon 4-World Morph",
     dragonSub: "/about · Interactive Portal",
-    prevAria: "Previous poster",
-    nextAria: "Next poster",
   },
   es: {
     scrollHint: "Haz scroll o arrastra · Clic en cualquier póster para explorar",
@@ -34,8 +32,6 @@ const COPY = {
     gamesTitle: "MUNDOS JUGABLES & TOYS WEB",
     dragonCard: "Dragón 4 Mundos",
     dragonSub: "/about · Portal Interactivo",
-    prevAria: "Póster anterior",
-    nextAria: "Siguiente póster",
   },
 } as const;
 
@@ -125,24 +121,6 @@ export function PosterGalleryHome() {
           onSelectProject={openProject}
           onReady={() => setReady(true)}
         />
-
-        <button
-          type="button"
-          className="jd-carousel-arrow is-prev"
-          onClick={() => jumpTo(focusIdx - 1)}
-          aria-label={ui.prevAria}
-        >
-          ←
-        </button>
-
-        <button
-          type="button"
-          className="jd-carousel-arrow is-next"
-          onClick={() => jumpTo(focusIdx + 1)}
-          aria-label={ui.nextAria}
-        >
-          →
-        </button>
       </main>
 
       {toysOpen ? (

@@ -17,6 +17,7 @@ export interface GalleryProject {
   accentHex: string;
   accentTextHex: string;
   posterSrc: string;
+  posterVideoSrc?: string;
   summary: Record<Locale, string>;
   storyParagraphs: Record<Locale, string[]>;
   liveHref: string;
@@ -212,6 +213,7 @@ export const GALLERY_PROJECTS: GalleryProject[] = [
     accentHex: "#00B8CC",
     accentTextHex: "#090D16",
     posterSrc: "/images/gallery/posters/poster-04.png",
+    posterVideoSrc: "/images/gallery/posters/poster-04.mp4",
     summary: {
       en: "Architectural spatial AI portal translating complex spatial telemetry into luminous, scroll-coupled storytelling.",
       es: "Portal arquitectónico de IA espacial que convierte telemetría compleja en narrativa visual luminosa sincronizada al scroll.",

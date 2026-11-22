@@ -415,6 +415,19 @@ export default function PosterCarousel3D({
 
     const createdTextures: THREE.Texture[] = [];
     const createdMats: THREE.Material[] = [shadowMat];
+    const createdVideos: Array<{
+      video: HTMLVideoElement;
+      tex: THREE.VideoTexture;
+      onReady: () => void;
+    }> = [];
+
+    const unlockVideos = () => {
+      createdVideos.forEach(({ video }) => {
+        if (video.paused) {
+          video.play().catch(() => {});
+        }
+      });
+    };
 
     const fallbackPosterTex = new THREE.DataTexture(
       new Uint8Array([240, 234, 224, 255]),
@@ -567,9 +580,51 @@ export default function PosterCarousel3D({
       });
 
       loadTex(project.posterSrc, false, (tex) => {
-        uniforms.uMap.value = tex;
+        // Keep static frame loaded instantly as fallback; swap to VideoTexture once decoded
+        if (uniforms.uMap.value === fallbackPosterTex) {
+          uniforms.uMap.value = tex;
+        }
         markLoaded();
       });
+
+      if (project.posterVideoSrc && !reducedRef.current) {
+        const video = document.createElement("video");
+        video.src = project.posterVideoSrc;
+        video.crossOrigin = "anonymous";
+        video.muted = true;
+        video.defaultMuted = true;
+        video.loop = true;
+        video.playsInline = true;
+        video.autoplay = true;
+        video.preload = "auto";
+        video.setAttribute("muted", "");
+        video.setAttribute("playsinline", "");
+
+        const videoTex = new THREE.VideoTexture(video);
+        videoTex.minFilter = THREE.LinearFilter;
+        videoTex.magFilter = THREE.LinearFilter;
+        videoTex.generateMipmaps = false;
+        videoTex.colorSpace = THREE.NoColorSpace;
+        createdTextures.push(videoTex);
+
+        const onReady = () => {
+          if (disposed || reducedRef.current) return;
+          if (video.readyState >= 2) {
+            uniforms.uMap.value = videoTex;
+            videoTex.needsUpdate = true;
+            if (video.paused) {
+              video.play().catch(() => {});
+            }
+          }
+        };
+
+        video.addEventListener("loadeddata", onReady);
+        video.addEventListener("canplay", onReady);
+        video.load();
+        video.play().catch(() => {});
+
+        createdVideos.push({ video, tex: videoTex, onReady });
+      }
     });
 
     const fitCamera = (w: number, h: number) => {
@@ -640,12 +695,14 @@ export default function PosterCarousel3D({
 
     const onWheel = (e: WheelEvent) => {
       e.preventDefault();
+      unlockVideos();
       const raw = Math.abs(e.deltaY) >= Math.abs(e.deltaX) ? e.deltaY : e.deltaX;
       targetScrollRef.current += raw * 0.0056;
       lastInputTimeRef.current = performance.now();
     };
 
     const onPointerDown = (e: PointerEvent) => {
+      unlockVideos();
       isDragging = true;
       dragStartX = e.clientX;
       dragLastX = e.clientX;
@@ -826,6 +883,13 @@ export default function PosterCarousel3D({
       }
       posterGeo.dispose();
       shadowGeo.dispose();
+      createdVideos.forEach(({ video, onReady }) => {
+        video.removeEventListener("loadeddata", onReady);
+        video.removeEventListener("canplay", onReady);
+        video.pause();
+        video.removeAttribute("src");
+        video.load();
+      });
       createdMats.forEach((m) => m.dispose());
       createdTextures.forEach((t) => t.dispose());
       renderer.dispose();

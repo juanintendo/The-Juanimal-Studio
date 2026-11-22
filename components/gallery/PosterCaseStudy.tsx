@@ -82,12 +82,26 @@ export function PosterCaseStudy({ project }: PosterCaseStudyProps) {
             {labels.backGallery}
           </Link>
           <div className="jd-case-poster-frame">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={project.posterSrc}
-              alt={project.title}
-              className="jd-case-poster-img"
-            />
+            {project.posterVideoSrc ? (
+              <video
+                src={project.posterVideoSrc}
+                poster={project.posterSrc}
+                autoPlay
+                loop
+                muted
+                playsInline
+                preload="auto"
+                aria-label={project.title}
+                className="jd-case-poster-img"
+              />
+            ) : (
+              /* eslint-disable-next-line @next/next/no-img-element */
+              <img
+                src={project.posterSrc}
+                alt={project.title}
+                className="jd-case-poster-img"
+              />
+            )}
           </div>
         </section>
 

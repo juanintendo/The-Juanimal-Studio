@@ -227,42 +227,6 @@
   touch-action: pan-y;
 }
 
-.jd-carousel-arrow {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  z-index: 20;
-  appearance: none;
-  cursor: pointer;
-  width: 42px;
-  height: 42px;
-  border-radius: 999px;
-  border: 1.5px solid rgba(21, 19, 26, 0.32);
-  background: rgba(244, 240, 237, 0.88);
-  backdrop-filter: blur(6px);
-  color: var(--jd-ink);
-  font-size: 18px;
-  font-weight: 700;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  transition: transform 0.18s ease, background-color 0.18s ease, border-color 0.18s ease;
-}
-
-.jd-carousel-arrow.is-prev {
-  left: 20px;
-}
-
-.jd-carousel-arrow.is-next {
-  right: 20px;
-}
-
-.jd-carousel-arrow:hover {
-  transform: translateY(-50%) scale(1.06);
-  background: #ffffff;
-  border-color: var(--jd-ink);
-}
-
 /* Fallback non-WebGL poster strip */
 .jd-fallback-strip {
   width: 100%;
@@ -1297,20 +1261,6 @@
     right: 12px;
     bottom: 132px;
     width: auto;
-  }
-
-  .jd-carousel-arrow {
-    width: 34px;
-    height: 34px;
-    font-size: 15px;
-  }
-
-  .jd-carousel-arrow.is-prev {
-    left: 8px;
-  }
-
-  .jd-carousel-arrow.is-next {
-    right: 8px;
   }
 
   .jd-about-side-badge {
