@@ -37,6 +37,7 @@ const POSTER_VERT = `
   uniform float uVelocity;
   uniform float uHover;
   uniform float uBrrtHover;
+  uniform float uFold;
   uniform float uTime;
   uniform float uMotionScale;
   uniform float uIndex;
@@ -80,6 +81,11 @@ const POSTER_VERT = `
     vHitDist = hitDist;
     vBend = clamp(abs(velBend) * 2.4, 0.0, 1.0);
 
+    // Justine Soulié left-to-right paper roll intro unfold
+    pos.z += uFold * 0.42;
+    pos.z -= cos(uv.x * 0.4 + uv.y * 6.2831853 + uIndex * 0.05) * 0.16 * uFold;
+    pos.y -= cos(uv.x * 0.4 + uv.y * 6.2831853 + uIndex * 0.05) * 0.34 * uFold;
+
     gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
   }
 `;
@@ -94,6 +100,7 @@ const POSTER_FRAG = `
   uniform sampler2D uNormals;
   uniform float uHover;
   uniform float uBrrtHover;
+  uniform float uFold;
   uniform float uTime;
   uniform float uMotionScale;
   uniform float uIndex;
@@ -152,6 +159,8 @@ const POSTER_FRAG = `
   }
 
   void main() {
+    if (uFold > 0.002 && (vUv.y - vUv.x * 0.04 * uFold) < uFold) discard;
+
     vec2 normUv = vUv * vec2(0.92, 1.18) + vec2(uIndex * 0.17, uIndex * 0.11);
     vec3 normTexel = texture2D(uNormals, normUv).rgb;
     vec3 nSample = normTexel * 2.0 - 1.0;
@@ -500,11 +509,13 @@ export default function PosterCarousel3D({
     let disposed = false;
     let readyFired = false;
     let loadedInitialCount = 0;
+    let introStartTime: number | null = null;
 
     const markLoaded = () => {
       loadedInitialCount += 1;
       if (!readyFired && loadedInitialCount >= Math.min(4, totalCount)) {
         readyFired = true;
+        introStartTime = performance.now();
         onReadyRef.current();
       }
     };
@@ -512,6 +523,7 @@ export default function PosterCarousel3D({
     const readyTimeout = setTimeout(() => {
       if (!readyFired) {
         readyFired = true;
+        introStartTime = performance.now();
         onReadyRef.current();
       }
     }, 1100);
@@ -559,6 +571,7 @@ export default function PosterCarousel3D({
         uVelocity: { value: number };
         uHover: { value: number };
         uBrrtHover: { value: number };
+        uFold: { value: number };
         uTime: { value: number };
         uMotionScale: { value: number };
         uIndex: { value: number };
@@ -596,6 +609,7 @@ export default function PosterCarousel3D({
         uVelocity: { value: 0 },
         uHover: { value: 0 },
         uBrrtHover: { value: 0 },
+        uFold: { value: reducedRef.current ? 0 : 1 },
         uTime: { value: 0 },
         uMotionScale: { value: 1 },
         uIndex: { value: idx },
@@ -610,6 +624,7 @@ export default function PosterCarousel3D({
         vertexShader: POSTER_VERT,
         fragmentShader: POSTER_FRAG,
         uniforms,
+        side: THREE.DoubleSide,
       });
       createdMats.push(mat);
 
@@ -681,16 +696,20 @@ export default function PosterCarousel3D({
       }
     });
 
+    let baseCameraY = 0.04;
+
     const fitCamera = (w: number, h: number) => {
       const aspect = Math.max(0.42, w / Math.max(1, h));
-      const fov = aspect < 1 ? 42 : 34;
+      const isShortLandscape = h <= 540 && aspect > 1.25;
+      const fov = aspect < 1 ? 42 : isShortLandscape ? 38 : 34;
       const halfTanV = Math.tan(THREE.MathUtils.degToRad(fov * 0.5));
       const halfTanH = halfTanV * aspect;
-      const zH = (posterH * 1.48) / (2 * halfTanV);
+      const zH = (posterH * (isShortLandscape ? 1.88 : 1.48)) / (2 * halfTanV);
       const zW = (posterW * 1.28) / (2 * halfTanH);
+      baseCameraY = isShortLandscape ? 0.34 : 0.04;
       camera.fov = fov;
       camera.aspect = aspect;
-      camera.position.set(0, 0.04, Math.max(zH, zW));
+      camera.position.set(0, baseCameraY, Math.max(zH, zW));
       camera.updateProjectionMatrix();
     };
 
@@ -949,17 +968,40 @@ export default function PosterCarousel3D({
         const distNorm = THREE.MathUtils.clamp(Math.abs(relX) / (stride * 1.45), 0, 1);
         const arcRotY = THREE.MathUtils.clamp(-relX * 0.028, -0.16, 0.16);
 
+        // Left-to-right staggered Justine-style paper unroll reveal after initial ready
+        let fold = reducedRef.current ? 0 : 1;
+        let introShiftX = 0;
+        if (reducedRef.current) {
+          fold = 0;
+          introShiftX = 0;
+        } else if (introStartTime !== null) {
+          const initRelX = modPositive(i * stride + loopW * 0.5, loopW) - loopW * 0.5;
+          const delay =
+            Math.abs(initRelX) <= stride * 1.1
+              ? THREE.MathUtils.clamp((initRelX + stride) / (stride * 2), 0, 1) * 0.24
+              : 0;
+          const elapsed = Math.max(0, (now - introStartTime) * 0.001 - delay);
+          const prog = THREE.MathUtils.clamp(elapsed / 1.25, 0, 1);
+          const easeOutQuart = 1 - Math.pow(1 - prog, 4);
+          fold = 1 - easeOutQuart;
+          introShiftX = -1.65 * Math.pow(1 - prog, 3);
+        }
+
         // No hover zoom/pop — center relief comes from POSTER_VERT's smooth parabolic viewport bulge
-        rig.group.position.x = relX;
+        rig.group.position.x = relX + introShiftX;
         rig.group.position.y = Math.sin(tSec * 0.85 + i * 1.1) * 0.014 * mScale;
         rig.group.position.z = 0;
         rig.group.rotation.y = arcRotY;
         rig.group.rotation.x = 0;
 
+        rig.shadowMesh.visible = fold < 0.92;
+        rig.shadowMesh.scale.set(1, Math.max(0.05, 1 - fold * 0.85), 1);
+
         const focusW = THREE.MathUtils.clamp(1.0 - distNorm * 0.72, 0.3, 1.0);
         rig.uniforms.uVelocity.value = reducedRef.current ? 0 : smoothVel;
         rig.uniforms.uHover.value = rig.hoverVal;
         rig.uniforms.uBrrtHover.value = rig.brrtHoverVal;
+        rig.uniforms.uFold.value = fold;
         rig.uniforms.uTime.value = tSec + i * 1.3;
         rig.uniforms.uMotionScale.value = mScale;
         rig.uniforms.uBump.value = mScale;
@@ -979,7 +1021,7 @@ export default function PosterCarousel3D({
       );
       camera.position.y = THREE.MathUtils.lerp(
         camera.position.y,
-        0.04 + pointerY * (swayScale * 0.65),
+        baseCameraY + pointerY * (swayScale * 0.65),
         Math.min(1, dt * 6)
       );
 

@@ -84,17 +84,21 @@ const ABOUT_FRAG = `
     float imgAspect = 1.77778; // 1600 x 900
 
     vec2 centered = screenUv - 0.5;
+    float zoom = 0.96;
     if (viewAspect < imgAspect) {
       float scaleX = max(0.48, viewAspect / imgAspect);
       centered.x *= scaleX;
     } else {
-      centered.y *= imgAspect / viewAspect;
+      // Wide / iPhone landscape: keep 100% vertical scene unclipped so Synthia-2 and The Agent never crop
+      centered.x *= viewAspect / imgAspect;
+      zoom = 0.99;
     }
 
-    // Subtle 4% breathing zoom so parallax shift stays cleanly inside texture bounds
-    centered *= 0.96;
     vec2 pan = vec2(-uPointer.x * 0.016, uPointer.y * 0.012) * parallaxStrength * uMotionScale;
-    return clamp(centered + 0.5 + pan, vec2(0.002), vec2(0.998));
+    vec2 uv = centered * zoom + 0.5 + pan;
+    uv.x = abs(mod(uv.x + 1.0, 2.0) - 1.0);
+    uv.y = clamp(uv.y, 0.002, 0.998);
+    return uv;
   }
 
   float hash12(vec2 p) {

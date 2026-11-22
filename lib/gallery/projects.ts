@@ -29,8 +29,64 @@ export interface GalleryProject {
 
 export const GALLERY_PROJECTS: GalleryProject[] = [
   {
-    slug: "ramses-mania",
+    slug: "no-sku",
     num: "01",
+    title: "NO SKU™",
+    subtitle: {
+      en: "3D UNSPOOLING TAPE ROLL & TACTILE PHYSICS",
+      es: "CINTA 3D DESENROLLABLE & FÍSICA TÁCTIL",
+    },
+    year: "2026",
+    role: {
+      en: "3D Motion · Brand System · 2D Physics Toy",
+      es: "Motion 3D · Identidad · Físicas 2D",
+    },
+    stack: "Three.js · Scroll Camera · Physics Throw Balls",
+    accentHex: "#FF4D29",
+    accentTextHex: "#FAF7F2",
+    posterSrc: "/images/gallery/posters/poster-03.png",
+    summary: {
+      en: "There is no product yet — an over-engineered WebGL unspooling tape roll sealing Box #000 with pure design craft.",
+      es: "Aún no existe el producto: un rollo 3D en Three.js que desenrolla cinta sobre la caja #000 con física y humor gráfico.",
+    },
+    storyParagraphs: {
+      en: [
+        "Built to show software founders what tactile product web can feel like even before inventory exists: a 1:1 scroll-synchronized Three.js packing roll, curling Post-it drawer, and bouncy letter poking.",
+        "Ends in a sandbox of throwable sticker spheres you can fling around Box #000.",
+      ],
+      es: [
+        "Diseñado para demostrar cómo puede sentirse una landing de producto antes de tener stock: rollo 3D sincronizado 1:1 al scroll, Post-it interactivo y letras elásticas.",
+        "Cierra con una arena de stickers con física lanzables alrededor de la Caja #000.",
+      ],
+    },
+    liveHref: "/work/no-sku",
+    liveLabel: {
+      en: "UNPACK NO SKU™ ↗",
+      es: "ABRIR NO SKU™ ↗",
+    },
+    isInteractiveToy: true,
+    galleryFrames: [
+      {
+        src: "/images/nosku/specimen-loud.png",
+        caption: { en: "Specimen · Industrial Vermilion", es: "Espécimen · Bermellón Industrial" },
+      },
+      {
+        src: "/images/nosku/specimen-tactile.png",
+        caption: { en: "Specimen · Tactile Packaging", es: "Espécimen · Empaque Táctil" },
+      },
+      {
+        src: "/images/nosku/specimen-motion.png",
+        caption: { en: "Specimen · Motion Ribbons", es: "Espécimen · Cintas en Motion" },
+      },
+      {
+        src: "/images/nosku/crate-empty.png",
+        caption: { en: "Box #000 · Ready for Launch", es: "Caja #000 · Lista para Lanzar" },
+      },
+    ],
+  },
+  {
+    slug: "ramses-mania",
+    num: "02",
     title: "RAMSES",
     subtitle: {
       en: "INTERACTIVE WEBGL SPHYNX COMIC + SUNBEAM GAME",
@@ -86,7 +142,7 @@ export const GALLERY_PROJECTS: GalleryProject[] = [
   },
   {
     slug: "voyager-kids",
-    num: "02",
+    num: "03",
     title: "VOYAGER 1 FOR KIDS",
     subtitle: {
       en: "3D CRAYON PICTURE BOOK · GUACA THE MACAW",
@@ -137,62 +193,6 @@ export const GALLERY_PROJECTS: GalleryProject[] = [
       {
         src: "/images/voyager/spread-05-record.png",
         caption: { en: "Spread 05 · The Golden Record", es: "Pág. 05 · El Disco de Oro" },
-      },
-    ],
-  },
-  {
-    slug: "no-sku",
-    num: "03",
-    title: "NO SKU™",
-    subtitle: {
-      en: "3D UNSPOOLING TAPE ROLL & TACTILE PHYSICS",
-      es: "CINTA 3D DESENROLLABLE & FÍSICA TÁCTIL",
-    },
-    year: "2026",
-    role: {
-      en: "3D Motion · Brand System · 2D Physics Toy",
-      es: "Motion 3D · Identidad · Físicas 2D",
-    },
-    stack: "Three.js · Scroll Camera · Physics Throw Balls",
-    accentHex: "#FF4D29",
-    accentTextHex: "#FAF7F2",
-    posterSrc: "/images/gallery/posters/poster-03.png",
-    summary: {
-      en: "There is no product yet — an over-engineered WebGL unspooling tape roll sealing Box #000 with pure design craft.",
-      es: "Aún no existe el producto: un rollo 3D en Three.js que desenrolla cinta sobre la caja #000 con física y humor gráfico.",
-    },
-    storyParagraphs: {
-      en: [
-        "Built to show software founders what tactile product web can feel like even before inventory exists: a 1:1 scroll-synchronized Three.js packing roll, curling Post-it drawer, and bouncy letter poking.",
-        "Ends in a sandbox of throwable sticker spheres you can fling around Box #000.",
-      ],
-      es: [
-        "Diseñado para demostrar cómo puede sentirse una landing de producto antes de tener stock: rollo 3D sincronizado 1:1 al scroll, Post-it interactivo y letras elásticas.",
-        "Cierra con una arena de stickers con física lanzables alrededor de la Caja #000.",
-      ],
-    },
-    liveHref: "/work/no-sku",
-    liveLabel: {
-      en: "UNPACK NO SKU™ ↗",
-      es: "ABRIR NO SKU™ ↗",
-    },
-    isInteractiveToy: true,
-    galleryFrames: [
-      {
-        src: "/images/nosku/specimen-loud.png",
-        caption: { en: "Specimen · Industrial Vermilion", es: "Espécimen · Bermellón Industrial" },
-      },
-      {
-        src: "/images/nosku/specimen-tactile.png",
-        caption: { en: "Specimen · Tactile Packaging", es: "Espécimen · Empaque Táctil" },
-      },
-      {
-        src: "/images/nosku/specimen-motion.png",
-        caption: { en: "Specimen · Motion Ribbons", es: "Espécimen · Cintas en Motion" },
-      },
-      {
-        src: "/images/nosku/crate-empty.png",
-        caption: { en: "Box #000 · Ready for Launch", es: "Caja #000 · Lista para Lanzar" },
       },
     ],
   },

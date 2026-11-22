@@ -1326,3 +1326,85 @@
     font-size: 9.5px;
   }
 }
+
+/* Short Landscape Mobile / iPhone Horizontal Layout */
+@media (max-height: 540px) and (orientation: landscape) {
+  .jd-header {
+    padding: 6px 14px 4px;
+  }
+
+  .jd-brand-link {
+    font-size: 10px;
+  }
+
+  .jd-nav-link {
+    font-size: 10px;
+  }
+
+  .jd-poster-caption {
+    top: 38px;
+    bottom: auto;
+    padding: 2px 10px;
+    gap: 2px;
+  }
+
+  .jd-caption-title {
+    font-size: 14px;
+  }
+
+  .jd-caption-zigzag {
+    width: 82px;
+  }
+
+  .jd-caption-morph {
+    height: 16px;
+  }
+
+  .jd-caption-slot {
+    font-size: 11px;
+  }
+
+  .jd-caption-slot.is-cta {
+    font-size: 10.5px;
+  }
+
+  .jd-about-side-badge {
+    display: none;
+  }
+
+  .jd-about-top-hero {
+    top: 52%;
+    left: clamp(14px, 5vw, 56px);
+    transform: translateY(-50%);
+    width: clamp(140px, 24vw, 220px);
+    align-items: center;
+  }
+
+  .jd-about-logo-top {
+    width: 100%;
+  }
+
+  .jd-about-contact-pill {
+    font-size: 12px;
+  }
+
+  .jd-about-bottom-hero {
+    top: 52%;
+    bottom: auto;
+    left: auto;
+    right: clamp(14px, 5vw, 56px);
+    transform: translateY(-50%);
+    width: clamp(140px, 24vw, 220px);
+    align-items: center;
+  }
+
+  .jd-about-logo-bottom {
+    width: 100%;
+    margin: 0;
+  }
+
+  .jd-about-credits {
+    bottom: 6px;
+    font-size: 10px;
+  }
+}
