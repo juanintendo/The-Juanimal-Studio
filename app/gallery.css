@@ -1177,6 +1177,16 @@
   object-fit: contain;
 }
 
+.jd-case-media-video {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 100%;
+  object-fit: contain;
+  border-radius: 6px;
+  background: transparent;
+}
+
 .jd-case-media-card figcaption {
   font-family: var(--jd-mono);
   font-size: 11px;

@@ -2,6 +2,7 @@ import type { Locale } from "@/lib/i18n";
 
 export interface GalleryFrame {
   src: string;
+  videoSrc?: string;
   caption: Record<Locale, string>;
 }
 
@@ -387,14 +388,17 @@ export const GALLERY_PROJECTS: GalleryProject[] = [
     galleryFrames: [
       {
         src: "/media/fof/molotov-hey-poster.webp",
+        videoSrc: "/media/fof/molotov-hey.mp4",
         caption: { en: "HEY! — Ska Skeleton Performer", es: "HEY! — Esqueleto Ska en Vivo" },
       },
       {
         src: "/images/gallery/cases/molotov-coro.webp",
+        videoSrc: "/media/fof/molotov-coro.mp4",
         caption: { en: "Chorus Kinetic Print Frame", es: "Cuadro de Coro en Serigrafía" },
       },
       {
         src: "/images/gallery/cases/molotov-inversion.webp",
+        videoSrc: "/media/fof/molotov-inversion.mp4",
         caption: { en: "Caracas 1997 · La Previsora Halftone", es: "Caracas 1997 · Torre La Previsora" },
       },
     ],
@@ -454,59 +458,8 @@ export const GALLERY_PROJECTS: GalleryProject[] = [
     ],
   },
   {
-    slug: "illusion-of-agency",
-    num: "09",
-    title: "THE ILLUSION OF AGENCY",
-    subtitle: {
-      en: "12 PRINCIPLES IN CODE × AGENT VERIFICATION",
-      es: "12 PRINCIPIOS EN CÓDIGO × PIPELINES DE AGENTES",
-    },
-    year: "2026",
-    role: {
-      en: "Methodology · Agent Self-Checks · Direction",
-      es: "Metodología · Self-Checks en Código · Dirección",
-    },
-    stack: "12 Animation Principles · Pass/Fail QA · Model Lock",
-    accentHex: "#2B4CB3",
-    accentTextHex: "#FAF7F2",
-    posterSrc: "/images/gallery/posters/poster-09.png",
-    summary: {
-      en: "An agent skill & research film turning Disney's 12 Principles of Animation into strict pass/fail engineering checks that keep Claudia on model.",
-      es: "Research y skill agéntico que convierte los 12 Principios de la Animación en tests binarios de código para mantener a Claudia fiel al modelo.",
-    },
-    storyParagraphs: {
-      en: [
-        "Any model will claim an animation feels weighty. Writing spacing recipes, squash volume preservation (scaleX × scaleY = 1), and silhouette locks as automated tests turns human keys into repeatable pipeline truth.",
-      ],
-      es: [
-        "Cualquier agente dirá que su animación tiene peso; definir arcos, conservación de volumen y chequeos en código convierte la dirección humana en calidad verificable.",
-      ],
-    },
-    liveHref: "https://fuelorfool.ing/work/03-illusion-of-agency/",
-    liveExternal: true,
-    liveLabel: {
-      en: "READ ON FUELORFOOL.ING ↗",
-      es: "LEER EN FUELORFOOL.ING ↗",
-    },
-    isInteractiveToy: false,
-    galleryFrames: [
-      {
-        src: "/images/gallery/cases/claudia-pencil.webp",
-        caption: { en: "Draw Me Twelve · Pencil Test Sheet", es: "Hoja de Prueba a Lápiz" },
-      },
-      {
-        src: "/images/gallery/cases/claudia-dance.webp",
-        caption: { en: "Keyframes & Principle Choreography", es: "Keyframes y Coreografía" },
-      },
-      {
-        src: "/images/fba/lab-guide-strip.png",
-        caption: { en: "4-Pose Model Sheet & Spacing Lock", es: "Bloqueo de Poses y Espaciado" },
-      },
-    ],
-  },
-  {
     slug: "club-of-the-dead",
-    num: "10",
+    num: "09",
     title: "CLUB OF THE DEAD",
     subtitle: {
       en: "SYNTHIA-2 · BEAT-LOCKED ROCKABILLY RHYTHM RPG",
@@ -520,7 +473,7 @@ export const GALLERY_PROJECTS: GalleryProject[] = [
     stack: "1024px Sprites · <0.5px Jitter · 4-Day Agent Sprint",
     accentHex: "#0B2428",
     accentTextHex: "#F5E4B8",
-    posterSrc: "/images/gallery/posters/poster-10.png",
+    posterSrc: "/images/gallery/posters/poster-09.png",
     summary: {
       en: "Update 01 of Synthia-2: Club of the Dead — a rockabilly rhythm RPG where every mace swing lands on the beat, built from grey test card to dancing cemetery club in four days.",
       es: "RPG rítmico rockabilly protagonizado por Synthia-2 y el club de los muertos bailando al tempo, llevado de tarjeta gris a escena viva en 4 días.",

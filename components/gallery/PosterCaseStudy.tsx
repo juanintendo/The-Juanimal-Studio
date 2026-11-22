@@ -175,12 +175,27 @@ export function PosterCaseStudy({ project }: PosterCaseStudyProps) {
           {project.galleryFrames.map((frame, i) => (
             <figure key={frame.src + i} className="jd-case-media-card">
               <div className="jd-case-media-box">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={frame.src}
-                  alt={frame.caption[lang]}
-                  className="jd-case-media-img"
-                />
+                {frame.videoSrc ? (
+                  <video
+                    src={frame.videoSrc}
+                    poster={frame.src}
+                    controls
+                    playsInline
+                    loop
+                    muted
+                    autoPlay
+                    preload="metadata"
+                    aria-label={frame.caption[lang]}
+                    className="jd-case-media-video"
+                  />
+                ) : (
+                  /* eslint-disable-next-line @next/next/no-img-element */
+                  <img
+                    src={frame.src}
+                    alt={frame.caption[lang]}
+                    className="jd-case-media-img"
+                  />
+                )}
               </div>
               <figcaption>{frame.caption[lang]}</figcaption>
             </figure>
