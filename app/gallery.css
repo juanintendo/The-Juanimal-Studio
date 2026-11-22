@@ -206,21 +206,6 @@
   color: #15131a;
 }
 
-.jd-mute-btn {
-  appearance: none;
-  cursor: pointer;
-  width: 30px;
-  height: 30px;
-  border-radius: 999px;
-  border: 1.5px solid currentColor;
-  background: transparent;
-  color: inherit;
-  font-size: 13px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-
 /* Home Carousel Stage */
 .jd-home-stage {
   position: relative;
@@ -1444,11 +1429,5 @@
   .jd-pill-btn {
     padding: 3px 6px;
     font-size: 9.5px;
-  }
-
-  .jd-mute-btn {
-    width: 26px;
-    height: 26px;
-    font-size: 11px;
   }
 }

@@ -5,12 +5,6 @@ import Link from "next/link";
 import * as THREE from "three";
 import { useLanguage } from "@/components/LanguageProvider";
 import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
-import {
-  disposeGalleryAudio,
-  playPaperClick,
-  playPortalMorph,
-  setGalleryMuted,
-} from "@/lib/gallery/galleryAudio";
 import { GalleryHeader } from "./GalleryHeader";
 import { ZigZagPreloader } from "./ZigZagPreloader";
 
@@ -169,7 +163,6 @@ export function DragonAboutStage() {
   const [ready, setReady] = useState(false);
   const [webglReady, setWebglReady] = useState(true);
   const [worldIdx, setWorldIdx] = useState(0);
-  const [muted, setMuted] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   const worldIdxRef = useRef(0);
@@ -207,12 +200,6 @@ export function DragonAboutStage() {
       labLink: "Visitar fuelorfool.ing ↗",
     },
   }[lang];
-
-  useEffect(() => {
-    return () => {
-      disposeGalleryAudio();
-    };
-  }, []);
 
   useEffect(() => {
     const container = hostRef.current;
@@ -378,7 +365,6 @@ export function DragonAboutStage() {
       targetWorldIdx = normalized;
       uniforms.uNextTex.value = textures[targetWorldIdx];
       uniforms.uClickOrigin.value.set(uvX, uvY);
-      playPortalMorph(targetWorldIdx);
 
       if (reducedRef.current) {
         worldIdxRef.current = targetWorldIdx;
@@ -569,14 +555,6 @@ export function DragonAboutStage() {
       <GalleryHeader
         active="about"
         tone={currentWorld.headerTone}
-        muted={muted}
-        onToggleMute={() => {
-          setMuted((prev) => {
-            const next = !prev;
-            setGalleryMuted(next);
-            return next;
-          });
-        }}
       />
 
       <main className="jd-about-stage">
@@ -598,10 +576,7 @@ export function DragonAboutStage() {
           <button
             type="button"
             className="jd-about-contact-pill"
-            onClick={() => {
-              playPaperClick();
-              setDrawerOpen(true);
-            }}
+            onClick={() => setDrawerOpen(true)}
           >
             {ui.contactBtn}
           </button>

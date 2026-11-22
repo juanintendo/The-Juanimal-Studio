@@ -7,11 +7,6 @@ import { useRouter } from "next/navigation";
 import { useLanguage } from "@/components/LanguageProvider";
 import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 import { GALLERY_PROJECTS, type GalleryProject } from "@/lib/gallery/projects";
-import {
-  disposeGalleryAudio,
-  playPaperClick,
-  setGalleryMuted,
-} from "@/lib/gallery/galleryAudio";
 import { GalleryHeader } from "./GalleryHeader";
 import { ZigZagPreloader } from "./ZigZagPreloader";
 
@@ -54,7 +49,6 @@ export function PosterGalleryHome() {
   const [focusIdx, setFocusIdx] = useState(0);
   const [hoverIdx, setHoverIdx] = useState<number | null>(null);
   const [jumpRequest, setJumpRequest] = useState<{ idx: number; nonce: number } | null>(null);
-  const [muted, setMuted] = useState(false);
   const [toysOpen, setToysOpen] = useState(false);
   const [curtainColor, setCurtainColor] = useState<string | null>(null);
 
@@ -63,7 +57,6 @@ export function PosterGalleryHome() {
   useEffect(() => {
     return () => {
       if (navTimerRef.current) clearTimeout(navTimerRef.current);
-      disposeGalleryAudio();
     };
   }, []);
 
@@ -80,7 +73,6 @@ export function PosterGalleryHome() {
 
   const openProject = useCallback(
     (project: GalleryProject) => {
-      playPaperClick();
       setToysOpen(false);
       if (reduced) {
         router.push(`/poster-work/${project.slug}`);
@@ -120,14 +112,6 @@ export function PosterGalleryHome() {
       <GalleryHeader
         active="home"
         tone="paper"
-        muted={muted}
-        onToggleMute={() => {
-          setMuted((prev) => {
-            const next = !prev;
-            setGalleryMuted(next);
-            return next;
-          });
-        }}
         onBrandClick={() => jumpTo(0)}
       />
 
@@ -180,10 +164,7 @@ export function PosterGalleryHome() {
                 key={toy.slug}
                 href={toy.liveHref}
                 className="jd-toy-card"
-                onClick={() => {
-                  playPaperClick();
-                  setToysOpen(false);
-                }}
+                onClick={() => setToysOpen(false)}
               >
                 <span
                   className="jd-toy-swatch"
@@ -198,10 +179,7 @@ export function PosterGalleryHome() {
             <Link
               href="/about"
               className="jd-toy-card is-dragon"
-              onClick={() => {
-                playPaperClick();
-                setToysOpen(false);
-              }}
+              onClick={() => setToysOpen(false)}
             >
               <span
                 className="jd-toy-swatch"
@@ -250,10 +228,7 @@ export function PosterGalleryHome() {
           <button
             type="button"
             className={`jd-toys-btn ${toysOpen ? "is-open" : ""}`}
-            onClick={() => {
-              playPaperClick();
-              setToysOpen((v) => !v);
-            }}
+            onClick={() => setToysOpen((v) => !v)}
             aria-expanded={toysOpen}
           >
             {ui.gamesBtn}
@@ -271,7 +246,6 @@ export function PosterGalleryHome() {
             <Link
               href={activeProject.liveHref}
               className="jd-launch-toy-btn"
-              onClick={() => playPaperClick()}
             >
               {ui.playNow}
             </Link>

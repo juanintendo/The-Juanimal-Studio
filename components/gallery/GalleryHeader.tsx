@@ -2,21 +2,16 @@
 
 import Link from "next/link";
 import { useLanguage } from "@/components/LanguageProvider";
-import { setGalleryMuted } from "@/lib/gallery/galleryAudio";
 
 interface GalleryHeaderProps {
   active: "home" | "about" | "case";
   tone?: "paper" | "light";
-  muted: boolean;
-  onToggleMute: () => void;
   onBrandClick?: () => void;
 }
 
 export function GalleryHeader({
   active,
   tone = "paper",
-  muted,
-  onToggleMute,
   onBrandClick,
 }: GalleryHeaderProps) {
   const { lang, setLang } = useLanguage();
@@ -27,16 +22,12 @@ export function GalleryHeader({
       posters: "POSTERS",
       about: "ABOUT",
       merch: "MERCH",
-      soundOn: "SFX ON",
-      soundOff: "MUTED",
     },
     es: {
       brand: "JUANIMAL DESIGNS",
       posters: "PÓSTERS",
       about: "SOBRE MÍ",
       merch: "TIENDA",
-      soundOn: "SONIDO",
-      soundOff: "MUDO",
     },
   }[lang];
 
@@ -93,19 +84,6 @@ export function GalleryHeader({
             ES
           </button>
         </div>
-
-        <button
-          type="button"
-          className={`jd-mute-btn ${!muted ? "is-live" : ""}`}
-          onClick={() => {
-            setGalleryMuted(!muted);
-            onToggleMute();
-          }}
-          aria-pressed={!muted}
-          title={muted ? labels.soundOff : labels.soundOn}
-        >
-          {muted ? "🔇" : "🔊"}
-        </button>
       </nav>
     </header>
   );

@@ -7,11 +7,6 @@ import {
   getNextGalleryProject,
   type GalleryProject,
 } from "@/lib/gallery/projects";
-import {
-  disposeGalleryAudio,
-  playPaperClick,
-  setGalleryMuted,
-} from "@/lib/gallery/galleryAudio";
 import { GalleryHeader, ZigZagUnderline } from "./GalleryHeader";
 
 interface PosterCaseStudyProps {
@@ -21,7 +16,6 @@ interface PosterCaseStudyProps {
 export function PosterCaseStudy({ project }: PosterCaseStudyProps) {
   const { lang } = useLanguage();
   const trackRef = useRef<HTMLDivElement>(null);
-  const [muted, setMuted] = useState(false);
 
   const nextProject = getNextGalleryProject(project.slug);
 
@@ -43,12 +37,6 @@ export function PosterCaseStudy({ project }: PosterCaseStudyProps) {
       nextLabel: "SIGUIENTE PROYECTO",
     },
   }[lang];
-
-  useEffect(() => {
-    return () => {
-      disposeGalleryAudio();
-    };
-  }, []);
 
   // Translate vertical mouse wheel into smooth horizontal editorial scrolling on desktop
   useEffect(() => {
@@ -85,14 +73,6 @@ export function PosterCaseStudy({ project }: PosterCaseStudyProps) {
       <GalleryHeader
         active="case"
         tone="paper"
-        muted={muted}
-        onToggleMute={() => {
-          setMuted((prev) => {
-            const next = !prev;
-            setGalleryMuted(next);
-            return next;
-          });
-        }}
       />
 
       <div ref={trackRef} className="jd-case-track">
@@ -133,7 +113,6 @@ export function PosterCaseStudy({ project }: PosterCaseStudyProps) {
               target="_blank"
               rel="noreferrer"
               className="jd-case-live-pill"
-              onClick={() => playPaperClick()}
             >
               {project.liveLabel[lang]}
             </a>
@@ -141,7 +120,6 @@ export function PosterCaseStudy({ project }: PosterCaseStudyProps) {
             <Link
               href={project.liveHref}
               className="jd-case-live-pill"
-              onClick={() => playPaperClick()}
             >
               {project.liveLabel[lang]}
             </Link>
@@ -209,7 +187,6 @@ export function PosterCaseStudy({ project }: PosterCaseStudyProps) {
             href={`/poster-work/${nextProject.slug}`}
             className="jd-next-card"
             style={{ backgroundColor: nextProject.accentHex, color: nextProject.accentTextHex }}
-            onClick={() => playPaperClick()}
           >
             <div className="jd-next-thumb-box">
               {/* eslint-disable-next-line @next/next/no-img-element */}
