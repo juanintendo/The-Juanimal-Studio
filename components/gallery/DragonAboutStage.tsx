@@ -611,7 +611,7 @@ export function DragonAboutStage() {
           <span>{ui.rightBadgeSub}</span>
         </div>
 
-        {/* Lower bush mound sculpted title + Contact My Agent pill + world morph dock */}
+        {/* Lower bush mound sculpted title */}
         <div className="jd-about-bottom-hero">
           {currentWorld.bottomLogoSrc ? (
             /* eslint-disable-next-line @next/next/no-img-element */
@@ -622,31 +622,6 @@ export function DragonAboutStage() {
               className="jd-about-logo-bottom"
             />
           ) : null}
-
-          <a
-            href="mailto:synthia-2@ilands.app"
-            className="jd-about-agent-pill"
-            title="synthia-2@ilands.app"
-          >
-            CONTACT MY AGENT
-          </a>
-
-          <div className="jd-about-controls">
-            <div className="jd-world-switcher" role="group" aria-label="About worlds">
-              {DRAGON_WORLDS.map((w, idx) => (
-                <button
-                  key={w.id}
-                  type="button"
-                  className={`jd-world-btn ${worldIdx === idx ? "is-active" : ""}`}
-                  onClick={() => handleSelectWorld(idx)}
-                  aria-pressed={worldIdx === idx}
-                >
-                  {w.label[lang]}
-                </button>
-              ))}
-            </div>
-            <p className="jd-about-hint">{ui.morphHint}</p>
-          </div>
         </div>
 
         {/* Minimal archival bottom credits row */}
@@ -661,6 +636,7 @@ export function DragonAboutStage() {
               fuelorfool.ing
             </a>
             <Link href="/merch">Merch</Link>
+            <a href="mailto:synthia-2@ilands.app">Contact My Agent</a>
             <Link href="/contact">Contact</Link>
           </div>
         </div>

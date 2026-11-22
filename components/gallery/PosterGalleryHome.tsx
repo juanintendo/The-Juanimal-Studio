@@ -1,13 +1,12 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import Link from "next/link";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { useLanguage } from "@/components/LanguageProvider";
 import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 import { GALLERY_PROJECTS, type GalleryProject } from "@/lib/gallery/projects";
-import { GalleryHeader } from "./GalleryHeader";
+import { GalleryHeader, ZigZagUnderline } from "./GalleryHeader";
 import { ZigZagPreloader } from "./ZigZagPreloader";
 
 const PosterCarousel3D = dynamic(() => import("./PosterCarousel3D"), {
@@ -16,22 +15,10 @@ const PosterCarousel3D = dynamic(() => import("./PosterCarousel3D"), {
 
 const COPY = {
   en: {
-    scrollHint: "Scroll or drag posters · Click any poster to explore",
-    openCase: "OPEN CASE",
-    playNow: "LAUNCH TOY ↗",
-    gamesBtn: "🎮 Interactive Toys",
-    gamesTitle: "PLAYABLE WORLDS & WEB TOYS",
-    dragonCard: "Dragon 4-World Morph",
-    dragonSub: "/about · Interactive Portal",
+    openCase: "open case →",
   },
   es: {
-    scrollHint: "Haz scroll o arrastra · Clic en cualquier póster para explorar",
-    openCase: "VER CASO",
-    playNow: "ABRIR LIVE ↗",
-    gamesBtn: "🎮 Juegos & WebGL",
-    gamesTitle: "MUNDOS JUGABLES & TOYS WEB",
-    dragonCard: "Dragón 4 Mundos",
-    dragonSub: "/about · Portal Interactivo",
+    openCase: "ver caso →",
   },
 } as const;
 
@@ -44,8 +31,8 @@ export function PosterGalleryHome() {
   const [ready, setReady] = useState(false);
   const [focusIdx, setFocusIdx] = useState(0);
   const [hoverIdx, setHoverIdx] = useState<number | null>(null);
+  const [captionHover, setCaptionHover] = useState(false);
   const [jumpRequest, setJumpRequest] = useState<{ idx: number; nonce: number } | null>(null);
-  const [toysOpen, setToysOpen] = useState(false);
   const [curtainColor, setCurtainColor] = useState<string | null>(null);
 
   const navTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -69,7 +56,6 @@ export function PosterGalleryHome() {
 
   const openProject = useCallback(
     (project: GalleryProject) => {
-      setToysOpen(false);
       if (reduced) {
         router.push(`/poster-work/${project.slug}`);
         return;
@@ -91,15 +77,13 @@ export function PosterGalleryHome() {
         jumpTo(focusIdx - 1);
       } else if (e.key === "Enter" && document.activeElement === document.body) {
         openProject(activeProject);
-      } else if (e.key === "Escape") {
-        setToysOpen(false);
       }
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [activeProject, focusIdx, jumpTo, openProject]);
 
-  const playableToys = GALLERY_PROJECTS.filter((p) => p.isInteractiveToy);
+  const showOpenCase = captionHover || hoverIdx !== null;
 
   return (
     <div className="jd-gallery-root jd-home-page">
@@ -123,117 +107,27 @@ export function PosterGalleryHome() {
         />
       </main>
 
-      {toysOpen ? (
-        <aside className="jd-toys-popover" aria-label={ui.gamesTitle}>
-          <div className="jd-toys-head">
-            <span>{ui.gamesTitle}</span>
-            <button
-              type="button"
-              className="jd-toys-close"
-              onClick={() => setToysOpen(false)}
-              aria-label="Close menu"
-            >
-              ✕
-            </button>
-          </div>
-          <div className="jd-toys-grid">
-            {playableToys.map((toy) => (
-              <Link
-                key={toy.slug}
-                href={toy.liveHref}
-                className="jd-toy-card"
-                onClick={() => setToysOpen(false)}
-              >
-                <span
-                  className="jd-toy-swatch"
-                  style={{ background: toy.accentHex }}
-                />
-                <span className="jd-toy-meta">
-                  <strong>{toy.title}</strong>
-                  <small>{toy.subtitle[lang]}</small>
-                </span>
-              </Link>
-            ))}
-            <Link
-              href="/about"
-              className="jd-toy-card is-dragon"
-              onClick={() => setToysOpen(false)}
-            >
-              <span
-                className="jd-toy-swatch"
-                style={{ background: "#39B86D" }}
-              />
-              <span className="jd-toy-meta">
-                <strong>{ui.dragonCard}</strong>
-                <small>{ui.dragonSub}</small>
-              </span>
-            </Link>
-          </div>
-        </aside>
-      ) : null}
-
-      <footer className="jd-gallery-dock">
-        <div className="jd-dock-left">
-          <span
-            className="jd-dock-num"
-            style={{
-              background: activeProject.accentHex,
-              color: activeProject.accentTextHex,
-            }}
-          >
-            {activeProject.num} / {GALLERY_PROJECTS.length}
+      <button
+        type="button"
+        className={`jd-poster-caption ${showOpenCase ? "is-hovered" : ""}`}
+        onClick={() => openProject(activeProject)}
+        onMouseEnter={() => setCaptionHover(true)}
+        onMouseLeave={() => setCaptionHover(false)}
+        aria-label={`${activeProject.title} — ${ui.openCase}`}
+      >
+        <strong className="jd-caption-title">
+          {activeProject.title.toLowerCase()}
+        </strong>
+        <ZigZagUnderline className="jd-caption-zigzag" />
+        <span className="jd-caption-morph">
+          <span className="jd-caption-slot is-sub">
+            {activeProject.subtitle[lang].toLowerCase()}
           </span>
-          <div className="jd-dock-titles">
-            <strong className="jd-dock-title">{activeProject.title}</strong>
-            <span className="jd-dock-sub">{activeProject.subtitle[lang]}</span>
-          </div>
-        </div>
-
-        <div className="jd-dock-dots" aria-label="Poster index">
-          {GALLERY_PROJECTS.map((p, idx) => (
-            <button
-              key={p.slug}
-              type="button"
-              className={`jd-dot ${displayIdx === idx ? "is-active" : ""}`}
-              onClick={() => jumpTo(idx)}
-              aria-label={`${p.num} ${p.title}`}
-              aria-current={displayIdx === idx ? "true" : undefined}
-            />
-          ))}
-        </div>
-
-        <div className="jd-dock-actions">
-          <button
-            type="button"
-            className={`jd-toys-btn ${toysOpen ? "is-open" : ""}`}
-            onClick={() => setToysOpen((v) => !v)}
-            aria-expanded={toysOpen}
-          >
-            {ui.gamesBtn}
-          </button>
-
-          <button
-            type="button"
-            className="jd-open-case-btn"
-            onClick={() => openProject(activeProject)}
-          >
-            {ui.openCase} →
-          </button>
-
-          {activeProject.isInteractiveToy ? (
-            <Link
-              href={activeProject.liveHref}
-              className="jd-launch-toy-btn"
-            >
-              {ui.playNow}
-            </Link>
-          ) : null}
-        </div>
-      </footer>
-
-      <p className="jd-scroll-microhint" aria-hidden="true">
-        {ui.scrollHint}
-      </p>
+          <span className="jd-caption-slot is-cta">
+            {ui.openCase}
+          </span>
+        </span>
+      </button>
 
       {curtainColor ? (
         <div

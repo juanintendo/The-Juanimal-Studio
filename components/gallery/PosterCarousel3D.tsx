@@ -717,9 +717,12 @@ export default function PosterCarousel3D({
     let pointerY = 0;
     let hoveredIdx: number | null = null;
     let isDragging = false;
+    let activePointerId: number | null = null;
     let dragStartX = 0;
     let dragLastX = 0;
+    let dragLastTime = 0;
     let dragMoved = 0;
+    let dragVelocity = 0;
     let lastFocusReported = 0;
 
     const updateHover = (clientX: number, clientY: number) => {
@@ -758,26 +761,69 @@ export default function PosterCarousel3D({
     const onPointerDown = (e: PointerEvent) => {
       unlockVideos();
       isDragging = true;
+      activePointerId = e.pointerId;
       dragStartX = e.clientX;
       dragLastX = e.clientX;
+      dragLastTime = performance.now();
       dragMoved = 0;
+      dragVelocity = 0;
+      if (e.pointerType === "touch") {
+        try {
+          renderer.domElement.setPointerCapture(e.pointerId);
+        } catch {
+          // ignore
+        }
+      }
       renderer.domElement.style.cursor = "grabbing";
     };
 
     const onPointerMove = (e: PointerEvent) => {
-      updateHover(e.clientX, e.clientY);
+      if (e.pointerType !== "touch" && !isDragging) {
+        updateHover(e.clientX, e.clientY);
+      }
       if (!isDragging) return;
+      if (activePointerId !== null && e.pointerId !== activePointerId) return;
+
+      const nowMs = performance.now();
+      const dtMs = Math.max(4, nowMs - dragLastTime);
       const dx = e.clientX - dragLastX;
       dragLastX = e.clientX;
+      dragLastTime = nowMs;
       dragMoved += Math.abs(dx);
-      targetScrollRef.current -= dx * 0.009;
-      lastInputTimeRef.current = performance.now();
+
+      const dragFactor = e.pointerType === "touch" ? 0.0145 : 0.009;
+      targetScrollRef.current -= dx * dragFactor;
+      const instV = (dx * dragFactor) / (dtMs * 0.001);
+      dragVelocity = dragVelocity * 0.55 + instV * 0.45;
+      lastInputTimeRef.current = nowMs;
     };
 
-    const onPointerUp = (e: PointerEvent) => {
+    const finishDrag = (e: PointerEvent, allowClick: boolean) => {
       if (!isDragging) return;
+      if (activePointerId !== null && e.pointerId !== activePointerId) return;
       isDragging = false;
+      activePointerId = null;
+      if (e.pointerType === "touch") {
+        try {
+          renderer.domElement.releasePointerCapture(e.pointerId);
+        } catch {
+          // ignore
+        }
+      }
       renderer.domElement.style.cursor = hoveredIdx !== null ? "pointer" : "grab";
+
+      if (dragMoved > 10) {
+        const throwDist = THREE.MathUtils.clamp(
+          -dragVelocity * 0.26,
+          -stride * 1.6,
+          stride * 1.6
+        );
+        targetScrollRef.current += throwDist;
+        lastInputTimeRef.current = performance.now();
+        return;
+      }
+
+      if (!allowClick) return;
       const totalMoved = Math.hypot(e.clientX - dragStartX, dragMoved);
       if (totalMoved > 12) return;
 
@@ -803,6 +849,9 @@ export default function PosterCarousel3D({
       }
     };
 
+    const onPointerUp = (e: PointerEvent) => finishDrag(e, true);
+    const onPointerCancel = (e: PointerEvent) => finishDrag(e, false);
+
     const onPointerLeave = () => {
       isDragging = false;
       if (hoveredIdx !== null) {
@@ -816,6 +865,7 @@ export default function PosterCarousel3D({
     domEl.addEventListener("pointerdown", onPointerDown);
     window.addEventListener("pointermove", onPointerMove, { passive: true });
     window.addEventListener("pointerup", onPointerUp);
+    window.addEventListener("pointercancel", onPointerCancel);
     domEl.addEventListener("pointerleave", onPointerLeave);
 
     let rafId = 0;
@@ -948,6 +998,7 @@ export default function PosterCarousel3D({
       domEl.removeEventListener("pointerdown", onPointerDown);
       window.removeEventListener("pointermove", onPointerMove);
       window.removeEventListener("pointerup", onPointerUp);
+      window.removeEventListener("pointercancel", onPointerCancel);
       domEl.removeEventListener("pointerleave", onPointerLeave);
       window.removeEventListener("resize", onResize);
       if (domEl.parentNode === container) {

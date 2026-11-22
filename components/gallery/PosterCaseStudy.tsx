@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import Link from "next/link";
 import { useLanguage } from "@/components/LanguageProvider";
+import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 import {
   getNextGalleryProject,
   type GalleryProject,
@@ -15,6 +16,7 @@ interface PosterCaseStudyProps {
 
 export function PosterCaseStudy({ project }: PosterCaseStudyProps) {
   const { lang } = useLanguage();
+  const reduced = usePrefersReducedMotion();
   const trackRef = useRef<HTMLDivElement>(null);
 
   const nextProject = getNextGalleryProject(project.slug);
@@ -25,7 +27,7 @@ export function PosterCaseStudy({ project }: PosterCaseStudyProps) {
       role: "Role",
       stack: "Stack",
       year: "Year",
-      scrollMore: "SCROLL TO SEE MORE >>>",
+      scrollMore: "SCROLL OR DRAG TO SEE MORE >>>",
       nextLabel: "NEXT PROJECT",
     },
     es: {
@@ -33,40 +35,144 @@ export function PosterCaseStudy({ project }: PosterCaseStudyProps) {
       role: "Rol",
       stack: "Motor / Stack",
       year: "Año",
-      scrollMore: "HAZ SCROLL PARA VER MÁS >>>",
+      scrollMore: "HAZ SCROLL O ARRASTRA >>>",
       nextLabel: "SIGUIENTE PROYECTO",
     },
   }[lang];
 
-  // Translate vertical mouse wheel into smooth horizontal editorial scrolling on desktop
+  // Smooth inertial rAF horizontal scroll + drag-to-scroll on desktop/tablet
   useEffect(() => {
     const el = trackRef.current;
     if (!el) return;
 
+    let targetX = el.scrollLeft;
+    let currentX = el.scrollLeft;
+    let isDragging = false;
+    let pointerId: number | null = null;
+    let dragLastX = 0;
+    let dragLastT = 0;
+    let dragMoved = 0;
+    let dragVel = 0;
+    let suppressNextClick = false;
+    let rafId = 0;
+    let prevNow = performance.now();
+
+    const maxScroll = () => Math.max(0, el.scrollWidth - el.clientWidth);
+    const clampTarget = (v: number) => Math.max(0, Math.min(maxScroll(), v));
+
+    const tick = (now: number) => {
+      const dt = Math.min(0.05, (now - prevNow) / 1000);
+      prevNow = now;
+      if (window.innerWidth > 860 && !isDragging) {
+        const lerpAlpha = reduced ? 1 : Math.min(1, dt * 9.5);
+        currentX = currentX + (targetX - currentX) * lerpAlpha;
+        if (Math.abs(targetX - currentX) < 0.25) {
+          currentX = targetX;
+        }
+        el.scrollLeft = currentX;
+      } else if (!isDragging) {
+        currentX = el.scrollLeft;
+        targetX = el.scrollLeft;
+      }
+      rafId = requestAnimationFrame(tick);
+    };
+    rafId = requestAnimationFrame(tick);
+
     const onWheel = (e: WheelEvent) => {
       if (window.innerWidth <= 860) return;
-      if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
-        e.preventDefault();
-        el.scrollLeft += e.deltaY * 1.15;
+      const delta = Math.abs(e.deltaY) >= Math.abs(e.deltaX) ? e.deltaY : e.deltaX;
+      if (delta === 0) return;
+      e.preventDefault();
+      targetX = clampTarget(targetX + delta * 1.2);
+    };
+
+    const onPointerDown = (e: PointerEvent) => {
+      if (window.innerWidth <= 860 || e.pointerType === "touch") return;
+      const targetEl = e.target as HTMLElement | null;
+      if (targetEl?.closest("a, button, video, input, select")) return;
+      isDragging = true;
+      pointerId = e.pointerId;
+      dragLastX = e.clientX;
+      dragLastT = performance.now();
+      dragMoved = 0;
+      dragVel = 0;
+      currentX = el.scrollLeft;
+      targetX = el.scrollLeft;
+      el.classList.add("is-dragging");
+      try {
+        el.setPointerCapture(e.pointerId);
+      } catch {
+        // ignore
       }
+    };
+
+    const onPointerMove = (e: PointerEvent) => {
+      if (!isDragging || (pointerId !== null && e.pointerId !== pointerId)) return;
+      const nowMs = performance.now();
+      const dtMs = Math.max(4, nowMs - dragLastT);
+      const dx = e.clientX - dragLastX;
+      dragLastX = e.clientX;
+      dragLastT = nowMs;
+      dragMoved += Math.abs(dx);
+      const next = clampTarget(el.scrollLeft - dx);
+      el.scrollLeft = next;
+      currentX = next;
+      targetX = next;
+      const instVel = -dx / (dtMs * 0.001);
+      dragVel = dragVel * 0.55 + instVel * 0.45;
+    };
+
+    const stopDrag = (e: PointerEvent) => {
+      if (!isDragging || (pointerId !== null && e.pointerId !== pointerId)) return;
+      isDragging = false;
+      pointerId = null;
+      el.classList.remove("is-dragging");
+      try {
+        el.releasePointerCapture(e.pointerId);
+      } catch {
+        // ignore
+      }
+      if (dragMoved > 8) {
+        suppressNextClick = true;
+        targetX = clampTarget(el.scrollLeft + dragVel * 0.22);
+      }
+    };
+
+    const onClickCapture = (e: MouseEvent) => {
+      if (!suppressNextClick) return;
+      suppressNextClick = false;
+      e.preventDefault();
+      e.stopPropagation();
     };
 
     const onKeyDown = (e: KeyboardEvent) => {
       if (window.innerWidth <= 860) return;
       if (e.key === "ArrowRight") {
-        el.scrollBy({ left: 420, behavior: "smooth" });
+        targetX = clampTarget(targetX + 460);
       } else if (e.key === "ArrowLeft") {
-        el.scrollBy({ left: -420, behavior: "smooth" });
+        targetX = clampTarget(targetX - 460);
       }
     };
 
     el.addEventListener("wheel", onWheel, { passive: false });
+    el.addEventListener("pointerdown", onPointerDown);
+    el.addEventListener("pointermove", onPointerMove);
+    el.addEventListener("pointerup", stopDrag);
+    el.addEventListener("pointercancel", stopDrag);
+    el.addEventListener("click", onClickCapture, true);
     window.addEventListener("keydown", onKeyDown);
+
     return () => {
+      cancelAnimationFrame(rafId);
       el.removeEventListener("wheel", onWheel);
+      el.removeEventListener("pointerdown", onPointerDown);
+      el.removeEventListener("pointermove", onPointerMove);
+      el.removeEventListener("pointerup", stopDrag);
+      el.removeEventListener("pointercancel", stopDrag);
+      el.removeEventListener("click", onClickCapture, true);
       window.removeEventListener("keydown", onKeyDown);
     };
-  }, []);
+  }, [reduced]);
 
   return (
     <div className="jd-gallery-root jd-case-page">
