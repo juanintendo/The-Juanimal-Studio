@@ -1,19 +1,13 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-
-export interface TelemetrySample {
-  tx: number;
-  ty: number;
-  cookMs: number;
-  fps: number;
-}
+import { writeTelemetry, type TelemetryRefs } from "./types";
 
 interface SignalWebGLCanvasProps {
   active: boolean;
   switchTick: number;
   reduced: boolean;
-  onTelemetry: (sample: TelemetrySample) => void;
+  telemetryRefs: TelemetryRefs;
 }
 
 const VERT_SRC = `
@@ -266,17 +260,17 @@ export default function SignalWebGLCanvas({
   active,
   switchTick,
   reduced,
-  onTelemetry,
+  telemetryRefs,
 }: SignalWebGLCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const activeRef = useRef(active);
   const reducedRef = useRef(reduced);
-  const onTelRef = useRef(onTelemetry);
+  const telRefsRef = useRef(telemetryRefs);
   const switchImpulseRef = useRef(0);
 
   activeRef.current = active;
   reducedRef.current = reduced;
-  onTelRef.current = onTelemetry;
+  telRefsRef.current = telemetryRefs;
 
   useEffect(() => {
     if (switchTick > 0) {
@@ -296,14 +290,43 @@ export default function SignalWebGLCanvas({
       powerPreference: "high-performance",
     });
 
-    if (!gl) {
-      return;
-    }
+    if (!gl) return;
 
     const progTrail = createProgram(gl, VERT_SRC, TRAIL_FRAG);
     const progField = createProgram(gl, VERT_SRC, FIELD_FRAG);
     const progComp = createProgram(gl, VERT_SRC, COMPOSITE_FRAG);
     if (!progTrail || !progField || !progComp) return;
+
+    // Cache all attribute & uniform locations once
+    const trailLoc = {
+      aPos: gl.getAttribLocation(progTrail, "aPos"),
+      uPrev: gl.getUniformLocation(progTrail, "uPrev"),
+      uTRes: gl.getUniformLocation(progTrail, "uTRes"),
+      uMouse: gl.getUniformLocation(progTrail, "uMouse"),
+      uPM: gl.getUniformLocation(progTrail, "uPM"),
+      uDown: gl.getUniformLocation(progTrail, "uDown"),
+    };
+    const fieldLoc = {
+      aPos: gl.getAttribLocation(progField, "aPos"),
+      uTrail: gl.getUniformLocation(progField, "uTrail"),
+      uRes: gl.getUniformLocation(progField, "uRes"),
+      uTime: gl.getUniformLocation(progField, "uTime"),
+      uMouse: gl.getUniformLocation(progField, "uMouse"),
+      uVelL: gl.getUniformLocation(progField, "uVelL"),
+      uCP: gl.getUniformLocation(progField, "uCP"),
+      uCA: gl.getUniformLocation(progField, "uCA"),
+    };
+    const compLoc = {
+      aPos: gl.getAttribLocation(progComp, "aPos"),
+      uTrail: gl.getUniformLocation(progComp, "uTrail"),
+      uField: gl.getUniformLocation(progComp, "uField"),
+      uRes: gl.getUniformLocation(progComp, "uRes"),
+      uTime: gl.getUniformLocation(progComp, "uTime"),
+      uCP: gl.getUniformLocation(progComp, "uCP"),
+      uCA: gl.getUniformLocation(progComp, "uCA"),
+      uK: gl.getUniformLocation(progComp, "uK"),
+      uSwitch: gl.getUniformLocation(progComp, "uSwitch"),
+    };
 
     const quad = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, quad);
@@ -313,24 +336,25 @@ export default function SignalWebGLCanvas({
       gl.STATIC_DRAW
     );
 
-    const TRAIL_W = 256;
-    const TRAIL_H = 144;
+    const TRAIL_W = 224;
+    const TRAIL_H = 126;
     let trailA = createFbo(gl, TRAIL_W, TRAIL_H);
     let trailB = createFbo(gl, TRAIL_W, TRAIL_H);
-    let fieldFbo = createFbo(gl, 512, 288);
+    let fieldFbo = createFbo(gl, 420, 236);
 
     const resize = () => {
       const parent = canvas.parentElement;
       const w = parent ? parent.clientWidth : window.innerWidth;
       const h = parent ? parent.clientHeight : window.innerHeight;
-      const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+      if (w <= 0 || h <= 0) return;
+      const dpr = Math.min(window.devicePixelRatio || 1, 1.25);
       const cw = Math.max(1, Math.floor(w * dpr));
       const ch = Math.max(1, Math.floor(h * dpr));
       if (canvas.width !== cw || canvas.height !== ch) {
         canvas.width = cw;
         canvas.height = ch;
-        const fw = Math.max(256, Math.floor(cw * 0.45));
-        const fh = Math.max(144, Math.floor(ch * 0.45));
+        const fw = Math.max(224, Math.floor(cw * 0.34));
+        const fh = Math.max(126, Math.floor(ch * 0.34));
         if (fieldFbo) {
           gl.deleteTexture(fieldFbo.tex);
           gl.deleteFramebuffer(fieldFbo.fbo);
@@ -365,6 +389,7 @@ export default function SignalWebGLCanvas({
     };
 
     const onPointerDown = (e: PointerEvent) => {
+      if (!activeRef.current) return;
       isDown = 1;
       updatePointer(e);
       clickX = mx;
@@ -382,15 +407,14 @@ export default function SignalWebGLCanvas({
 
     let rafId = 0;
     let disposed = false;
-    let startTime = performance.now();
+    const startTime = performance.now();
     let prevNow = startTime;
     let fpsAccum = 0;
     let fpsCount = 0;
     let fpsLast = startTime;
     let currentFps = 60;
 
-    const bindQuad = (prog: WebGLProgram) => {
-      const loc = gl.getAttribLocation(prog, "aPos");
+    const bindQuad = (loc: number) => {
       gl.bindBuffer(gl.ARRAY_BUFFER, quad);
       gl.enableVertexAttribArray(loc);
       gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
@@ -399,7 +423,7 @@ export default function SignalWebGLCanvas({
     const renderFrame = (now: number) => {
       if (disposed) return;
       rafId = requestAnimationFrame(renderFrame);
-      if (!activeRef.current) return;
+      if (!activeRef.current || canvas.width <= 1 || canvas.height <= 1) return;
 
       const t0 = performance.now();
       const dt = Math.min(0.05, Math.max(0.001, (now - prevNow) / 1000));
@@ -413,64 +437,58 @@ export default function SignalWebGLCanvas({
       clickAge = Math.min(99, clickAge + dt);
       switchImpulseRef.current = Math.max(0, switchImpulseRef.current - dt * 2.8);
 
-      // 1. Trail ping-pong pass
       if (trailA && trailB) {
         gl.useProgram(progTrail);
-        bindQuad(progTrail);
+        bindQuad(trailLoc.aPos);
         gl.bindFramebuffer(gl.FRAMEBUFFER, trailB.fbo);
         gl.viewport(0, 0, trailB.w, trailB.h);
         gl.activeTexture(gl.TEXTURE0);
         gl.bindTexture(gl.TEXTURE_2D, trailA.tex);
-        gl.uniform1i(gl.getUniformLocation(progTrail, "uPrev"), 0);
-        gl.uniform2f(gl.getUniformLocation(progTrail, "uTRes"), trailB.w, trailB.h);
-        gl.uniform2f(gl.getUniformLocation(progTrail, "uMouse"), mx, my);
-        gl.uniform2f(gl.getUniformLocation(progTrail, "uPM"), pmx, pmy);
-        gl.uniform1f(gl.getUniformLocation(progTrail, "uDown"), isDown);
+        gl.uniform1i(trailLoc.uPrev, 0);
+        gl.uniform2f(trailLoc.uTRes, trailB.w, trailB.h);
+        gl.uniform2f(trailLoc.uMouse, mx, my);
+        gl.uniform2f(trailLoc.uPM, pmx, pmy);
+        gl.uniform1f(trailLoc.uDown, isDown);
         gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
         const tmp = trailA;
         trailA = trailB;
         trailB = tmp;
       }
 
-      // 2. Field FBO pass
       if (fieldFbo && trailA) {
         gl.useProgram(progField);
-        bindQuad(progField);
+        bindQuad(fieldLoc.aPos);
         gl.bindFramebuffer(gl.FRAMEBUFFER, fieldFbo.fbo);
         gl.viewport(0, 0, fieldFbo.w, fieldFbo.h);
         gl.activeTexture(gl.TEXTURE0);
         gl.bindTexture(gl.TEXTURE_2D, trailA.tex);
-        gl.uniform1i(gl.getUniformLocation(progField, "uTrail"), 0);
-        gl.uniform2f(gl.getUniformLocation(progField, "uRes"), fieldFbo.w, fieldFbo.h);
-        gl.uniform1f(gl.getUniformLocation(progField, "uTime"), tSec);
-        gl.uniform2f(gl.getUniformLocation(progField, "uMouse"), mx, my);
-        gl.uniform1f(gl.getUniformLocation(progField, "uVelL"), velL);
-        gl.uniform2f(gl.getUniformLocation(progField, "uCP"), clickX, clickY);
-        gl.uniform1f(gl.getUniformLocation(progField, "uCA"), clickAge);
+        gl.uniform1i(fieldLoc.uTrail, 0);
+        gl.uniform2f(fieldLoc.uRes, fieldFbo.w, fieldFbo.h);
+        gl.uniform1f(fieldLoc.uTime, tSec);
+        gl.uniform2f(fieldLoc.uMouse, mx, my);
+        gl.uniform1f(fieldLoc.uVelL, velL);
+        gl.uniform2f(fieldLoc.uCP, clickX, clickY);
+        gl.uniform1f(fieldLoc.uCA, clickAge);
         gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
       }
 
-      // 3. Full-res composite pass
       if (fieldFbo && trailA) {
         gl.useProgram(progComp);
-        bindQuad(progComp);
+        bindQuad(compLoc.aPos);
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
         gl.viewport(0, 0, canvas.width, canvas.height);
         gl.activeTexture(gl.TEXTURE0);
         gl.bindTexture(gl.TEXTURE_2D, trailA.tex);
-        gl.uniform1i(gl.getUniformLocation(progComp, "uTrail"), 0);
+        gl.uniform1i(compLoc.uTrail, 0);
         gl.activeTexture(gl.TEXTURE1);
         gl.bindTexture(gl.TEXTURE_2D, fieldFbo.tex);
-        gl.uniform1i(gl.getUniformLocation(progComp, "uField"), 1);
-        gl.uniform2f(gl.getUniformLocation(progComp, "uRes"), canvas.width, canvas.height);
-        gl.uniform1f(gl.getUniformLocation(progComp, "uTime"), tSec);
-        gl.uniform2f(gl.getUniformLocation(progComp, "uCP"), clickX, clickY);
-        gl.uniform1f(gl.getUniformLocation(progComp, "uCA"), clickAge);
-        gl.uniform1f(gl.getUniformLocation(progComp, "uK"), 1.0);
-        gl.uniform1f(
-          gl.getUniformLocation(progComp, "uSwitch"),
-          switchImpulseRef.current
-        );
+        gl.uniform1i(compLoc.uField, 1);
+        gl.uniform2f(compLoc.uRes, canvas.width, canvas.height);
+        gl.uniform1f(compLoc.uTime, tSec);
+        gl.uniform2f(compLoc.uCP, clickX, clickY);
+        gl.uniform1f(compLoc.uCA, clickAge);
+        gl.uniform1f(compLoc.uK, 1.0);
+        gl.uniform1f(compLoc.uSwitch, switchImpulseRef.current);
         gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
       }
 
@@ -485,8 +503,8 @@ export default function SignalWebGLCanvas({
         fpsAccum = 0;
         fpsLast = now;
       }
-      if (fpsCount % 4 === 0) {
-        onTelRef.current({ tx: mx, ty: my, cookMs, fps: currentFps });
+      if (fpsCount % 3 === 0) {
+        writeTelemetry(telRefsRef.current, mx, my, cookMs, currentFps);
       }
     };
 

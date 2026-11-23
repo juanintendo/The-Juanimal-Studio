@@ -1,238 +1,733 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import type { TelemetrySample } from "./SignalWebGLCanvas";
+import * as THREE from "three";
+import { writeTelemetry, type TelemetryRefs } from "./types";
 
 interface SchematicArmCanvasProps {
   active: boolean;
   reduced: boolean;
-  onTelemetry: (sample: TelemetrySample) => void;
+  telemetryRefs: TelemetryRefs;
+}
+
+interface JointNode {
+  piv: THREE.Group;
+  axis: THREE.Vector3;
+  a: number;
+  lim: [number, number];
+}
+
+interface CubeBody {
+  g: THREE.Group;
+  v: THREE.Vector3;
+  w: THREE.Vector3;
+  free: boolean;
+  flung: boolean;
+  bounced: boolean;
+  settle?: { from: THREE.Vector3; to: THREE.Vector3; t: number };
 }
 
 export default function SchematicArmCanvas({
   active,
   reduced,
-  onTelemetry,
+  telemetryRefs,
 }: SchematicArmCanvasProps) {
+  const wrapRef = useRef<HTMLDivElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const svgRef = useRef<SVGSVGElement | null>(null);
+
   const activeRef = useRef(active);
   const reducedRef = useRef(reduced);
-  const onTelRef = useRef(onTelemetry);
-  const stackedRef = useRef(false);
+  const telRefsRef = useRef(telemetryRefs);
 
   activeRef.current = active;
   reducedRef.current = reduced;
-  onTelRef.current = onTelemetry;
+  telRefsRef.current = telemetryRefs;
 
   useEffect(() => {
+    const wrap = wrapRef.current;
     const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
+    const svg = svgRef.current;
+    if (!wrap || !canvas || !svg) return;
+
+    let renderer: THREE.WebGLRenderer;
+    try {
+      renderer = new THREE.WebGLRenderer({
+        canvas,
+        antialias: true,
+        alpha: true,
+        powerPreference: "high-performance",
+      });
+    } catch {
+      return;
+    }
+
+    const dpr = Math.min(window.devicePixelRatio || 1, 1.75);
+    renderer.setPixelRatio(dpr);
+    renderer.setClearColor(0x000000, 0);
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.01, 20);
+
+    const INK = 0xf4f1ea;
+    const fillMat = new THREE.MeshBasicMaterial({
+      color: 0x000000,
+      side: THREE.DoubleSide,
+      polygonOffset: true,
+      polygonOffsetFactor: 2,
+      polygonOffsetUnits: 3,
+    });
+    const edgeMat = new THREE.LineBasicMaterial({
+      color: INK,
+      transparent: true,
+      opacity: 0.9,
+    });
+    const ringMat = new THREE.LineBasicMaterial({
+      color: INK,
+      transparent: true,
+      opacity: 0.36,
+    });
+    const dashMat = new THREE.LineDashedMaterial({
+      color: INK,
+      dashSize: 0.014,
+      gapSize: 0.01,
+      transparent: true,
+      opacity: 0.24,
+    });
+
+    const addBlueprintPart = (
+      parent: THREE.Object3D,
+      geo: THREE.BufferGeometry,
+      x = 0,
+      y = 0,
+      z = 0
+    ) => {
+      const grp = new THREE.Group();
+      grp.position.set(x, y, z);
+      const fill = new THREE.Mesh(geo, fillMat);
+      const edges = new THREE.LineSegments(new THREE.EdgesGeometry(geo, 22), edgeMat);
+      grp.add(fill);
+      grp.add(edges);
+      parent.add(grp);
+      return grp;
+    };
+
+    // Turntable calibration rings & crosshairs on floor
+    const floor = new THREE.Group();
+    scene.add(floor);
+    const makeCircle = (r: number, dashed: boolean) => {
+      const pts: THREE.Vector3[] = [];
+      for (let i = 0; i <= 96; i += 1) {
+        const a = (i / 96) * Math.PI * 2;
+        pts.push(new THREE.Vector3(Math.cos(a) * r, 0, Math.sin(a) * r));
+      }
+      const g = new THREE.BufferGeometry().setFromPoints(pts);
+      const l = new THREE.Line(g, dashed ? dashMat : ringMat);
+      if (dashed) l.computeLineDistances();
+      floor.add(l);
+    };
+    makeCircle(0.5, true);
+    makeCircle(0.13, false);
+
+    const crossGeo = new THREE.BufferGeometry().setFromPoints([
+      new THREE.Vector3(-0.55, 0, 0),
+      new THREE.Vector3(0.55, 0, 0),
+      new THREE.Vector3(0, 0, -0.55),
+      new THREE.Vector3(0, 0, 0.55),
+    ]);
+    const cross = new THREE.LineSegments(crossGeo, dashMat);
+    cross.computeLineDistances();
+    floor.add(cross);
+
+    // 6-axis industrial robot arm hierarchy
+    const armRoot = new THREE.Group();
+    scene.add(armRoot);
+
+    addBlueprintPart(armRoot, new THREE.CylinderGeometry(0.1, 0.118, 0.06, 20), 0, 0.03, 0);
+
+    const joints: Record<string, JointNode> = {};
+    const makeJoint = (
+      name: string,
+      parent: THREE.Object3D,
+      pos: [number, number, number],
+      axis: [number, number, number],
+      lim: [number, number]
+    ) => {
+      const piv = new THREE.Group();
+      piv.position.set(pos[0], pos[1], pos[2]);
+      parent.add(piv);
+      joints[name] = {
+        piv,
+        axis: new THREE.Vector3(axis[0], axis[1], axis[2]).normalize(),
+        a: 0,
+        lim,
+      };
+      return piv;
+    };
+
+    const setJointAngle = (name: string, angle: number) => {
+      const j = joints[name];
+      if (!j) return;
+      const clamped = Math.max(j.lim[0], Math.min(j.lim[1], angle));
+      j.a = clamped;
+      j.piv.quaternion.setFromAxisAngle(j.axis, clamped);
+    };
+
+    // J1: Waist turret
+    const j1 = makeJoint("joint1", armRoot, [0, 0.06, 0], [0, 1, 0], [-3.1, 3.1]);
+    addBlueprintPart(j1, new THREE.BoxGeometry(0.11, 0.075, 0.11), 0, 0.038, 0);
+
+    // J2: Shoulder
+    const j2 = makeJoint("joint2", j1, [0, 0.085, 0], [0, 0, 1], [-1.5, 1.5]);
+    addBlueprintPart(j2, new THREE.CylinderGeometry(0.044, 0.044, 0.14, 16), 0, 0, 0).rotation.x =
+      Math.PI / 2;
+    addBlueprintPart(j2, new THREE.BoxGeometry(0.056, 0.24, 0.072), 0, 0.12, 0);
+
+    // J3: Elbow
+    const j3 = makeJoint("joint3", j2, [0, 0.24, 0], [0, 0, 1], [-2.1, 2.1]);
+    addBlueprintPart(j3, new THREE.CylinderGeometry(0.038, 0.038, 0.12, 16), 0, 0, 0).rotation.x =
+      Math.PI / 2;
+    addBlueprintPart(j3, new THREE.BoxGeometry(0.058, 0.065, 0.062), -0.02, 0.03, 0);
+
+    // J4: Forearm roll
+    const j4 = makeJoint("joint4", j3, [0, 0.05, 0], [0, 1, 0], [-3.1, 3.1]);
+    addBlueprintPart(j4, new THREE.CylinderGeometry(0.025, 0.03, 0.18, 12), 0, 0.09, 0);
+
+    // J5: Wrist pitch
+    const j5 = makeJoint("joint5", j4, [0, 0.18, 0], [0, 0, 1], [-1.9, 1.9]);
+    addBlueprintPart(j5, new THREE.BoxGeometry(0.04, 0.05, 0.045), 0, 0.025, 0);
+
+    // J6: Flange + 2-jaw parallel gripper
+    const j6 = makeJoint("joint6", j5, [0, 0.055, 0], [0, 1, 0], [-3.1, 3.1]);
+    addBlueprintPart(j6, new THREE.CylinderGeometry(0.026, 0.026, 0.018, 14), 0, 0.009, 0);
+    const jawL = addBlueprintPart(j6, new THREE.BoxGeometry(0.01, 0.042, 0.016), -0.022, 0.038, 0);
+    const jawR = addBlueprintPart(j6, new THREE.BoxGeometry(0.01, 0.042, 0.016), 0.022, 0.038, 0);
+
+    const tip = new THREE.Object3D();
+    tip.position.set(0, 0.064, 0);
+    j6.add(tip);
+
+    setJointAngle("joint2", 0.35);
+    setJointAngle("joint3", -1.15);
+    setJointAngle("joint5", -0.55);
+
+    // 3D CCD Inverse Kinematics solver
+    const tmpA = new THREE.Vector3();
+    const tmpB = new THREE.Vector3();
+    const tmpAx = new THREE.Vector3();
+    const tmpTw = new THREE.Vector3();
+    const tmpQ = new THREE.Quaternion();
+
+    const solveIK = (
+      targetWorld: THREE.Vector3,
+      chain: string[],
+      effector: THREE.Object3D,
+      iters: number
+    ) => {
+      for (let it = 0; it < iters; it += 1) {
+        for (const name of chain) {
+          const j = joints[name];
+          if (!j) continue;
+          armRoot.updateMatrixWorld(true);
+          const jp = j.piv.getWorldPosition(tmpA);
+          const ep = effector.getWorldPosition(tmpB);
+          j.piv.parent?.getWorldQuaternion(tmpQ);
+          const ax = tmpAx.copy(j.axis).applyQuaternion(tmpQ).normalize();
+
+          const v1 = ep.sub(jp);
+          const v2 = targetWorld.clone().sub(jp);
+          v1.addScaledVector(ax, -v1.dot(ax));
+          v2.addScaledVector(ax, -v2.dot(ax));
+          if (v1.lengthSq() < 1e-8 || v2.lengthSq() < 1e-8) continue;
+          v1.normalize();
+          v2.normalize();
+
+          let ang = Math.acos(Math.max(-1, Math.min(1, v1.dot(v2))));
+          if (tmpTw.copy(v1).cross(v2).dot(ax) < 0) ang = -ang;
+          setJointAngle(name, j.a + ang * 0.72);
+        }
+      }
+    };
+
+    // Cubes for interactive stack & knock-down physics
+    const cubeSize = 0.034;
+    const cubeGeo = new THREE.BoxGeometry(cubeSize, cubeSize, cubeSize);
+    const cubeEdges = new THREE.EdgesGeometry(cubeGeo);
+    const cubes: CubeBody[] = [];
+
+    const spawnCube = (pos: THREE.Vector3): CubeBody => {
+      const g = new THREE.Group();
+      g.add(new THREE.Mesh(cubeGeo, fillMat));
+      g.add(new THREE.LineSegments(cubeEdges, edgeMat));
+      g.position.copy(pos);
+      scene.add(g);
+      const body: CubeBody = {
+        g,
+        v: new THREE.Vector3(),
+        w: new THREE.Vector3(),
+        free: false,
+        flung: false,
+        bounced: false,
+      };
+      cubes.push(body);
+      return body;
+    };
+
+    const feedDir = new THREE.Vector3(1.0, 0, -0.9).normalize();
+    const stackCenter = new THREE.Vector3(0.24, 0, 0.14);
+    const pyramidOffsets: Array<[number, number]> = [
+      [-1, 0],
+      [0, 0],
+      [1, 0],
+      [-0.5, 1],
+      [0.5, 1],
+      [0, 2],
+    ];
+    const stackTargets = pyramidOffsets.map(([ox, oy]) =>
+      stackCenter
+        .clone()
+        .addScaledVector(feedDir, ox * cubeSize * 1.12)
+        .setY(cubeSize * 0.5 + oy * cubeSize)
+    );
+    const pickSpot = feedDir.clone().multiplyScalar(0.32).setY(cubeSize * 0.5);
+
+    type ActionState =
+      | { kind: "build"; phase: number; t: number; i: number; block?: CubeBody }
+      | { kind: "wreck"; phase: number; t: number; hit?: boolean }
+      | null;
+
+    let action: ActionState = null;
+    let builtState: "empty" | "built" | "down" = "empty";
+
+    const camDir = new THREE.Vector3(1.0, 0.62, 1.15).normalize();
+    const camRight = new THREE.Vector3(0, 1, 0).cross(camDir).normalize();
+
+    let viewW = 1280;
+    let viewH = 720;
+
+    const updateProjection = () => {
+      const wide = viewW > viewH * 1.15;
+      const halfH = wide ? 0.36 : 0.44;
+      const m = (2 * halfH) / Math.max(1, viewH);
+      const centerX = wide ? viewW * 0.67 : viewW * 0.5;
+      const centerY = viewH * 0.52;
+      camera.left = -centerX * m;
+      camera.right = (viewW - centerX) * m;
+      camera.top = centerY * m;
+      camera.bottom = -(viewH - centerY) * m;
+      camera.updateProjectionMatrix();
+
+      const lookAt = new THREE.Vector3(0, 0.2, 0).addScaledVector(camRight, -0.02);
+      camera.position.copy(lookAt).addScaledVector(camDir, 4);
+      camera.lookAt(lookAt);
+    };
 
     const resize = () => {
-      const parent = canvas.parentElement;
-      const w = parent ? parent.clientWidth : window.innerWidth;
-      const h = parent ? parent.clientHeight : window.innerHeight;
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
-      canvas.width = Math.max(1, Math.floor(w * dpr));
-      canvas.height = Math.max(1, Math.floor(h * dpr));
+      const w = wrap.clientWidth;
+      const h = wrap.clientHeight;
+      if (w <= 0 || h <= 0) return;
+      viewW = w;
+      viewH = h;
+      renderer.setSize(w, h, false);
+      updateProjection();
     };
 
     resize();
     window.addEventListener("resize", resize);
-    const ro =
-      typeof ResizeObserver !== "undefined" && canvas.parentElement
-        ? new ResizeObserver(resize)
-        : null;
-    if (ro && canvas.parentElement) ro.observe(canvas.parentElement);
+    const ro = new ResizeObserver(resize);
+    ro.observe(wrap);
+
+    const targetPos = new THREE.Vector3(0.2, 0.25, 0.22);
+    const smoothTarget = targetPos.clone();
+    const desiredTarget = targetPos.clone();
+    const trailPts: THREE.Vector3[] = [];
+    const lastTip = new THREE.Vector3();
+    const tipVel = new THREE.Vector3();
 
     let mx = 0.68;
     let my = 0.44;
-    let smx = 0.68;
-    let smy = 0.44;
-    let frameCount = 0;
-    let fpsLast = performance.now();
-    let currentFps = 60;
-    let rafId = 0;
-    let disposed = false;
+    let lastMove = -1e9;
+    let hasMoved = false;
+
+    const raycaster = new THREE.Raycaster();
+    const pointerPlane = new THREE.Plane();
+    const hitPt = new THREE.Vector3();
 
     const onPointerMove = (e: PointerEvent) => {
-      const r = canvas.getBoundingClientRect();
+      const r = wrap.getBoundingClientRect();
       if (r.width <= 0 || r.height <= 0) return;
       mx = Math.min(1, Math.max(0, (e.clientX - r.left) / r.width));
       my = Math.min(1, Math.max(0, (e.clientY - r.top) / r.height));
+      lastMove = performance.now();
+      hasMoved = true;
     };
 
     const onClick = () => {
       if (!activeRef.current) return;
-      stackedRef.current = !stackedRef.current;
+      if (action && action.kind === "wreck") return;
+      if (action && action.kind === "build") {
+        if (action.block && action.block.g.parent === tip) {
+          scene.attach(action.block.g);
+          action.block.free = true;
+          action.block.v.copy(tipVel).multiplyScalar(0.3);
+        }
+        action = { kind: "wreck", phase: 0, t: 0 };
+        return;
+      }
+      if (builtState === "built") {
+        action = { kind: "wreck", phase: 0, t: 0 };
+      } else {
+        cubes.splice(0).forEach((c) => scene.remove(c.g));
+        action = { kind: "build", phase: 0, t: 0, i: 0 };
+      }
     };
 
     window.addEventListener("pointermove", onPointerMove, { passive: true });
-    canvas.addEventListener("click", onClick);
+    wrap.addEventListener("click", onClick);
 
-    const draw = (now: number) => {
+    const project2D = (v: THREE.Vector3): [number, number] => {
+      const p = v.clone().project(camera);
+      return [(p.x * 0.5 + 0.5) * viewW, (-p.y * 0.5 + 0.5) * viewH];
+    };
+
+    const clampReach = (v: THREE.Vector3) => {
+      const r = Math.hypot(v.x, v.z);
+      const clampedR = Math.max(0.16, Math.min(0.4, r));
+      if (r > 1e-4) {
+        v.x *= clampedR / r;
+        v.z *= clampedR / r;
+      } else {
+        v.set(0.24, v.y, 0.24);
+      }
+      v.y = Math.max(0.03, Math.min(0.48, v.y));
+      return v;
+    };
+
+    let rafId = 0;
+    let disposed = false;
+    let prevNow = performance.now();
+    const startTime = prevNow;
+    let fpsAccum = 0;
+    let frameCount = 0;
+    let fpsLast = prevNow;
+    let currentFps = 60;
+    let gripOpen = 0.024;
+
+    const tick = (now: number) => {
       if (disposed) return;
-      rafId = requestAnimationFrame(draw);
-      if (!activeRef.current) return;
+      rafId = requestAnimationFrame(tick);
+      if (!activeRef.current || viewW <= 1 || viewH <= 1) return;
 
       const t0 = performance.now();
-      const w = canvas.width;
-      const h = canvas.height;
-      const t = reducedRef.current ? 0 : now * 0.001;
+      const dt = Math.min(0.05, Math.max(0.001, (now - prevNow) / 1000));
+      prevNow = now;
+      const tSec = reducedRef.current ? 1.0 : (now - startTime) * 0.001;
 
-      smx += (mx - smx) * 0.09;
-      smy += (my - smy) * 0.09;
-
-      ctx.fillStyle = "#040404";
-      ctx.fillRect(0, 0, w, h);
-
-      // CAD graph paper grid
-      const major = 120;
-      const minor = 24;
-      ctx.strokeStyle = "rgba(244, 241, 234, 0.035)";
-      ctx.lineWidth = 1;
-      for (let x = 0; x < w; x += minor) {
-        ctx.beginPath();
-        ctx.moveTo(x, 0);
-        ctx.lineTo(x, h);
-        ctx.stroke();
-      }
-      for (let y = 0; y < h; y += minor) {
-        ctx.beginPath();
-        ctx.moveTo(0, y);
-        ctx.lineTo(w, y);
-        ctx.stroke();
-      }
-      ctx.strokeStyle = "rgba(244, 241, 234, 0.08)";
-      for (let x = 0; x < w; x += major) {
-        ctx.beginPath();
-        ctx.moveTo(x, 0);
-        ctx.lineTo(x, h);
-        ctx.stroke();
-      }
-      for (let y = 0; y < h; y += major) {
-        ctx.beginPath();
-        ctx.moveTo(0, y);
-        ctx.lineTo(w, y);
-        ctx.stroke();
+      const idle = now - lastMove > 1600;
+      if (hasMoved && !idle) {
+        const nrm = new THREE.Vector3(1, 0, 1.15).normalize();
+        pointerPlane.setFromNormalAndCoplanarPoint(nrm, nrm.clone().multiplyScalar(0.22));
+        raycaster.setFromCamera(
+          new THREE.Vector2(mx * 2 - 1, -(my * 2 - 1)),
+          camera
+        );
+        if (raycaster.ray.intersectPlane(pointerPlane, hitPt)) {
+          desiredTarget.copy(clampReach(hitPt));
+        }
+      } else {
+        desiredTarget.set(
+          0.12 + 0.18 * Math.cos(tSec * 0.55),
+          0.22 + 0.1 * Math.sin(tSec * 1.1),
+          0.22 + 0.1 * Math.sin(tSec * 0.55)
+        );
+        clampReach(desiredTarget);
       }
 
-      // Base pedestal on right half
-      const bx = w > h * 1.15 ? w * 0.7 : w * 0.5;
-      const by = h * 0.72;
-      const l1 = Math.min(w, h) * 0.22;
-      const l2 = Math.min(w, h) * 0.19;
+      targetPos.lerp(desiredTarget, Math.min(1, dt * (idle ? 2.8 : 8)));
 
-      const tx = stackedRef.current
-        ? bx + Math.sin(t * 2.2) * 28
-        : w * (0.48 + smx * 0.36);
-      const ty = stackedRef.current
-        ? by - l1 * 1.35 + Math.cos(t * 1.6) * 14
-        : h * (0.18 + smy * 0.48);
+      let statusLabel = "";
+      let targetGrip = 0.024;
 
-      // 2-link analytical IK
-      const dx = tx - bx;
-      const dy = ty - by;
-      const dist = Math.min(l1 + l2 - 4, Math.max(24, Math.hypot(dx, dy)));
-      const cosA2 =
-        (dist * dist - l1 * l1 - l2 * l2) / (2 * l1 * l2);
-      const a2 = Math.acos(Math.max(-1, Math.min(1, cosA2)));
-      const baseAngle = Math.atan2(dy, dx);
-      const a1 =
-        baseAngle -
-        Math.atan2(l2 * Math.sin(a2), l1 + l2 * Math.cos(a2));
+      if (action && action.kind === "build") {
+        const dst = stackTargets[action.i];
+        action.t += dt;
+        const moveToward = (p: THREE.Vector3, spd: number) => {
+          smoothTarget.lerp(p, Math.min(1, dt * spd));
+          return smoothTarget.distanceTo(p);
+        };
+        const advance = () => {
+          if (action && action.kind === "build") {
+            action.phase += 1;
+            action.t = 0;
+          }
+        };
 
-      const j1x = bx + Math.cos(a1) * l1;
-      const j1y = by + Math.sin(a1) * l1;
-      const j2x = j1x + Math.cos(a1 + a2) * l2;
-      const j2y = j1y + Math.sin(a1 + a2) * l2;
+        switch (action.phase) {
+          case 0:
+            if (
+              moveToward(new THREE.Vector3(pickSpot.x, 0.16, pickSpot.z), 5.5) < 0.01 &&
+              action.t > 0.16
+            )
+              advance();
+            break;
+          case 1:
+            if (
+              moveToward(new THREE.Vector3(pickSpot.x, pickSpot.y, pickSpot.z), 5.0) < 0.006 &&
+              action.t > 0.18
+            )
+              advance();
+            break;
+          case 2:
+            targetGrip = 0.014;
+            if (action.t > 0.24) {
+              const worldTip = tip.getWorldPosition(new THREE.Vector3());
+              action.block = spawnCube(worldTip);
+              tip.attach(action.block.g);
+              advance();
+            }
+            break;
+          case 3:
+            targetGrip = 0.014;
+            if (
+              moveToward(new THREE.Vector3(pickSpot.x, 0.2, pickSpot.z), 5.0) < 0.012
+            )
+              advance();
+            break;
+          case 4:
+            targetGrip = 0.014;
+            if (moveToward(new THREE.Vector3(dst.x, dst.y + 0.12, dst.z), 4.5) < 0.01)
+              advance();
+            break;
+          case 5:
+            targetGrip = 0.014;
+            if (moveToward(dst, 4.2) < 0.008 || action.t > 1.6) advance();
+            break;
+          case 6:
+            targetGrip = 0.026;
+            if (action.block && action.block.g.parent === tip) {
+              const b = action.block;
+              scene.attach(b.g);
+              b.g.rotation.set(0, 0, 0);
+              b.settle = { from: b.g.position.clone(), to: dst.clone(), t: 0 };
+            }
+            if (action.t > 0.22) advance();
+            break;
+          default:
+            if (
+              moveToward(new THREE.Vector3(dst.x, dst.y + 0.1, dst.z), 5.0) < 0.012
+            ) {
+              if (action.i + 1 < stackTargets.length) {
+                action = { kind: "build", phase: 0, t: 0, i: action.i + 1 };
+              } else {
+                action = null;
+                builtState = "built";
+              }
+            }
+            break;
+        }
+        if (action && action.kind === "build") {
+          const names = ["Fetch", "Reach", "Grip", "Lift", "Carry", "Place", "Release", "Clear"];
+          statusLabel = `${names[action.phase] ?? "Move"} ${String(action.i + 1).padStart(
+            2,
+            "0"
+          )}/${String(stackTargets.length).padStart(2, "0")}`;
+        }
+      } else if (action && action.kind === "wreck") {
+        action.t += dt;
+        if (action.phase === 0) {
+          smoothTarget.lerp(new THREE.Vector3(-0.18, 0.26, -0.14), Math.min(1, dt * 6));
+          statusLabel = "Backswing";
+          if (action.t > 0.45) {
+            action.phase = 1;
+            action.t = 0;
+          }
+        } else if (action.phase === 1) {
+          smoothTarget.lerp(
+            new THREE.Vector3(stackCenter.x + 0.22, 0.08, stackCenter.z + 0.22),
+            Math.min(1, dt * 18)
+          );
+          statusLabel = "Swing";
+          if (!action.hit && action.t > 0.12) {
+            action.hit = true;
+            for (const c of cubes) {
+              c.free = true;
+              c.flung = true;
+              c.v.set(
+                0.7 + Math.random() * 0.9,
+                0.55 + Math.random() * 0.7,
+                0.4 + Math.random() * 0.8
+              );
+              c.w.set(
+                (Math.random() - 0.5) * 9,
+                (Math.random() - 0.5) * 9,
+                (Math.random() - 0.5) * 9
+              );
+            }
+          }
+          if (action.t > 0.48) {
+            action = null;
+            builtState = "down";
+          }
+        }
+      } else {
+        smoothTarget.lerp(targetPos, Math.min(1, dt * 6.5));
+        statusLabel =
+          (idle ? "Auto" : "Follow") +
+          (builtState === "built" ? " / click to knock down" : " / click to stack");
+      }
 
-      // Dashed target line
-      ctx.save();
-      ctx.setLineDash([4, 6]);
-      ctx.strokeStyle = "rgba(255, 42, 31, 0.45)";
-      ctx.beginPath();
-      ctx.moveTo(bx, by);
-      ctx.lineTo(tx, ty);
-      ctx.stroke();
-      ctx.restore();
+      // Cube physics
+      for (const c of cubes) {
+        if (c.settle) {
+          c.settle.t = Math.min(1, c.settle.t + dt / 0.14);
+          const e = 1 - Math.pow(1 - c.settle.t, 3);
+          c.g.position.lerpVectors(c.settle.from, c.settle.to, e);
+          if (c.settle.t >= 1) c.settle = undefined;
+        }
+        if (c.free) {
+          c.v.y -= 9.8 * dt * 0.55;
+          c.g.position.addScaledVector(c.v, dt);
+          c.g.rotation.x += c.w.x * dt;
+          c.g.rotation.y += c.w.y * dt;
+          c.g.rotation.z += c.w.z * dt;
+          if (!c.bounced && c.g.position.y < cubeSize * 0.5) {
+            c.bounced = true;
+            c.g.position.y = cubeSize * 0.5;
+            c.v.y = Math.abs(c.v.y) * 0.42;
+            c.v.x *= 0.8;
+            c.v.z *= 0.8;
+          }
+        }
+      }
 
-      // Base rectangle
-      ctx.strokeStyle = "rgba(244, 241, 234, 0.75)";
-      ctx.lineWidth = 1.5;
-      ctx.strokeRect(bx - 34, by, 68, 22);
+      // Solve 3D IK
+      const wristTarget = smoothTarget.clone().add(new THREE.Vector3(0, 0.06, 0));
+      solveIK(wristTarget, ["joint3", "joint2", "joint1"], j5, 5);
+      solveIK(
+        wristTarget.clone().add(new THREE.Vector3(0, -0.18, 0)),
+        ["joint5"],
+        tip,
+        3
+      );
+      setJointAngle("joint4", 0.25 * Math.sin(tSec * 0.7));
+      setJointAngle("joint6", 0.5 * Math.sin(tSec * 0.5));
 
-      // Arm links
-      ctx.strokeStyle = "#f4f1ea";
-      ctx.lineWidth = 2.5;
-      ctx.beginPath();
-      ctx.moveTo(bx, by);
-      ctx.lineTo(j1x, j1y);
-      ctx.lineTo(j2x, j2y);
-      ctx.stroke();
+      gripOpen += (targetGrip - gripOpen) * Math.min(1, dt * 10);
+      jawL.position.x = -gripOpen;
+      jawR.position.x = gripOpen;
 
-      // Joint rings & labels
-      const joints = [
-        { x: bx, y: by, lbl: `J1 ${(a1 * 57.3).toFixed(0)}°` },
-        { x: j1x, y: j1y, lbl: `J2 ${(a2 * 57.3).toFixed(0)}°` },
-        { x: j2x, y: j2y, lbl: stackedRef.current ? "LOCK" : "TCP" },
-      ];
-      ctx.font = "11px monospace";
-      joints.forEach((j, idx) => {
-        ctx.fillStyle = "#040404";
-        ctx.beginPath();
-        ctx.arc(j.x, j.y, idx === 2 ? 7 : 9, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.strokeStyle = idx === 2 ? "#ff2a1f" : "#f4f1ea";
-        ctx.lineWidth = 1.6;
-        ctx.stroke();
+      armRoot.updateMatrixWorld(true);
+      renderer.render(scene, camera);
 
-        ctx.fillStyle = idx === 2 ? "#ff2a1f" : "rgba(244, 241, 234, 0.78)";
-        ctx.fillText(j.lbl, j.x + 14, j.y + 4);
+      // Update SVG CAD overlay
+      const tipWorld = tip.getWorldPosition(new THREE.Vector3());
+      if (dt > 0) tipVel.copy(tipWorld).sub(lastTip).divideScalar(dt);
+      lastTip.copy(tipWorld);
+      trailPts.unshift(tipWorld.clone());
+      if (trailPts.length > 70) trailPts.pop();
+
+      const [rx, ry] = project2D(smoothTarget);
+      const trailStr = trailPts
+        .map((p) => {
+          const [px, py] = project2D(p);
+          return `${px.toFixed(1)},${py.toFixed(1)}`;
+        })
+        .join(" ");
+
+      let svgMarkup = `<circle class="red" cx="${rx.toFixed(1)}" cy="${ry.toFixed(
+        1
+      )}" r="9"/><line class="red" x1="${(rx - 18).toFixed(1)}" y1="${ry.toFixed(
+        1
+      )}" x2="${(rx - 11).toFixed(1)}" y2="${ry.toFixed(
+        1
+      )}"/><line class="red" x1="${(rx + 11).toFixed(1)}" y1="${ry.toFixed(
+        1
+      )}" x2="${(rx + 18).toFixed(1)}" y2="${ry.toFixed(
+        1
+      )}"/><line class="red" x1="${rx.toFixed(1)}" y1="${(ry - 18).toFixed(
+        1
+      )}" x2="${rx.toFixed(1)}" y2="${(ry - 11).toFixed(
+        1
+      )}"/><line class="red" x1="${rx.toFixed(1)}" y1="${(ry + 11).toFixed(
+        1
+      )}" x2="${rx.toFixed(1)}" y2="${(ry + 18).toFixed(
+        1
+      )}"/><polyline class="red" points="${trailStr}" opacity="0.75"/>`;
+
+      const rightX = viewW - 18;
+      svgMarkup += `<text class="red" x="${rightX}" y="86" text-anchor="end">X ${smoothTarget.x.toFixed(
+        3
+      )}  Y ${smoothTarget.y.toFixed(3)}  Z ${smoothTarget.z.toFixed(3)}</text>`;
+      if (statusLabel) {
+        svgMarkup += `<text class="tt red" x="${rightX}" y="104" text-anchor="end">${statusLabel}</text>`;
+      }
+
+      const callouts = ["joint1", "joint2", "joint3", "joint5"]
+        .map((name) => {
+          const j = joints[name];
+          const [jx, jy] = project2D(j.piv.getWorldPosition(new THREE.Vector3()));
+          return { name, x: jx, y: jy, deg: (j.a * 57.2958).toFixed(1) };
+        })
+        .sort((a, b) => a.y - b.y);
+
+      const anchorRight = project2D(tipWorld)[0] < viewW * 0.55;
+      const lblX = anchorRight ? viewW - 18 : 18;
+      const kneeX = anchorRight ? viewW - 108 : 108;
+      const align = anchorRight ? "end" : "start";
+
+      let prevY = 120;
+      callouts.forEach((c, idx) => {
+        const ly = Math.max(prevY + 24, Math.min(viewH - 70, c.y), 124 + idx * 24);
+        prevY = ly;
+        svgMarkup += `<circle cx="${c.x.toFixed(1)}" cy="${c.y.toFixed(
+          1
+        )}" r="3"/><polyline class="dim" points="${c.x.toFixed(1)},${c.y.toFixed(
+          1
+        )} ${kneeX},${ly.toFixed(1)} ${lblX},${ly.toFixed(
+          1
+        )}"/><text class="tt" x="${lblX}" y="${(ly - 5).toFixed(
+          1
+        )}" text-anchor="${align}">J${c.name.slice(-1)} ${c.deg}°</text>`;
       });
 
-      // Target reticle
-      ctx.strokeStyle = "#ff2a1f";
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      ctx.arc(tx, ty, 12, 0, Math.PI * 2);
-      ctx.moveTo(tx - 18, ty);
-      ctx.lineTo(tx + 18, ty);
-      ctx.moveTo(tx, ty - 18);
-      ctx.lineTo(tx, ty + 18);
-      ctx.stroke();
+      svg.innerHTML = svgMarkup;
 
       const cookMs = performance.now() - t0;
+      fpsAccum += 1;
       frameCount += 1;
       if (now - fpsLast >= 250) {
-        currentFps = Math.round((frameCount * 1000) / (now - fpsLast));
-        frameCount = 0;
+        currentFps = Math.round((fpsAccum * 1000) / (now - fpsLast));
+        fpsAccum = 0;
         fpsLast = now;
       }
       if (frameCount % 3 === 0) {
-        onTelRef.current({ tx: smx, ty: smy, cookMs, fps: currentFps });
+        writeTelemetry(telRefsRef.current, mx, my, cookMs, currentFps);
       }
     };
 
-    rafId = requestAnimationFrame(draw);
+    rafId = requestAnimationFrame(tick);
 
     return () => {
       disposed = true;
       cancelAnimationFrame(rafId);
-      ro?.disconnect();
+      ro.disconnect();
       window.removeEventListener("resize", resize);
       window.removeEventListener("pointermove", onPointerMove);
-      canvas.removeEventListener("click", onClick);
+      wrap.removeEventListener("click", onClick);
+      fillMat.dispose();
+      edgeMat.dispose();
+      ringMat.dispose();
+      dashMat.dispose();
+      cubeGeo.dispose();
+      cubeEdges.dispose();
+      renderer.dispose();
     };
   }, []);
 
   return (
-    <canvas
-      ref={canvasRef}
-      className="sg-stage-canvas"
-      aria-hidden="true"
-    />
+    <div ref={wrapRef} className="sg-arm-wrap">
+      <canvas ref={canvasRef} className="sg-stage-canvas" aria-hidden="true" />
+      <svg ref={svgRef} className="sg-arm-ov" aria-hidden="true" />
+    </div>
   );
 }

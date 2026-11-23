@@ -1,9 +1,12 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import SignalWebGLCanvas, { type TelemetrySample } from "./SignalWebGLCanvas";
+import SignalWebGLCanvas from "./SignalWebGLCanvas";
 import VolumeOrbCanvas from "./VolumeOrbCanvas";
 import SchematicArmCanvas from "./SchematicArmCanvas";
+import ToolpathTitle from "./ToolpathTitle";
+import { runPixelBlockTransit } from "./TransitFX";
+import type { TelemetryRefs } from "./types";
 
 type SectionId = "home" | "clients" | "visual-art" | "lab" | "about";
 type OutputMode = "signal" | "volume" | "arm";
@@ -21,19 +24,19 @@ const OUTPUTS: Array<{
   {
     id: "volume",
     label: "Out 02 Volume",
-    hint: "Voxel Orb — Terrain. Click for the next program.",
+    hint: "Swept-Volume Orb — Zander. Click for the next program.",
   },
   {
     id: "arm",
     label: "Out 03 System",
-    hint: "IK Rig. Click to lock pose, again to release.",
+    hint: "6-Axis Blueprint IK. Click to stack cubes, again to knock down.",
   },
 ];
 
 const BOOT_ROWS = [
   { label: "TYPE: SILKSCREEN, COURIER PRIME", status: "OK" },
-  { label: "GRAPHICS: WEBGL2/1 + CANVAS", status: "OK" },
-  { label: "AUDIO: MUTED / STUDY MODE", status: "OK" },
+  { label: "GRAPHICS: WEBGL + THREE.JS CAD", status: "OK" },
+  { label: "TRANSITIONS: PIXEL-BLOCK + TOOLPATH", status: "OK" },
   { label: "SIGNAL BUS: 01..04", status: "READY" },
 ];
 
@@ -120,8 +123,9 @@ function parseHashSection(): SectionId {
 
 export default function SignalStudyApp() {
   const [section, setSection] = useState<SectionId>("home");
+  const [leavingSection, setLeavingSection] = useState<SectionId | null>(null);
   const [outputIdx, setOutputIdx] = useState(0);
-  const [volumeProgram, setVolumeProgram] = useState("Terrain");
+  const [volumeProgram, setVolumeProgram] = useState("Zander");
   const [bootPct, setBootPct] = useState(0);
   const [bootDone, setBootDone] = useState(false);
   const [reduced, setReduced] = useState(false);
@@ -129,13 +133,27 @@ export default function SignalStudyApp() {
   const [switchTick, setSwitchTick] = useState(0);
   const [staticOn, setStaticOn] = useState(false);
   const [wipeTick, setWipeTick] = useState(0);
+  const [sweeping, setSweeping] = useState(false);
   const [wordmarkText, setWordmarkText] = useState("Juan Colombo");
-  const [telemetry, setTelemetry] = useState<TelemetrySample>({
-    tx: 0.5,
-    ty: 0.5,
-    cookMs: 0.4,
-    fps: 60,
+  const [heroAnimTick, setHeroAnimTick] = useState(0);
+  const [sectionAnimTick, setSectionAnimTick] = useState<Record<SectionId, number>>({
+    home: 0,
+    clients: 0,
+    "visual-art": 0,
+    lab: 0,
+    about: 0,
   });
+
+  // Zero-re-render telemetry DOM refs
+  const txRef = useRef<HTMLElement | null>(null);
+  const tyRef = useRef<HTMLElement | null>(null);
+  const cookRef = useRef<HTMLElement | null>(null);
+  const fpsRef = useRef<HTMLElement | null>(null);
+  const labFpsRef = useRef<HTMLElement | null>(null);
+  const telemetryRefs = useMemo<TelemetryRefs>(
+    () => ({ txRef, tyRef, cookRef, fpsRef, labFpsRef }),
+    []
+  );
 
   // Draggable lab placeholder nodes
   const [labNodes, setLabNodes] = useState<LabNode[]>(INITIAL_LAB_NODES);
@@ -150,7 +168,20 @@ export default function SignalStudyApp() {
 
   const scopeCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const staticCanvasRef = useRef<HTMLCanvasElement | null>(null);
+  const transitCanvasRef = useRef<HTMLCanvasElement | null>(null);
+  const screenRef = useRef<HTMLDivElement | null>(null);
+  const tearDispRef = useRef<SVGFEDisplacementMapElement | null>(null);
+  const tearOffRef = useRef<SVGFEOffsetElement | null>(null);
   const scrambleTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const transitingRef = useRef(false);
+
+  const pageRefs = useRef<Record<SectionId, HTMLElement | null>>({
+    home: null,
+    clients: null,
+    "visual-art": null,
+    lab: null,
+    about: null,
+  });
 
   // Sync reduced motion + URL hash
   useEffect(() => {
@@ -159,9 +190,15 @@ export default function SignalStudyApp() {
     syncReduced();
     mq.addEventListener("change", syncReduced);
 
-    setSection(parseHashSection());
+    const initSec = parseHashSection();
+    setSection(initSec);
+    if (initSec !== "home") {
+      setSectionAnimTick((prev) => ({ ...prev, [initSec]: prev[initSec] + 1 }));
+    }
+
     const onHashChange = () => {
-      setSection(parseHashSection());
+      const next = parseHashSection();
+      setSection(next);
       setMenuOpen(false);
     };
     window.addEventListener("hashchange", onHashChange);
@@ -171,7 +208,7 @@ export default function SignalStudyApp() {
     };
   }, []);
 
-  // Boot sequence (skip automatically if reduced motion or click/ESC)
+  // Boot sequence + radial pixel-block dissolve into Home
   useEffect(() => {
     if (reduced) {
       setBootPct(100);
@@ -179,8 +216,14 @@ export default function SignalStudyApp() {
       return;
     }
     const start = performance.now();
-    const duration = 1150;
+    const duration = 1100;
     let raf = 0;
+
+    const finishBoot = () => {
+      setBootPct(100);
+      setBootDone(true);
+      setHeroAnimTick((t) => t + 1);
+    };
 
     const tick = (now: number) => {
       const p = Math.min(1, (now - start) / duration);
@@ -189,15 +232,15 @@ export default function SignalStudyApp() {
       if (p < 1) {
         raf = requestAnimationFrame(tick);
       } else {
-        setTimeout(() => setBootDone(true), 140);
+        setTimeout(finishBoot, 110);
       }
     };
     raf = requestAnimationFrame(tick);
 
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
-        setBootPct(100);
-        setBootDone(true);
+        cancelAnimationFrame(raf);
+        finishBoot();
       }
     };
     window.addEventListener("keydown", onKey);
@@ -256,53 +299,115 @@ export default function SignalStudyApp() {
     };
   }, [reduced]);
 
-  // Brief CRT static noise burst on channel switch
+  // CRT static burst + SVG horizontal displacement tear (#sg-chtear) on output switch
   useEffect(() => {
     if (!staticOn) return;
     const canvas = staticCanvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
+    const ctx = canvas?.getContext("2d");
+    const screenEl = screenRef.current;
+    const dispEl = tearDispRef.current;
+    const offEl = tearOffRef.current;
 
     let raf = 0;
-    const drawNoise = () => {
-      const img = ctx.createImageData(canvas.width, canvas.height);
-      const d = img.data;
-      for (let i = 0; i < d.length; i += 4) {
-        const v = Math.random() * 255;
-        d[i] = v;
-        d[i + 1] = v;
-        d[i + 2] = v;
-        d[i + 3] = 255;
-      }
-      ctx.putImageData(img, 0, 0);
-      raf = requestAnimationFrame(drawNoise);
-    };
-    raf = requestAnimationFrame(drawNoise);
+    const start = performance.now();
+    const dur = 260;
 
-    const timer = setTimeout(() => setStaticOn(false), 240);
+    if (screenEl && !reduced) {
+      screenEl.style.filter = "url(#sg-chtear)";
+    }
+
+    const drawFX = (now: number) => {
+      const p = Math.min(1, (now - start) / dur);
+      const strength = 1 - p;
+
+      if (ctx && canvas) {
+        const img = ctx.createImageData(canvas.width, canvas.height);
+        const d = img.data;
+        for (let i = 0; i < d.length; i += 4) {
+          const v = Math.random() * 255;
+          d[i] = v;
+          d[i + 1] = v;
+          d[i + 2] = v;
+          d[i + 3] = 255;
+        }
+        ctx.putImageData(img, 0, 0);
+      }
+
+      if (dispEl && offEl && !reduced) {
+        const w = screenEl?.clientWidth || window.innerWidth;
+        dispEl.setAttribute("scale", String(Math.round(0.14 * w * strength)));
+        offEl.setAttribute("dx", String(Math.round(7 * strength)));
+      }
+
+      if (p < 1) {
+        raf = requestAnimationFrame(drawFX);
+      } else {
+        if (screenEl) screenEl.style.filter = "";
+        if (dispEl) dispEl.setAttribute("scale", "0");
+        if (offEl) offEl.setAttribute("dx", "0");
+        setStaticOn(false);
+      }
+    };
+
+    raf = requestAnimationFrame(drawFX);
     return () => {
       cancelAnimationFrame(raf);
-      clearTimeout(timer);
+      if (screenEl) screenEl.style.filter = "";
     };
-  }, [staticOn]);
+  }, [staticOn, reduced]);
 
   const triggerWipe = useCallback(() => {
     setWipeTick((n) => n + 1);
   }, []);
 
+  // Radial pixel-block dissolve transition + ToolpathTitle trigger on arrival
   const navigateTo = useCallback(
-    (next: SectionId) => {
+    (next: SectionId, originEl?: HTMLElement | null) => {
       setMenuOpen(false);
-      if (next === section) return;
-      triggerWipe();
+      if (next === section || transitingRef.current) return;
+
       const targetHash = next === "home" ? "#home" : `#${next}`;
       if (typeof window !== "undefined") {
         window.history.replaceState(null, "", targetHash);
       }
+
+      const transitCanvas = transitCanvasRef.current;
+      const leavingEl = pageRefs.current[section];
+
+      if (!transitCanvas || !leavingEl || reduced) {
+        setSection(next);
+        if (next === "home") setHeroAnimTick((t) => t + 1);
+        else setSectionAnimTick((prev) => ({ ...prev, [next]: prev[next] + 1 }));
+        return;
+      }
+
+      transitingRef.current = true;
+      const isHomeReturn = next === "home";
+      let ox = window.innerWidth / 2;
+      let oy = window.innerHeight / 2;
+      if (!isHomeReturn && originEl) {
+        const r = originEl.getBoundingClientRect();
+        ox = r.left + r.width / 2;
+        oy = r.top + r.height / 2;
+      }
+
+      setLeavingSection(section);
       setSection(next);
+
+      if (next === "home") {
+        setHeroAnimTick((t) => t + 1);
+      } else {
+        setSectionAnimTick((prev) => ({ ...prev, [next]: prev[next] + 1 }));
+      }
+
+      runPixelBlockTransit(transitCanvas, leavingEl, ox, oy, isHomeReturn, reduced).then(
+        () => {
+          setLeavingSection(null);
+          transitingRef.current = false;
+        }
+      );
     },
-    [section, triggerWipe]
+    [section, reduced]
   );
 
   const cycleOutput = useCallback(
@@ -329,6 +434,8 @@ export default function SignalStudyApp() {
 
   const handleWordmarkEnter = useCallback(() => {
     if (reduced) return;
+    setSweeping(true);
+    setTimeout(() => setSweeping(false), 500);
     const target = "Juan Colombo";
     const glyphs = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#/";
     let frame = 0;
@@ -354,7 +461,7 @@ export default function SignalStudyApp() {
   const activeOutput = OUTPUTS[outputIdx] ?? OUTPUTS[0];
   const activeHint =
     activeOutput.id === "volume"
-      ? `Voxel Orb — ${volumeProgram}. Click for the next program.`
+      ? `Swept-Volume Orb — ${volumeProgram}. Click for the next program.`
       : activeOutput.hint;
 
   const selectedLabNode = useMemo(
@@ -394,8 +501,68 @@ export default function SignalStudyApp() {
 
   const activeCells = Math.round((bootPct / 100) * 48);
 
+  const pageClass = (id: SectionId, extra = "") => {
+    const isLeaving = leavingSection === id;
+    return `sg-page ${extra} ${isLeaving ? "leaving" : ""}`.trim();
+  };
+
+  const isHidden = (id: SectionId) => section !== id && leavingSection !== id;
+
   return (
     <div className={section === "home" ? "" : "is-subpage"}>
+      {/* ── SVG CHANNEL TEAR FILTER ─────────────────────────────── */}
+      <svg width="0" height="0" style={{ position: "absolute" }} aria-hidden="true">
+        <filter
+          id="sg-chtear"
+          x="-10%"
+          y="0"
+          width="120%"
+          height="100%"
+          colorInterpolationFilters="sRGB"
+        >
+          <feTurbulence
+            type="fractalNoise"
+            baseFrequency="0.0001 0.035"
+            numOctaves={1}
+            seed={3}
+            result="n"
+          />
+          <feComponentTransfer in="n" result="bands">
+            <feFuncR
+              type="discrete"
+              tableValues="0.5 0.5 0.12 0.5 0.86 0.5 0.5 0.3 0.5"
+            />
+            <feFuncG type="table" tableValues="0.5 0.5" />
+          </feComponentTransfer>
+          <feDisplacementMap
+            ref={tearDispRef}
+            in="SourceGraphic"
+            in2="bands"
+            scale={0}
+            xChannelSelector="R"
+            yChannelSelector="G"
+            result="d"
+          />
+          <feColorMatrix
+            in="d"
+            type="matrix"
+            values="1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0"
+            result="r"
+          />
+          <feOffset ref={tearOffRef} in="r" dx={0} result="ro" />
+          <feColorMatrix
+            in="d"
+            type="matrix"
+            values="0 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 1 0"
+            result="gb"
+          />
+          <feBlend in="ro" in2="gb" mode="screen" />
+        </filter>
+      </svg>
+
+      {/* ── RADIAL PIXEL-BLOCK TRANSITION CANVAS ────────────────── */}
+      <canvas ref={transitCanvasRef} className="sg-transit" aria-hidden="true" />
+
       {/* ── BOOT OVERLAY ────────────────────────────────────────── */}
       <div
         className={`sg-boot ${bootDone ? "is-done" : ""}`}
@@ -403,6 +570,7 @@ export default function SignalStudyApp() {
         onClick={() => {
           setBootPct(100);
           setBootDone(true);
+          setHeroAnimTick((t) => t + 1);
         }}
       >
         <div className="sg-bt-top">
@@ -418,10 +586,7 @@ export default function SignalStudyApp() {
             const threshold = (idx + 1) * 22;
             const ok = bootPct >= threshold;
             return (
-              <div
-                key={row.label}
-                className={`sg-bt-row ${ok ? "ok" : "go"}`}
-              >
+              <div key={row.label} className={`sg-bt-row ${ok ? "ok" : "go"}`}>
                 <span className="sg-bt-t">{row.label}</span>
                 <span className="sg-bt-dots" />
                 <span className="sg-bt-s">{ok ? row.status : "..."}</span>
@@ -452,11 +617,11 @@ export default function SignalStudyApp() {
       {/* ── TOP HEADER ──────────────────────────────────────────── */}
       <header className="sg-top">
         <a
-          className="sg-mark"
+          className={`sg-mark ${sweeping ? "is-sweeping" : ""}`}
           href="#home"
           onClick={(e) => {
             e.preventDefault();
-            navigateTo("home");
+            navigateTo("home", e.currentTarget);
           }}
           onMouseEnter={handleWordmarkEnter}
           aria-label="Juan Colombo, home"
@@ -466,16 +631,13 @@ export default function SignalStudyApp() {
           </span>
           <span className="sg-name">
             {wordmarkText.split("").map((ch, idx) => (
-              <span
-                key={idx}
-                className={
-                  ch !== "Juan Colombo"[idx] ? "sg-dec" : undefined
-                }
-              >
+              <span key={idx} className={ch !== "Juan Colombo"[idx] ? "sg-dec" : undefined}>
                 {ch === " " ? "\u00A0" : ch}
               </span>
             ))}
           </span>
+          <span className="sg-wire" aria-hidden="true" />
+          <span className="sg-wtip" aria-hidden="true" />
         </a>
 
         {section !== "home" ? (
@@ -485,7 +647,7 @@ export default function SignalStudyApp() {
               aria-current={section === "clients" ? "page" : undefined}
               onClick={(e) => {
                 e.preventDefault();
-                navigateTo("clients");
+                navigateTo("clients", e.currentTarget);
               }}
             >
               <b>01</b>
@@ -496,7 +658,7 @@ export default function SignalStudyApp() {
               aria-current={section === "visual-art" ? "page" : undefined}
               onClick={(e) => {
                 e.preventDefault();
-                navigateTo("visual-art");
+                navigateTo("visual-art", e.currentTarget);
               }}
             >
               <b>02</b>
@@ -507,7 +669,7 @@ export default function SignalStudyApp() {
               aria-current={section === "lab" ? "page" : undefined}
               onClick={(e) => {
                 e.preventDefault();
-                navigateTo("lab");
+                navigateTo("lab", e.currentTarget);
               }}
             >
               <b>03</b>
@@ -518,7 +680,7 @@ export default function SignalStudyApp() {
               aria-current={section === "about" ? "page" : undefined}
               onClick={(e) => {
                 e.preventDefault();
-                navigateTo("about");
+                navigateTo("about", e.currentTarget);
               }}
             >
               <b>04</b>
@@ -584,7 +746,7 @@ export default function SignalStudyApp() {
             aria-current={section === item.id ? "page" : undefined}
             onClick={(e) => {
               e.preventDefault();
-              navigateTo(item.id);
+              navigateTo(item.id, e.currentTarget);
             }}
           >
             <b>{item.no}</b>
@@ -605,35 +767,53 @@ export default function SignalStudyApp() {
 
       {/* ── 00 HOME ─────────────────────────────────────────────── */}
       <section
+        ref={(el) => {
+          pageRefs.current.home = el;
+        }}
         id="home"
-        className="sg-page sg-home"
+        className={pageClass("home", "sg-home")}
         aria-label="Home"
-        hidden={section !== "home"}
+        hidden={isHidden("home")}
       >
-        <div className="sg-screen">
-          {activeOutput.id === "signal" && (
+        <div ref={screenRef} className="sg-screen">
+          {/* Permanently mounted stage layers for instant 60fps output switching */}
+          <div
+            className={`sg-stage-layer ${
+              activeOutput.id === "signal" ? "is-active" : ""
+            }`}
+          >
             <SignalWebGLCanvas
               active={section === "home" && activeOutput.id === "signal"}
               switchTick={switchTick}
               reduced={reduced}
-              onTelemetry={setTelemetry}
+              telemetryRefs={telemetryRefs}
             />
-          )}
-          {activeOutput.id === "volume" && (
+          </div>
+
+          <div
+            className={`sg-stage-layer ${
+              activeOutput.id === "volume" ? "is-active" : ""
+            }`}
+          >
             <VolumeOrbCanvas
               active={section === "home" && activeOutput.id === "volume"}
               reduced={reduced}
-              onTelemetry={setTelemetry}
+              telemetryRefs={telemetryRefs}
               onProgramChange={setVolumeProgram}
             />
-          )}
-          {activeOutput.id === "arm" && (
+          </div>
+
+          <div
+            className={`sg-stage-layer ${
+              activeOutput.id === "arm" ? "is-active" : ""
+            }`}
+          >
             <SchematicArmCanvas
               active={section === "home" && activeOutput.id === "arm"}
               reduced={reduced}
-              onTelemetry={setTelemetry}
+              telemetryRefs={telemetryRefs}
             />
-          )}
+          </div>
 
           <div className="sg-crt" aria-hidden="true" />
           <canvas
@@ -668,7 +848,12 @@ export default function SignalStudyApp() {
         <div className="sg-hero">
           <div className="sg-intro">
             <h1 className="sg-statement">
-              <span className="sg-l1">
+              <ToolpathTitle
+                as="span"
+                className="sg-l1"
+                triggerKey={heroAnimTick}
+                reduced={reduced}
+              >
                 <span className="sg-ln">
                   <button
                     type="button"
@@ -697,10 +882,10 @@ export default function SignalStudyApp() {
                     }`}
                     onClick={() => selectOutput("arm")}
                   >
-                    agentic systems.
+                    real-time systems.
                   </button>
                 </span>
-              </span>
+              </ToolpathTitle>
               <span className="sg-l2">
                 Product &amp; creative lead. 18+ years shipping campaigns, Microsoft
                 UX/UI and AI-driven tools at Fuel or Fool.
@@ -714,7 +899,7 @@ export default function SignalStudyApp() {
               href="#clients"
               onClick={(e) => {
                 e.preventDefault();
-                navigateTo("clients");
+                navigateTo("clients", e.currentTarget);
               }}
             >
               <span className="sg-n">01</span>
@@ -724,7 +909,7 @@ export default function SignalStudyApp() {
               href="#visual-art"
               onClick={(e) => {
                 e.preventDefault();
-                navigateTo("visual-art");
+                navigateTo("visual-art", e.currentTarget);
               }}
             >
               <span className="sg-n">02</span>
@@ -734,7 +919,7 @@ export default function SignalStudyApp() {
               href="#lab"
               onClick={(e) => {
                 e.preventDefault();
-                navigateTo("lab");
+                navigateTo("lab", e.currentTarget);
               }}
             >
               <span className="sg-n">03</span>
@@ -744,7 +929,7 @@ export default function SignalStudyApp() {
               href="#about"
               onClick={(e) => {
                 e.preventDefault();
-                navigateTo("about");
+                navigateTo("about", e.currentTarget);
               }}
             >
               <span className="sg-n">04</span>
@@ -755,16 +940,16 @@ export default function SignalStudyApp() {
           <div className="sg-foot">
             <div className="sg-readout" aria-hidden="true">
               <span>
-                tx <b>{telemetry.tx.toFixed(3)}</b>
+                tx <b ref={txRef}>0.500</b>
               </span>
               <span>
-                ty <b>{telemetry.ty.toFixed(3)}</b>
+                ty <b ref={tyRef}>0.500</b>
               </span>
               <span>
-                cook <b>{telemetry.cookMs.toFixed(1)}</b> ms
+                cook <b ref={cookRef}>0.4</b> ms
               </span>
               <span>
-                <b>{telemetry.fps}</b> fps
+                <b ref={fpsRef}>60</b> fps
               </span>
             </div>
             <p className="sg-hint">{activeHint}</p>
@@ -774,14 +959,19 @@ export default function SignalStudyApp() {
 
       {/* ── 01 CLIENTS (PLACEHOLDER) ────────────────────────────── */}
       <section
+        ref={(el) => {
+          pageRefs.current.clients = el;
+        }}
         id="clients"
-        className="sg-page sg-scroll"
+        className={pageClass("clients", "sg-scroll")}
         aria-label="Clients"
-        hidden={section !== "clients"}
+        hidden={isHidden("clients")}
       >
         <div className="sg-inner">
           <div className="sg-ptitle">
-            <h1>Clients</h1>
+            <ToolpathTitle triggerKey={sectionAnimTick.clients} reduced={reduced}>
+              Clients
+            </ToolpathTitle>
             <p>
               Study placeholder — commercial product, campaign and UX/UI client
               roster will populate here.
@@ -807,7 +997,10 @@ export default function SignalStudyApp() {
           <ul className="sg-index">
             {CLIENT_PLACEHOLDERS.map((item) => (
               <li key={item.no}>
-                <button type="button" onClick={() => navigateTo("about")}>
+                <button
+                  type="button"
+                  onClick={(e) => navigateTo("about", e.currentTarget)}
+                >
                   <span className="sg-no">{item.no}</span>
                   <span className="sg-cn">{item.name}</span>
                   <span className="sg-meta">{item.meta}</span>
@@ -821,14 +1014,22 @@ export default function SignalStudyApp() {
 
       {/* ── 02 VISUAL ART (PLACEHOLDER) ─────────────────────────── */}
       <section
+        ref={(el) => {
+          pageRefs.current["visual-art"] = el;
+        }}
         id="visual-art"
-        className="sg-page sg-scroll"
+        className={pageClass("visual-art", "sg-scroll")}
         aria-label="Visual Art"
-        hidden={section !== "visual-art"}
+        hidden={isHidden("visual-art")}
       >
         <div className="sg-inner">
           <div className="sg-ptitle">
-            <h1>Visual Art</h1>
+            <ToolpathTitle
+              triggerKey={sectionAnimTick["visual-art"]}
+              reduced={reduced}
+            >
+              Visual Art
+            </ToolpathTitle>
             <p>
               Study placeholder — contact sheet reserved for real-time shaders,
               frame-by-frame AI animation and motion experiments.
@@ -872,10 +1073,13 @@ export default function SignalStudyApp() {
 
       {/* ── 03 CREATIVE LAB (PLACEHOLDER) ───────────────────────── */}
       <section
+        ref={(el) => {
+          pageRefs.current.lab = el;
+        }}
         id="lab"
-        className="sg-page sg-lab"
+        className={pageClass("lab", "sg-lab")}
         aria-label="Creative Lab"
-        hidden={section !== "lab"}
+        hidden={isHidden("lab")}
       >
         <div className="sg-net">
           {labNodes.map((node) => (
@@ -900,15 +1104,16 @@ export default function SignalStudyApp() {
         </div>
 
         <div className="sg-ptitle sg-labt">
-          <h1>Creative Lab</h1>
+          <ToolpathTitle triggerKey={sectionAnimTick.lab} reduced={reduced}>
+            Creative Lab
+          </ToolpathTitle>
         </div>
         <div className="sg-netbar">
           <span>/juan/lab</span>
-          <span className="sg-fps">{telemetry.fps} fps</span>
-          <button
-            type="button"
-            onClick={() => setLabNodes(INITIAL_LAB_NODES)}
-          >
+          <span ref={labFpsRef} className="sg-fps">
+            60 fps
+          </span>
+          <button type="button" onClick={() => setLabNodes(INITIAL_LAB_NODES)}>
             Re-center
           </button>
         </div>
@@ -940,14 +1145,19 @@ export default function SignalStudyApp() {
 
       {/* ── 04 ABOUT ME (FULLY POPULATED) ───────────────────────── */}
       <section
+        ref={(el) => {
+          pageRefs.current.about = el;
+        }}
         id="about"
-        className="sg-page sg-scroll"
+        className={pageClass("about", "sg-scroll")}
         aria-label="About Me"
-        hidden={section !== "about"}
+        hidden={isHidden("about")}
       >
         <div className="sg-inner">
           <div className="sg-ptitle">
-            <h1>About</h1>
+            <ToolpathTitle triggerKey={sectionAnimTick.about} reduced={reduced}>
+              About
+            </ToolpathTitle>
           </div>
           <div className="sg-about">
             <div>
@@ -1037,7 +1247,7 @@ export default function SignalStudyApp() {
                     href="#lab"
                     onClick={(e) => {
                       e.preventDefault();
-                      navigateTo("lab");
+                      navigateTo("lab", e.currentTarget);
                     }}
                   >
                     [lab]

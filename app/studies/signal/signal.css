@@ -300,6 +300,71 @@
   color: var(--sg-red);
 }
 
+.sg-mark .sg-wire {
+  position: absolute;
+  top: 50%;
+  left: 60px;
+  right: 0;
+  height: 1px;
+  margin-top: -0.5px;
+  background: var(--sg-red);
+  transform-origin: 0 50%;
+  pointer-events: none;
+  transform: scaleX(0);
+  opacity: 0;
+}
+
+.sg-mark .sg-wtip {
+  position: absolute;
+  top: 50%;
+  left: 60px;
+  width: 5px;
+  height: 5px;
+  margin: -2.5px 0 0 -2px;
+  background: var(--sg-red);
+  box-shadow: 0 0 6px var(--sg-red);
+  pointer-events: none;
+  opacity: 0;
+}
+
+.sg-mark.is-sweeping .sg-wire {
+  animation: sgWireSweep 0.48s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+.sg-mark.is-sweeping .sg-wtip {
+  animation: sgWtipSweep 0.48s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+@keyframes sgWireSweep {
+  0% {
+    opacity: 1;
+    transform: scaleX(0);
+  }
+  70% {
+    opacity: 1;
+    transform: scaleX(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scaleX(1);
+  }
+}
+
+@keyframes sgWtipSweep {
+  0% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  70% {
+    opacity: 1;
+    transform: translateX(130px);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(130px);
+  }
+}
+
 .sg-mainnav {
   display: flex;
   gap: 22px;
@@ -446,6 +511,108 @@
   width: 100%;
   height: 100%;
   display: block;
+}
+
+.sg-stage-layer {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.16s ease;
+}
+
+.sg-stage-layer.is-active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* ── 3D BLUEPRINT ROBOT ARM STAGE & SVG OVERLAY ────────────────────────── */
+.sg-arm-wrap {
+  position: absolute;
+  inset: 0;
+  background-color: #040404;
+  background-image:
+    linear-gradient(rgba(244, 241, 234, 0.055) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(244, 241, 234, 0.055) 1px, transparent 1px),
+    linear-gradient(rgba(244, 241, 234, 0.022) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(244, 241, 234, 0.022) 1px, transparent 1px);
+  background-size: 120px 120px, 120px 120px, 24px 24px, 24px 24px;
+  cursor: crosshair;
+}
+
+.sg-arm-ov {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: visible;
+  font-family: var(--sg-mono);
+}
+
+.sg-arm-ov text {
+  fill: var(--sg-fg);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+}
+
+.sg-arm-ov .tt {
+  font-family: var(--sg-px);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 10px;
+}
+
+.sg-arm-ov line,
+.sg-arm-ov polyline,
+.sg-arm-ov circle {
+  fill: none;
+  stroke: var(--sg-fg);
+  stroke-width: 1;
+}
+
+.sg-arm-ov .dim {
+  stroke: rgba(244, 241, 234, 0.45);
+}
+
+.sg-arm-ov .red {
+  stroke: var(--sg-red);
+}
+
+.sg-arm-ov text.red {
+  fill: var(--sg-red);
+  stroke: none;
+}
+
+/* ── RADIAL PIXEL-BLOCK TRANSIT & TOOLPATH LASER OVERLAYS ──────────────── */
+.sg-transit {
+  position: fixed;
+  inset: 0;
+  z-index: 95;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  display: none;
+  image-rendering: pixelated;
+}
+
+.sg-transit.on {
+  display: block;
+  pointer-events: auto;
+}
+
+.sg-page.leaving {
+  display: block !important;
+  z-index: 90;
+  background: var(--sg-bg);
+  pointer-events: none;
+}
+
+.sg-fx {
+  position: fixed;
+  pointer-events: none;
+  z-index: 40;
+  overflow: visible;
 }
 
 .sg-crt {
