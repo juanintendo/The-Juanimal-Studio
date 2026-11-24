@@ -1,22 +1,26 @@
 import type { Metadata } from "next";
-import { Anton, Bricolage_Grotesque, Inter_Tight } from "next/font/google";
+import {
+  Barlow_Condensed,
+  Londrina_Solid,
+  Plus_Jakarta_Sans,
+} from "next/font/google";
 import "./perrero.css";
 
-const anton = Anton({
-  weight: "400",
+const londrina = Londrina_Solid({
+  weight: ["400", "900"],
   subsets: ["latin"],
   variable: "--font-pr-disp",
   display: "swap",
 });
 
-const bricolage = Bricolage_Grotesque({
-  weight: ["700", "800"],
+const barlowCondensed = Barlow_Condensed({
+  weight: ["600", "700", "800"],
   subsets: ["latin"],
-  variable: "--font-pr-head",
+  variable: "--font-pr-ui",
   display: "swap",
 });
 
-const interTight = Inter_Tight({
+const jakarta = Plus_Jakarta_Sans({
   weight: ["400", "500", "600", "700"],
   subsets: ["latin"],
   variable: "--font-pr-body",
@@ -26,7 +30,7 @@ const interTight = Inter_Tight({
 export const metadata: Metadata = {
   title: "PERRERO SAUCE CO. — Caracas Street Cart Sauces | E-Commerce Study",
   description:
-    "Small-batch Venezuelan street hot-dog sauces: Guasacaca Verde, 3AM Garlic Velvet, Sweet Corn Gold, Smoky Bacon Tartar & Calle Heat Ají.",
+    "Small-batch Venezuelan street hot-dog sauces: Guasacaca Seria, 3.AM Las Mercedes, Liquid Cachapa, Tocineta Tartar & Molotov Love.",
 };
 
 export default function PerreroStudyLayout({
@@ -36,7 +40,7 @@ export default function PerreroStudyLayout({
 }>) {
   return (
     <div
-      className={`pr-root ${anton.variable} ${bricolage.variable} ${interTight.variable}`}
+      className={`pr-root ${londrina.variable} ${barlowCondensed.variable} ${jakarta.variable}`}
     >
       {children}
     </div>
