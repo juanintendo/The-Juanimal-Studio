@@ -346,7 +346,7 @@ const POSTER_FRAG = `
       col += vec3(0.05, 0.12, 0.03) * (0.5 + 0.5 * sin(uTime * 3.0)) * isLime * m;
       // Logical hover: nocturnal cyan-magenta rim flashlight around cursor
       col += vec3(0.18, 0.08, 0.16) * cursorMask * step(0.45, baseUv.y) + vec3(0.07, 0.17, 0.18) * cursorMask * step(baseUv.y, 0.55);
-    } else {
+    } else if (id < 9.5) {
       // 09 BRRT: rising 80mm thermal print-head scan light + cobalt halftone glow + seamless cream gradient pulse
       float isCobalt = smoothstep(0.50, 0.76, col.b) * smoothstep(0.32, 0.16, col.r);
       float isTicket = step(0.74, lum) * smoothstep(0.26, 0.34, baseUv.y) * smoothstep(0.76, 0.68, baseUv.y) * (1.0 - brrtZone);
@@ -366,6 +366,14 @@ const POSTER_FRAG = `
       col += vec3(0.20, 0.20, 0.24) * extraShine(baseUv, uTime, 0.33, 0.24, 0.45) * brrtLetters * m;
       // Logical hover: cool electric riso highlight around cursor over ticket & printer (muted on BRRT so shimmer reads cleanly)
       col += vec3(0.10, 0.15, 0.26) * cursorMask * (0.45 + 0.65 * isCobalt + 0.45 * isTicket) * (1.0 - brrtZone * 0.85);
+    } else {
+      // 10 KANZEN: slow metallic foil sweep strictly across KANZEN & 缶全 lettering
+      float upperBand = step(0.62, baseUv.y) * step(baseUv.y, 0.94);
+      float isOrangeRed = smoothstep(0.66, 0.84, col.r) * smoothstep(0.46, 0.24, col.g) * smoothstep(0.30, 0.14, col.b);
+      float kanzenTitle = upperBand * isOrangeRed;
+      float slowSweep = extraShine(baseUv, uTime, 0.14, 0.28, 0.0) * m;
+      float hGlint = exp(-abs(dot(baseUv - vec2(0.5) - uHit, vec2(0.75, 0.66))) * 14.0) * uHover * 0.42;
+      col += vec3(0.46, 0.38, 0.24) * kanzenTitle * (slowSweep * 0.95 + hGlint);
     }
 
     // Tactile paper-crease relief shading + micro paper fiber grain blended like Justine's posters

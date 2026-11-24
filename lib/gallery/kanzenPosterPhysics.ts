@@ -49,7 +49,9 @@ export interface KanzenPosterPhysics {
 
 const W = 768;
 const H = 1152;
-const GRAVITY = 1380;
+const GRAVITY = 1420;
+const MAX_SPIN = 2.6;
+const PTR_RADIUS = 64;
 
 export function createKanzenPosterPhysics(
   posterSrc: string,
@@ -84,14 +86,14 @@ export function createKanzenPosterPhysics(
     const r = 46 + ((idx * 7) % 15);
     const lane = ((idx * 137) % 100) / 100;
     const body: ToyBody = {
-      x: W * (0.16 + lane * 0.68),
+      x: W * (0.18 + lane * 0.64),
       y: -70 - idx * 14,
-      vx: ((idx % 2 === 0 ? 1 : -1) * (40 + (idx % 5) * 18)),
-      vy: 60 + (idx % 4) * 35,
+      vx: (idx % 2 === 0 ? 1 : -1) * (30 + (idx % 5) * 14),
+      vy: 60 + (idx % 4) * 30,
       r,
-      angle: ((idx % 7) - 3) * 0.12,
-      va: ((idx % 2 === 0 ? 1 : -1) * 0.7),
-      delay: idx * 0.11,
+      angle: ((idx % 7) - 3) * 0.1,
+      va: (idx % 2 === 0 ? 1 : -1) * 0.45,
+      delay: idx * 0.08,
       spawned: false,
       img: null,
     };
@@ -114,13 +116,13 @@ export function createKanzenPosterPhysics(
     const floorY = H - 16;
     if (b.y + b.r > floorY) {
       b.y = floorY - b.r;
-      if (Math.abs(b.vy) > 40) {
-        b.vy = -b.vy * 0.36;
+      if (Math.abs(b.vy) > 45) {
+        b.vy = -b.vy * 0.22;
       } else {
         b.vy = 0;
       }
-      b.vx *= 0.88;
-      b.va *= 0.86;
+      b.vx *= 0.84;
+      b.va *= 0.72;
     }
 
     // Left & right sloped urban wall ramps in bottom 30%
@@ -130,20 +132,22 @@ export function createKanzenPosterPhysics(
       const maxX = W - 18 - t * 145;
       if (b.x - b.r < minX) {
         b.x = minX + b.r;
-        b.vx = Math.abs(b.vx) * 0.48 + 30;
-        b.va += 0.5;
+        b.vx = Math.abs(b.vx) * 0.35 + 22;
+        b.va *= 0.72;
       } else if (b.x + b.r > maxX) {
         b.x = maxX - b.r;
-        b.vx = -Math.abs(b.vx) * 0.48 - 30;
-        b.va -= 0.5;
+        b.vx = -Math.abs(b.vx) * 0.35 - 22;
+        b.va *= 0.72;
       }
     } else {
       if (b.x - b.r < 14) {
         b.x = 14 + b.r;
-        b.vx = Math.abs(b.vx) * 0.45;
+        b.vx = Math.abs(b.vx) * 0.32;
+        b.va *= 0.72;
       } else if (b.x + b.r > W - 14) {
         b.x = W - 14 - b.r;
-        b.vx = -Math.abs(b.vx) * 0.45;
+        b.vx = -Math.abs(b.vx) * 0.32;
+        b.va *= 0.72;
       }
     }
   }
@@ -174,14 +178,17 @@ export function createKanzenPosterPhysics(
             const rvy = b.vy - a.vy;
             const sepVel = rvx * nx + rvy * ny;
             if (sepVel < 0) {
-              const impulse = -(1 + 0.34) * sepVel * 0.5;
+              const impulse = -(1 + 0.22) * sepVel * 0.5;
               a.vx -= impulse * nx;
               a.vy -= impulse * ny;
               b.vx += impulse * nx;
               b.vy += impulse * ny;
-              const tang = (-rvx * ny + rvy * nx) * 0.004;
-              a.va -= tang;
-              b.va += tang;
+
+              if (iter === 0 && Math.abs(sepVel) > 40) {
+                const tang = (-rvx * ny + rvy * nx) * 0.0006;
+                a.va = THREE.MathUtils.clamp(a.va - tang, -MAX_SPIN, MAX_SPIN);
+                b.va = THREE.MathUtils.clamp(b.va + tang, -MAX_SPIN, MAX_SPIN);
+              }
             }
           }
         }
@@ -226,6 +233,7 @@ export function createKanzenPosterPhysics(
       b.y = H - 72 - row * 78;
       b.vx = 0;
       b.vy = 0;
+      b.va = 0;
     });
     solveCollisions();
     drawFrame();
@@ -257,8 +265,8 @@ export function createKanzenPosterPhysics(
       ptrX = (hitX + 0.5) * W;
       ptrY = (0.5 - hitY) * H;
       if (prevPtrX !== null && prevPtrY !== null && step > 0.001) {
-        pvx = THREE.MathUtils.clamp((ptrX - prevPtrX) / step, -1400, 1400);
-        pvy = THREE.MathUtils.clamp((ptrY - prevPtrY) / step, -1400, 1400);
+        pvx = THREE.MathUtils.clamp((ptrX - prevPtrX) / step, -2200, 2200);
+        pvy = THREE.MathUtils.clamp((ptrY - prevPtrY) / step, -2200, 2200);
       }
       prevPtrX = ptrX;
       prevPtrY = ptrY;
@@ -277,25 +285,41 @@ export function createKanzenPosterPhysics(
       }
 
       b.vy += GRAVITY * step;
-      b.vx *= 0.994;
-      b.va *= 0.985;
+      b.vx *= 0.985;
+      b.va *= 0.9;
+      if (Math.abs(b.va) < 0.05) b.va = 0;
 
+      // Solid circular bumper collision on mouseover
       if (ptrX !== null && ptrY !== null) {
         const dx = b.x - ptrX;
         const dy = b.y - ptrY;
         const dist = Math.hypot(dx, dy);
-        const reach = b.r + 74;
-        if (dist < reach && dist > 0.1) {
-          const force = (1 - dist / reach) * 780;
-          b.vx += (dx / dist) * force * step * 3.2 + pvx * 0.06;
-          b.vy += (dy / dist) * force * step * 3.2 - 180 * step + pvy * 0.06;
-          b.va += ((dx > 0 ? 1 : -1) * 2.4) * step;
+        const minReach = b.r + PTR_RADIUS;
+        if (dist < minReach && dist > 0.01) {
+          const nx = dx / dist;
+          const ny = dy / dist;
+          const push = minReach - dist;
+          b.x += nx * push * 0.65;
+          b.y += ny * push * 0.65;
+          b.vx += nx * 340 + pvx * 0.42;
+          b.vy += ny * 340 + pvy * 0.42 - 140;
+          b.va = THREE.MathUtils.clamp(
+            b.va + (nx > 0 ? 1.4 : -1.4),
+            -MAX_SPIN,
+            MAX_SPIN
+          );
         }
       }
 
       b.x += b.vx * step;
       b.y += b.vy * step;
+      b.va = THREE.MathUtils.clamp(b.va, -MAX_SPIN, MAX_SPIN);
       b.angle += b.va * step;
+
+      if (Math.abs(b.vx) < 8 && Math.abs(b.vy) < 12) {
+        b.vx *= 0.78;
+        b.va *= 0.7;
+      }
     }
 
     solveCollisions();
@@ -305,9 +329,13 @@ export function createKanzenPosterPhysics(
   function nudge() {
     for (const b of bodies) {
       if (!b.spawned) continue;
-      b.vy -= 260 + Math.random() * 280;
-      b.vx += (Math.random() - 0.5) * 320;
-      b.va += (Math.random() - 0.5) * 4;
+      b.vy -= 220 + Math.random() * 200;
+      b.vx += (Math.random() - 0.5) * 240;
+      b.va = THREE.MathUtils.clamp(
+        b.va + (Math.random() - 0.5) * 2.2,
+        -MAX_SPIN,
+        MAX_SPIN
+      );
     }
   }
 
