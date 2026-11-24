@@ -4,6 +4,7 @@ import {
   Londrina_Solid,
   Plus_Jakarta_Sans,
 } from "next/font/google";
+import { PerreroShell } from "@/components/studies/perrero/PerreroShell";
 import "./perrero.css";
 
 const londrina = Londrina_Solid({
@@ -42,7 +43,7 @@ export default function PerreroStudyLayout({
     <div
       className={`pr-root ${londrina.variable} ${barlowCondensed.variable} ${jakarta.variable}`}
     >
-      {children}
+      <PerreroShell>{children}</PerreroShell>
     </div>
   );
 }

@@ -1,5 +1,5 @@
-import PerreroStoreApp from "@/components/studies/perrero/PerreroStoreApp";
+import PerreroHomeView from "@/components/studies/perrero/PerreroHomeView";
 
 export default function PerreroStudyPage() {
-  return <PerreroStoreApp />;
+  return <PerreroHomeView />;
 }
