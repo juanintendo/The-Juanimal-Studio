@@ -1,0 +1,1077 @@
+.pr-root {
+  --pr-bg: #100b06;
+  --pr-surface: #171009;
+  --pr-cream: #f5e4c7;
+  --pr-dim: rgba(245, 228, 199, 0.68);
+  --pr-line: rgba(245, 228, 199, 0.22);
+  --pr-disp: var(--font-pr-disp), Impact, sans-serif;
+  --pr-head: var(--font-pr-head), sans-serif;
+  --pr-body: var(--font-pr-body), -apple-system, BlinkMacSystemFont, sans-serif;
+
+  min-height: 100vh;
+  background: var(--pr-bg);
+  color: var(--pr-cream);
+  font-family: var(--pr-body);
+  overflow-x: clip;
+  -webkit-font-smoothing: antialiased;
+}
+
+.pr-root *,
+.pr-root *::before,
+.pr-root *::after {
+  box-sizing: border-box;
+}
+
+.pr-root a,
+.pr-root button {
+  color: inherit;
+  font: inherit;
+}
+
+.pr-root button {
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+
+.pr-root :focus-visible {
+  outline: 2px solid var(--pr-cream);
+  outline-offset: 3px;
+}
+
+/* ── PROMO BANNER ──────────────────────────────────────────────────────── */
+.pr-promo {
+  background: #23180f;
+  border-bottom: 1px solid var(--pr-line);
+  padding: 9px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--pr-cream);
+}
+
+.pr-promo-close {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 24px;
+  height: 24px;
+  display: grid;
+  place-items: center;
+  opacity: 0.72;
+}
+
+.pr-promo-close:hover {
+  opacity: 1;
+}
+
+/* ── HEADER (Top Links -> Sticky Morph on Scroll) ──────────────────────── */
+.pr-header {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px clamp(16px, 3vw, 40px);
+  background: rgba(16, 11, 6, 0.88);
+  backdrop-filter: blur(10px);
+  transition: padding 0.25s ease;
+}
+
+.pr-header-logo {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+}
+
+.pr-emblem-svg {
+  width: 82px;
+  height: 82px;
+  display: block;
+  transition: transform 0.25s ease;
+}
+
+.pr-emblem-compact {
+  width: 52px;
+  height: 36px;
+  display: block;
+}
+
+.pr-topnav {
+  display: flex;
+  align-items: center;
+  gap: clamp(14px, 2.2vw, 30px);
+  font-family: var(--pr-disp);
+  font-size: 15px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.pr-topnav a,
+.pr-topnav button {
+  text-decoration: none;
+  transition: opacity 0.15s ease;
+}
+
+.pr-topnav a:hover,
+.pr-topnav button:hover {
+  opacity: 0.68;
+}
+
+.pr-scrolled-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pr-pill-cta {
+  background: var(--pr-cream) !important;
+  color: var(--pr-bg) !important;
+  font-family: var(--pr-disp) !important;
+  font-size: 14px !important;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 10px 22px !important;
+  border-radius: 6px;
+  transition: transform 0.16s ease, opacity 0.16s ease;
+}
+
+.pr-pill-cta:hover {
+  transform: translateY(-1px);
+}
+
+.pr-icon-btn {
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--pr-line) !important;
+  border-radius: 6px;
+  display: grid;
+  place-items: center;
+  position: relative;
+}
+
+.pr-icon-btn:hover {
+  border-color: var(--pr-cream) !important;
+}
+
+.pr-cart-badge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: #c82233;
+  color: #f5e4c7;
+  font-size: 10px;
+  font-weight: 700;
+  display: grid;
+  place-items: center;
+}
+
+/* ── HERO SECTION ──────────────────────────────────────────────────────── */
+.pr-hero {
+  padding: 10px clamp(16px, 3vw, 40px) 72px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.pr-hero-h1 {
+  font-family: var(--pr-disp);
+  font-weight: 400;
+  text-transform: uppercase;
+  font-size: clamp(44px, 7.6vw, 108px);
+  line-height: 0.94;
+  letter-spacing: 0.01em;
+  max-width: 15ch;
+  margin: 0 auto 38px;
+}
+
+.pr-outline {
+  color: transparent;
+  -webkit-text-stroke: 1.5px var(--pr-cream);
+}
+
+.pr-fade-word span {
+  display: inline-block;
+}
+
+.pr-fade-1 {
+  opacity: 0.92;
+  transform: rotate(-1.5deg);
+}
+.pr-fade-2 {
+  opacity: 0.65;
+  transform: rotate(1deg);
+}
+.pr-fade-3 {
+  opacity: 0.38;
+  transform: rotate(-1deg);
+}
+
+.pr-hero-rule {
+  width: 100%;
+  max-width: 1180px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--pr-dim);
+  margin-bottom: 24px;
+}
+
+.pr-hero-rule::before {
+  content: "";
+  flex: 1;
+  border-top: 1px dashed var(--pr-line);
+}
+
+.pr-hero-stage {
+  position: relative;
+  width: 100%;
+  max-width: 680px;
+  height: clamp(320px, 46vh, 430px);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+
+.pr-hero-halo {
+  position: absolute;
+  width: clamp(230px, 30vw, 320px);
+  height: clamp(230px, 30vw, 320px);
+  border-radius: 50%;
+  transition: background-color 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.pr-hero-bottle-wrap {
+  position: relative;
+  z-index: 2;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.pr-bottle-svg {
+  height: 100%;
+  width: auto;
+  max-height: 390px;
+  object-fit: contain;
+  display: block;
+}
+
+.pr-hero-controls {
+  margin-top: 22px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.pr-step-btn {
+  border: 1px solid var(--pr-line) !important;
+  padding: 8px 14px !important;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.pr-step-btn:hover {
+  border-color: var(--pr-cream) !important;
+  background: var(--pr-cream);
+  color: var(--pr-bg);
+}
+
+/* ── FEATURE STACK (NO CORN SYRUP / NO SEED OILS / 3AM CARACAS) ────────── */
+.pr-stack-section {
+  position: relative;
+  padding: 84px clamp(16px, 4vw, 48px) 110px;
+  overflow: hidden;
+}
+
+.pr-float-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.pr-float-item {
+  position: absolute;
+  font-size: clamp(44px, 6vw, 76px);
+  filter: drop-shadow(0 16px 24px rgba(0, 0, 0, 0.65));
+  user-select: none;
+  transition: transform 0.25s ease-out;
+}
+
+.pr-stack-list {
+  position: relative;
+  z-index: 2;
+  max-width: 440px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.pr-feature-card {
+  border: 1px solid var(--pr-cream);
+  border-radius: 10px;
+  overflow: hidden;
+  background: rgba(16, 11, 6, 0.94);
+  box-shadow: 0 24px 50px rgba(0, 0, 0, 0.65);
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.pr-feature-card:nth-child(odd) {
+  transform: rotate(-1.8deg);
+}
+
+.pr-feature-card:nth-child(even) {
+  transform: rotate(2.1deg);
+}
+
+.pr-feature-card:hover {
+  transform: rotate(0deg) scale(1.02);
+}
+
+.pr-feature-head {
+  background: var(--pr-cream);
+  color: var(--pr-bg);
+  padding: 12px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: var(--pr-disp);
+  font-size: 22px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.pr-feature-head i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--pr-bg);
+  display: inline-block;
+}
+
+.pr-feature-body {
+  padding: 30px 26px 34px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+}
+
+.pr-feature-body p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--pr-dim);
+  max-width: 34ch;
+}
+
+/* ── CHOOSE YOUR WEAPON ────────────────────────────────────────────────── */
+.pr-weapon-section {
+  padding: 56px clamp(16px, 3vw, 40px) 96px;
+  max-width: 1360px;
+  margin: 0 auto;
+}
+
+.pr-weapon-heading {
+  text-align: center;
+  margin-bottom: 52px;
+}
+
+.pr-weapon-top {
+  display: block;
+  font-family: var(--pr-disp);
+  font-size: clamp(30px, 4.4vw, 56px);
+  line-height: 1;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.pr-weapon-big {
+  display: block;
+  font-family: var(--pr-disp);
+  font-size: clamp(72px, 16vw, 220px);
+  line-height: 0.88;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+  color: transparent;
+  -webkit-text-stroke: 1.6px var(--pr-cream);
+}
+
+.pr-weapon-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 18px;
+  align-items: stretch;
+}
+
+.pr-weapon-card {
+  border-radius: 14px;
+  padding: 18px 14px 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  color: #f5e4c7;
+  transition: transform 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.pr-weapon-card:nth-child(even) {
+  transform: translateY(18px);
+}
+
+.pr-weapon-card:hover {
+  transform: translateY(-6px) scale(1.015);
+}
+
+.pr-weapon-card::before {
+  content: "";
+  position: absolute;
+  inset: 8px;
+  border: 1px dashed rgba(245, 228, 199, 0.36);
+  border-radius: 10px;
+  pointer-events: none;
+}
+
+.pr-weapon-title {
+  font-family: var(--pr-disp);
+  font-size: 22px;
+  line-height: 1.02;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.pr-weapon-img {
+  height: 220px;
+  display: grid;
+  place-items: center;
+  margin: 4px 0 12px;
+  cursor: pointer;
+}
+
+.pr-weapon-img svg {
+  height: 210px;
+  width: auto;
+  object-fit: contain;
+}
+
+.pr-weapon-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+  padding: 0 4px;
+}
+
+.pr-weapon-actions {
+  display: flex;
+  gap: 6px;
+  position: relative;
+  z-index: 2;
+}
+
+.pr-btn-dark {
+  flex: 1;
+  background: #100b06 !important;
+  color: var(--pr-cream) !important;
+  padding: 9px 10px !important;
+  border-radius: 6px;
+  font-family: var(--pr-disp) !important;
+  font-size: 13px !important;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.pr-btn-dark:hover {
+  background: var(--pr-cream) !important;
+  color: #100b06 !important;
+}
+
+.pr-btn-ghost {
+  border: 1px solid rgba(245, 228, 199, 0.5) !important;
+  padding: 9px 10px !important;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+/* ── 3-PACK BUNDLE BUILDER ─────────────────────────────────────────────── */
+.pr-bundle-section {
+  padding: 84px clamp(16px, 3vw, 40px);
+  max-width: 1160px;
+  margin: 0 auto;
+}
+
+.pr-bundle-box {
+  border: 1px solid var(--pr-line);
+  border-radius: 16px;
+  background: var(--pr-surface);
+  padding: clamp(24px, 4vw, 48px);
+}
+
+.pr-bundle-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 20px;
+  flex-wrap: wrap;
+  border-bottom: 1px dashed var(--pr-line);
+  padding-bottom: 22px;
+  margin-bottom: 28px;
+}
+
+.pr-bundle-top h2 {
+  font-family: var(--pr-disp);
+  font-weight: 400;
+  font-size: clamp(32px, 4.6vw, 54px);
+  line-height: 0.96;
+  text-transform: uppercase;
+  margin: 0;
+}
+
+.pr-bundle-price {
+  text-align: right;
+}
+
+.pr-bundle-price del {
+  color: var(--pr-dim);
+  font-size: 15px;
+  margin-right: 8px;
+}
+
+.pr-bundle-price strong {
+  font-family: var(--pr-disp);
+  font-size: 32px;
+  color: #f5e4c7;
+}
+
+.pr-bundle-slots {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.pr-slot {
+  border: 1px dashed var(--pr-line);
+  border-radius: 12px;
+  padding: 18px 12px;
+  min-height: 220px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: rgba(16, 11, 6, 0.65);
+  position: relative;
+}
+
+.pr-slot svg {
+  height: 150px;
+  width: auto;
+  object-fit: contain;
+}
+
+.pr-slot-label {
+  font-family: var(--pr-disp);
+  font-size: 15px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.pr-slot-clear {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  font-size: 11px;
+  color: var(--pr-dim);
+}
+
+.pr-bundle-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  margin-bottom: 24px;
+}
+
+.pr-pick-chip {
+  border: 1px solid var(--pr-line) !important;
+  padding: 9px 14px !important;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pr-pick-chip:hover {
+  border-color: var(--pr-cream) !important;
+}
+
+.pr-pick-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+/* ── WHY PERRERO (ARCHED SVG + ORBITAL 01 / 02 / 03) ───────────────────── */
+.pr-why-section {
+  padding: 64px clamp(16px, 3vw, 40px) 100px;
+  max-width: 1240px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.pr-arch-svg {
+  width: min(780px, 95vw);
+  height: auto;
+  display: block;
+  margin: 0 auto;
+}
+
+.pr-why-lede {
+  max-width: 34ch;
+  margin: -12px auto 52px;
+  font-size: 14px;
+  line-height: 1.55;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #d98e32;
+}
+
+.pr-why-lede strong {
+  color: var(--pr-cream);
+}
+
+.pr-orbit-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 28px;
+  padding-top: 24px;
+  border-top: 1px dashed var(--pr-line);
+}
+
+.pr-orbit-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+.pr-orbit-item:nth-child(2) {
+  transform: translateY(-18px);
+}
+
+.pr-orbit-num {
+  font-family: var(--pr-disp);
+  font-size: clamp(72px, 8vw, 118px);
+  line-height: 0.9;
+  color: transparent;
+  -webkit-text-stroke: 1.5px var(--pr-cream);
+}
+
+.pr-orbit-pill {
+  background: var(--pr-cream);
+  color: var(--pr-bg);
+  padding: 10px 18px;
+  border-radius: 6px;
+  font-family: var(--pr-disp);
+  font-size: 18px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  transform: rotate(-2deg);
+}
+
+.pr-orbit-item:nth-child(even) .pr-orbit-pill {
+  transform: rotate(2deg);
+}
+
+.pr-orbit-item p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--pr-dim);
+  max-width: 32ch;
+}
+
+/* ── REVIEWS ───────────────────────────────────────────────────────────── */
+.pr-reviews-section {
+  padding: 40px clamp(16px, 3vw, 40px) 84px;
+  max-width: 1320px;
+  margin: 0 auto;
+}
+
+.pr-reviews-title {
+  font-family: var(--pr-disp);
+  font-weight: 400;
+  font-size: clamp(32px, 4.5vw, 52px);
+  text-transform: uppercase;
+  margin: 0 0 24px;
+  text-align: center;
+}
+
+.pr-reviews-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.pr-review-card {
+  border: 1px solid var(--pr-line);
+  border-radius: 10px;
+  padding: 20px;
+  background: var(--pr-surface);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.pr-review-card p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--pr-cream);
+}
+
+.pr-review-meta {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--pr-dim);
+}
+
+/* ── BOXED CLUB FOOTER ─────────────────────────────────────────────────── */
+.pr-footer {
+  padding: 24px clamp(16px, 3vw, 40px) 36px;
+  max-width: 1360px;
+  margin: 0 auto;
+}
+
+.pr-footer-grid {
+  display: grid;
+  grid-template-columns: 200px 1.2fr 1.2fr 120px;
+  gap: 16px;
+  align-items: stretch;
+}
+
+.pr-footer-box {
+  border: 1px solid var(--pr-line);
+  border-radius: 10px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.pr-footer-links {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.pr-footer-links li a {
+  display: block;
+  padding: 12px 0;
+  border-bottom: 1px dashed var(--pr-line);
+  font-family: var(--pr-disp);
+  font-size: 16px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-decoration: none;
+}
+
+.pr-footer-links li:last-child a {
+  border-bottom: 0;
+}
+
+.pr-footer-club h3 {
+  font-family: var(--pr-disp);
+  font-weight: 400;
+  font-size: 28px;
+  text-transform: uppercase;
+  margin: 0 0 8px;
+}
+
+.pr-footer-club p {
+  margin: 0 0 18px;
+  font-size: 13px;
+  color: var(--pr-dim);
+}
+
+.pr-club-form {
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--pr-line);
+  border-radius: 8px;
+  padding: 6px 8px 6px 14px;
+  gap: 8px;
+}
+
+.pr-club-form input {
+  flex: 1;
+  background: transparent;
+  border: 0;
+  color: var(--pr-cream);
+  font-size: 13px;
+  outline: none;
+}
+
+.pr-club-form button {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid var(--pr-line) !important;
+  display: grid;
+  place-items: center;
+}
+
+.pr-footer-social {
+  display: grid;
+  gap: 10px;
+}
+
+.pr-social-btn {
+  border: 1px solid var(--pr-line);
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  font-family: var(--pr-disp);
+  font-size: 15px;
+  letter-spacing: 0.08em;
+  text-decoration: none;
+}
+
+.pr-footer-bottom {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 18px;
+  font-size: 12px;
+  color: var(--pr-dim);
+  flex-wrap: wrap;
+}
+
+/* ── QUICK VIEW PDP MODAL & SLIDE-OVER CART DRAWER ─────────────────────── */
+.pr-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  background: rgba(10, 7, 4, 0.8);
+  backdrop-filter: blur(6px);
+  display: grid;
+  place-items: center;
+  padding: 20px;
+}
+
+.pr-modal {
+  width: min(880px, 100%);
+  max-height: 90vh;
+  overflow-y: auto;
+  background: #171009;
+  border: 1px solid var(--pr-cream);
+  border-radius: 16px;
+  padding: clamp(20px, 3.5vw, 36px);
+  display: grid;
+  grid-template-columns: 1fr 1.1fr;
+  gap: 28px;
+  position: relative;
+}
+
+.pr-modal-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--pr-line) !important;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+}
+
+.pr-modal-stage {
+  position: relative;
+  min-height: 320px;
+  border-radius: 12px;
+  background: #100b06;
+  border: 1px dashed var(--pr-line);
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+
+.pr-modal-stage svg {
+  height: 270px;
+  width: auto;
+  object-fit: contain;
+  position: relative;
+  z-index: 2;
+}
+
+.pr-orbit-badge {
+  position: absolute;
+  z-index: 3;
+  background: #23180f;
+  border: 1px solid var(--pr-line);
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  pointer-events: none;
+  transition: transform 0.2s ease-out;
+}
+
+.pr-drawer-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  background: rgba(10, 7, 4, 0.72);
+  display: flex;
+  justify-content: flex-end;
+}
+
+.pr-drawer {
+  width: min(440px, 100vw);
+  height: 100%;
+  background: #150e08;
+  border-left: 1px solid var(--pr-cream);
+  display: flex;
+  flex-direction: column;
+  padding: 24px;
+}
+
+.pr-drawer-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--pr-line);
+  padding-bottom: 14px;
+}
+
+.pr-drawer-head h2 {
+  font-family: var(--pr-disp);
+  font-size: 26px;
+  font-weight: 400;
+  margin: 0;
+}
+
+.pr-ship-bar {
+  margin: 14px 0 18px;
+  font-size: 12px;
+}
+
+.pr-ship-track {
+  height: 6px;
+  background: rgba(245, 228, 199, 0.14);
+  border-radius: 999px;
+  overflow: hidden;
+  margin-top: 8px;
+}
+
+.pr-ship-fill {
+  height: 100%;
+  background: #4e8a2e;
+  transition: width 0.25s ease;
+}
+
+.pr-drawer-items {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.pr-cart-row {
+  border: 1px solid var(--pr-line);
+  border-radius: 10px;
+  padding: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.pr-qty {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--pr-line);
+  border-radius: 6px;
+  padding: 4px 8px;
+}
+
+/* ── RESPONSIVE ────────────────────────────────────────────────────────── */
+@media (max-width: 1080px) {
+  .pr-weapon-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .pr-reviews-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .pr-footer-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 760px) {
+  .pr-topnav {
+    display: none;
+  }
+  .pr-weapon-grid {
+    grid-template-columns: 1fr;
+  }
+  .pr-weapon-card:nth-child(even) {
+    transform: none;
+  }
+  .pr-bundle-slots,
+  .pr-orbit-grid,
+  .pr-reviews-grid,
+  .pr-footer-grid,
+  .pr-modal {
+    grid-template-columns: 1fr;
+  }
+  .pr-orbit-item:nth-child(2) {
+    transform: none;
+  }
+}
