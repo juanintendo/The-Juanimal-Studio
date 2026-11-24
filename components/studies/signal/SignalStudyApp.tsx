@@ -410,6 +410,9 @@ export default function SignalStudyApp() {
     [section, reduced]
   );
 
+  const homeRef = pageRefs;
+  const touchStartRef = useRef<{ x: number; y: number } | null>(null);
+
   const cycleOutput = useCallback(
     (dir: 1 | -1) => {
       setOutputIdx((prev) => (prev + dir + OUTPUTS.length) % OUTPUTS.length);
@@ -419,6 +422,49 @@ export default function SignalStudyApp() {
     },
     [triggerWipe]
   );
+
+  // Desktop mouse wheel + keyboard ArrowUp/ArrowDown channel switching on Home
+  useEffect(() => {
+    if (section !== "home") return;
+    let accum = 0;
+    let lastWheel = 0;
+    let cooldownUntil = 0;
+
+    const onWheel = (e: WheelEvent) => {
+      if (window.innerWidth <= 760) return;
+      const target = e.target as HTMLElement | null;
+      if (target?.closest(".sg-cols a, button")) return;
+      const now = performance.now();
+      if (now - lastWheel > 260) accum = 0;
+      lastWheel = now;
+      if (now < cooldownUntil) return;
+      const delta = Math.abs(e.deltaY) > Math.abs(e.deltaX) ? e.deltaY : e.deltaX;
+      accum += delta;
+      if (Math.abs(accum) > 70) {
+        cycleOutput(accum > 0 ? 1 : -1);
+        accum = 0;
+        cooldownUntil = now + 650;
+      }
+    };
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "ArrowDown" || e.key === "ArrowRight") {
+        e.preventDefault();
+        cycleOutput(1);
+      } else if (e.key === "ArrowUp" || e.key === "ArrowLeft") {
+        e.preventDefault();
+        cycleOutput(-1);
+      }
+    };
+
+    const homeEl = homeRef.current.home;
+    homeEl?.addEventListener("wheel", onWheel, { passive: true });
+    window.addEventListener("keydown", onKeyDown);
+    return () => {
+      homeEl?.removeEventListener("wheel", onWheel);
+      window.removeEventListener("keydown", onKeyDown);
+    };
+  }, [section, cycleOutput, homeRef]);
 
   const selectOutput = useCallback(
     (mode: OutputMode) => {
@@ -775,7 +821,25 @@ export default function SignalStudyApp() {
         aria-label="Home"
         hidden={isHidden("home")}
       >
-        <div ref={screenRef} className="sg-screen">
+        <div
+          ref={screenRef}
+          className="sg-screen"
+          onTouchStart={(e) => {
+            const t = e.touches[0];
+            if (t) touchStartRef.current = { x: t.clientX, y: t.clientY };
+          }}
+          onTouchEnd={(e) => {
+            const start = touchStartRef.current;
+            touchStartRef.current = null;
+            const t = e.changedTouches[0];
+            if (!start || !t) return;
+            const dx = t.clientX - start.x;
+            const dy = t.clientY - start.y;
+            if (Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy) * 1.4) {
+              cycleOutput(dx < 0 ? 1 : -1);
+            }
+          }}
+        >
           {/* Permanently mounted stage layers for instant 60fps output switching */}
           <div
             className={`sg-stage-layer ${
