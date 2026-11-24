@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="ja" data-lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>缶全 KANZEN GRAFFITI TOYS</title>
+<meta name="description" content="缶全 KANZEN GRAFFITI TOYS: collectible designer vinyl toys modeled after iconic spray cans, caps, mops, markers & street gear. A Juanimal Designs study.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=IBM+Plex+Mono:wght@400;600&family=Noto+Sans+JP:wght@400;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="kanzen.css?v=7">
+</head>
+<body data-bg="wall">
+<a class="skip" href="#products"><span lang="ja">商品へ</span><span lang="en">Skip to products</span></a>
+
+<!-- the header inverts whatever passes under it (mix-blend-mode: difference) -->
+<header class="top">
+  <a class="logo" href="#" aria-label="缶全 KANZEN GRAFFITI TOYS">
+    <img src="img/kanzen-logo.webp" alt="缶全 KANZEN GRAFFITI TOYS" class="logo-img">
+  </a>
+  <div class="lang" role="group" aria-label="Language">
+    <button type="button" data-set-lang="ja" aria-pressed="true">JP</button>
+    <button type="button" data-set-lang="en" aria-pressed="false">EN</button>
+  </div>
+  <button type="button" class="burger" aria-expanded="false" aria-controls="menu">
+    <span class="burger-word">MENU</span><i></i><i></i>
+  </button>
+</header>
+
+<nav id="menu" class="menu" aria-label="Menu" hidden>
+  <div class="menu-in">
+    <div class="menu-products"></div>
+    <div class="menu-side">
+      <a href="#about" data-close><span lang="ja">缶全とは</span><span lang="en">About</span><small>ABOUT</small></a>
+      <a href="#safety" data-close><span lang="ja">安全データ</span><span lang="en">Safety data</span><small>SDS</small></a>
+      <a href="#studio" data-close data-studio><span lang="ja">スプレーを試す</span><span lang="en">Try the spray</span><small>STUDIO</small></a>
+      <p class="menu-note"><span lang="ja">実在しないブランドです。許可された壁で描こう。</span><span lang="en">A concept brand. Paint where you're allowed.</span></p>
+    </div>
+  </div>
+</nav>
+
+<section class="hero" id="studio" aria-label="Hero">
+  <canvas class="wall" aria-hidden="true"></canvas>
+  <div class="frame" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+  <div class="track"></div>
+  <p class="tagline" aria-hidden="true">
+    <span lang="ja">完全じゃなくていい。<br>缶全であれ。</span>
+    <span lang="en">Forget perfect.<br>Be can-perfect.</span>
+  </p>
+  <button type="button" class="hero-name"><span class="hero-series"></span><b class="hero-label"></b><i aria-hidden="true">→</i></button>
+  <p class="drag-hint" aria-hidden="true"><span lang="ja">ドラッグで見る</span><span lang="en">Drag to browse</span></p>
+
+  <div class="studio">
+    <button type="button" class="studio-open"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 7h6v13H8z"/><path d="M9 4h4v3H9z"/><path d="M15 5l3-1M15 7h4M15 9l3 1" stroke="currentColor" stroke-width="1.6" fill="none"/></svg>
+      <span lang="ja">壁に描く</span><span lang="en">Paint the wall</span></button>
+    <div class="studio-bar" hidden>
+      <div class="caps" role="radiogroup" aria-label="Cap"></div>
+      <div class="swatches" role="radiogroup" aria-label="Colour"></div>
+      <div class="studio-tools">
+        <button type="button" class="sound" aria-pressed="true"><span lang="ja">音</span><span lang="en">Sound</span></button>
+        <button type="button" class="buff"><span lang="ja">バフ</span><span lang="en">Buff</span></button>
+        <button type="button" class="studio-close" aria-label="Close"><span lang="ja">閉じる</span><span lang="en">Done</span></button>
+      </div>
+    </div>
+  </div>
+  <div class="nozzle" aria-hidden="true"></div>
+</section>
+
+<main>
+  <div class="index" aria-label="Categories"></div>
+
+  <section id="products" class="products" aria-label="Products">
+    <h2 class="sec-title">PRODUCT<small>(商品)</small></h2>
+  </section>
+
+  <section id="about" class="about" data-bg="ink">
+    <p class="meta">ABOUT<small>(缶全とは)</small></p>
+    <h2 class="manifesto" data-kinetic>
+      <span lang="ja">缶全は、壁に出る前の全部をつくる。</span>
+      <span lang="en">KANZEN makes everything before the wall.</span>
+    </h2>
+    <p class="lede">
+      <span lang="ja">缶、キャップ、マーカー、黒本、そして肺を守るもの。ストリートの道具をそのままソフビトイに。</span>
+      <span lang="en">Collectible designer vinyl toys sculpted after hardcore cans, caps, mops, markers &amp; blackbooks. There is no perfect line — only being can-perfect.</span>
+    </p>
+    <p class="pun">
+      <span lang="ja"><b>完</b>全 → <b>缶</b>全　「完璧」の完を、スプレー缶の「缶」に。</span>
+      <span lang="en"><b>完</b>全 <i>kanzen</i>, “perfect”, with its first character swapped for <b>缶</b>, “can”. Same sound, different promise.</span>
+    </p>
+  </section>
+
+  <section id="safety" class="safety" data-bg="wall">
+    <p class="meta">SAFETY DATA<small>(安全データシート)</small></p>
+    <ul class="sds"></ul>
+  </section>
+
+  <section class="credits" data-bg="ink" aria-label="Credits">
+    <p class="meta">CREDITS<small>(クレジット)</small></p>
+    <dl>
+      <div><dt><span lang="ja">企画・デザイン・実装</span><span lang="en">Concept, design, code</span></dt><dd>Juanimal Designs</dd></div>
+      <div><dt><span lang="ja">エージェント</span><span lang="en">Agents</span></dt><dd>Claude</dd></div>
+      <div><dt><span lang="ja">書体</span><span lang="en">Type</span></dt><dd>Dela Gothic One · Noto Sans JP · IBM Plex Mono</dd></div>
+    </dl>
+    <p class="note"><span lang="ja">実在しないブランドです。デザインスタディとして制作しました。許可された壁で描こう。</span><span lang="en">A concept brand made as a design study. Not a real shop. Paint where you're allowed.</span></p>
+  </section>
+</main>
+
+<!-- one product, opened from a card or the hero -->
+<section class="detail" id="detail" aria-label="Product" hidden></section>
+
+<a class="ring" href="#products" aria-label="Shop">
+  <svg viewBox="0 0 100 100" aria-hidden="true"><defs><path id="rp" d="M50 50 m-39 0 a39 39 0 1 1 78 0 a39 39 0 1 1 -78 0"/></defs>
+    <circle cx="50" cy="50" r="48" fill="none" stroke="#fff" stroke-width="2"/>
+    <text><textPath href="#rp">SHOP · 店 · SHOP · 店 · SHOP · 店 · </textPath></text></svg>
+  <b>店</b>
+</a>
+
+<script src="kanzen.js?v=7" defer></script>
+</body>
+</html>

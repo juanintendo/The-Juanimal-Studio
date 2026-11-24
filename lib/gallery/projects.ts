@@ -564,6 +564,63 @@ export const GALLERY_PROJECTS: GalleryProject[] = [
       },
     ],
   },
+  {
+    slug: "kanzen-toys",
+    num: "11",
+    title: "KANZEN",
+    subtitle: {
+      en: "GRAFFITI VINYL TOYS & 2D PHYSICS POSTER",
+      es: "JUGUETES DE VINIL GRAFFITI & PÓSTER CON FÍSICA",
+    },
+    year: "2026",
+    role: {
+      en: "Toy Direction · Japanese Web Study · Spray Physics",
+      es: "Dirección de Juguetes · Estudio Web Japonés · Física 2D",
+    },
+    stack: "Canvas 2D Physics · WebAudio Spray Studio · Sofubi Toy Line",
+    accentHex: "#FF4F1A",
+    accentTextHex: "#0E0E0D",
+    posterSrc: "/images/gallery/posters/poster-11-kanzen.png",
+    summary: {
+      en: "缶全 KANZEN Graffiti Toys — 13 collectible sofubi designer toys sculpted after hardcore spray cans, NY Fat & Pink Dot caps, drip mops, steel markers and blackbooks.",
+      es: "缶全 KANZEN Graffiti Toys — 13 juguetes coleccionables de vinil esculpidos a partir de latas, válvulas NY Fat y Pink Dot, mops, marcadores y blackbooks.",
+    },
+    storyParagraphs: {
+      en: [
+        "Inspired by Japanese underground design galleries, KANZEN turns hardcore street-art tools into a cohesive designer vinyl toy line where each character's silhouette mirrors how it paints.",
+        "Features an interactive drag-through hero, a WebAudio spray studio with per-cap physics and drips, plus this live 2D rigid-body poster where all 18 v1 & v2 toys rain and bounce under your cursor.",
+      ],
+      es: [
+        "Inspirado en las galerías de diseño web japonés, KANZEN convierte herramientas reales de graffiti en una colección de juguetes sofubi donde la silueta y actitud de cada pieza refleja cómo pinta.",
+        "Incluye un estudio interactivo de spray con sonido WebAudio y boquillas reales, además de este póster vivo con física 2D donde los 18 juguetes caen, se apilan y rebotan con tu cursor.",
+      ],
+    },
+    liveHref: "/studies/kanzen/index.html",
+    liveExternal: true,
+    liveLabel: {
+      en: "OPEN KANZEN TOYS ↗",
+      es: "ABRIR KANZEN TOYS ↗",
+    },
+    isInteractiveToy: true,
+    galleryFrames: [
+      {
+        src: "/studies/kanzen/img/cap-nyfat.webp",
+        caption: { en: "NY FAT — 90s Subway King Vinyl Toy", es: "NY FAT — Juguete de Vinil Clásico NYC" },
+      },
+      {
+        src: "/studies/kanzen/img/can-fat.webp",
+        caption: { en: "缶全 FAT FILL — 750ml Sumo Can Toy", es: "缶全 FAT FILL — Lata 750ml Sumo" },
+      },
+      {
+        src: "/studies/kanzen/img/mop.webp",
+        caption: { en: "DRIP MOP — Acid Lime Squeezer Toy", es: "DRIP MOP — Squeezer Verde Ácido" },
+      },
+      {
+        src: "/studies/kanzen/img/mask.webp",
+        caption: { en: "RESPIRATOR — Half-Mask Street Gear Toy", es: "RESPIRATOR — Máscara Urbana de Vinil" },
+      },
+    ],
+  },
 ];
 
 export function getGalleryProject(slug: string): GalleryProject | undefined {

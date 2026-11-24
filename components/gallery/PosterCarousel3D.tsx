@@ -4,6 +4,10 @@ import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import Link from "next/link";
 import type { GalleryProject } from "@/lib/gallery/projects";
+import {
+  createKanzenPosterPhysics,
+  type KanzenPosterPhysics,
+} from "@/lib/gallery/kanzenPosterPhysics";
 
 interface PosterCarousel3DProps {
   projects: GalleryProject[];
@@ -27,6 +31,7 @@ const SLUG_TO_EFFECT_ID: Record<string, number> = {
   "keys-to-my-heart": 7,
   "club-of-the-dead": 8,
   "brrt-receipts": 9,
+  "kanzen-toys": 10,
 };
 
 const POSTER_VERT = `
@@ -194,7 +199,7 @@ const POSTER_FRAG = `
       float boxMask = step(0.08, baseUv.x) * step(baseUv.x, 0.92) * step(0.05, baseUv.y) * step(baseUv.y, 0.72);
       vec2 boil = vec2(sin(step8 * 17.3 + baseUv.y * 9.0), cos(step8 * 13.7 + baseUv.x * 9.0)) * 0.00055 * boxMask * m;
       artUv += boil;
-    } else if (id > 8.5) {
+    } else if (id > 8.5 && id < 9.5) {
       // 09 BRRT: subtle printer paper-feed wave along the curling ticket ribbon on hover
       float ticketBand = smoothstep(0.24, 0.32, baseUv.y) * smoothstep(0.76, 0.66, baseUv.y);
       artUv.y += sin(baseUv.y * 42.0 - uTime * 6.0) * 0.0011 * ticketBand * vHitDist * m;
@@ -590,6 +595,7 @@ export default function PosterCarousel3D({
 
     const posterRigs: PosterRig[] = [];
     const hitTargets: THREE.Mesh[] = [];
+    let kanzenPhysics: { sim: KanzenPosterPhysics; rigIdx: number } | null = null;
 
     const sharedNormals = { value: flatNormalTex as THREE.Texture };
     loadTex("/images/gallery/paper-normals.png", true, (tex) => {
@@ -652,6 +658,12 @@ export default function PosterCarousel3D({
         targetHit: new THREE.Vector2(0, 0),
         uniforms,
       });
+
+      if (project.slug === "kanzen-toys") {
+        const sim = createKanzenPosterPhysics(project.posterSrc);
+        uniforms.uMap.value = sim.texture;
+        kanzenPhysics = { sim, rigIdx: idx };
+      }
 
       loadTex(project.posterSrc, false, (tex) => {
         // Keep static frame loaded instantly as fallback; swap to VideoTexture once decoded
@@ -1030,6 +1042,16 @@ export default function PosterCarousel3D({
         const nearCenter = Math.abs(relX) < stride * 0.5;
         rig.shadowMesh.renderOrder = nearCenter ? 19 : 9;
         rig.mesh.renderOrder = nearCenter ? 20 : 10;
+
+        if (kanzenPhysics && kanzenPhysics.rigIdx === i) {
+          kanzenPhysics.sim.update(
+            dt,
+            rig.targetHit.x,
+            rig.targetHit.y,
+            isHov,
+            reducedRef.current
+          );
+        }
       }
 
       const swayScale = reducedRef.current ? 0 : 0.12;
@@ -1076,6 +1098,7 @@ export default function PosterCarousel3D({
       });
       createdMats.forEach((m) => m.dispose());
       createdTextures.forEach((t) => t.dispose());
+      kanzenPhysics?.sim.dispose();
       renderer.dispose();
     };
   }, [loopW, projects, stride, totalCount]);
