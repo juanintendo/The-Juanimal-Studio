@@ -8,6 +8,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from "react";
@@ -47,7 +48,8 @@ export function usePerreroCart() {
 export function PerreroShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const [showPromo, setShowPromo] = useState(true);
-  const [scrolled, setScrolled] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuButton = useRef<HTMLButtonElement>(null);
   const [cartOpen, setCartOpen] = useState(false);
   const [checkedOut, setCheckedOut] = useState(false);
   const [clubEmail, setClubEmail] = useState("");
@@ -66,18 +68,8 @@ export function PerreroShell({ children }: { children: ReactNode }) {
   ]);
 
   useEffect(() => {
-    let last = window.scrollY > 90;
-    setScrolled(last);
-    const onScroll = () => {
-      const next = window.scrollY > 90;
-      if (next !== last) {
-        last = next;
-        setScrolled(next);
-      }
-    };
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+    setMenuOpen(false);
+  }, [pathname]);
 
   const totalItems = useMemo(
     () => cart.reduce((sum, item) => sum + item.qty, 0),
@@ -202,72 +194,82 @@ export function PerreroShell({ children }: { children: ReactNode }) {
         </div>
       )}
 
-      {/* ── STICKY MORPHING HEADER ─────────────────────────────── */}
-      <header className="pr-header">
-        <Link href="/studies/perrero" className="pr-header-logo" aria-label="Perrero Sauce Co. Home">
-          {scrolled ? (
-            <img
-              src="/images/studies/perrero/brand-crest-compact.png"
-              alt="Perrero"
-              className="pr-emblem-compact"
-            />
-          ) : (
-            <img
-              src="/images/studies/perrero/brand-crest-ivory.png"
-              alt="Perrero Sauce Co."
-              className="pr-emblem-full"
-            />
-          )}
+      <header
+        className="pr-header"
+        onKeyDown={(event) => {
+          if (event.key === "Escape" && menuOpen) {
+            setMenuOpen(false);
+            menuButton.current?.focus();
+          }
+        }}
+        onBlur={(event) => {
+          if (!event.currentTarget.contains(event.relatedTarget)) {
+            setMenuOpen(false);
+          }
+        }}
+      >
+        <Link href="/studies/perrero" className="pr-header-logo" aria-label="Perrero Sauce Co. Home" onClick={() => setMenuOpen(false)}>
+          <img
+            src="/images/studies/perrero/brand-crest-ivory.png"
+            alt=""
+            width={64}
+            height={64}
+            className="pr-emblem-full"
+          />
         </Link>
 
-        {!scrolled ? (
-          <div role="navigation" className="pr-topnav" aria-label="Store navigation">
-            {navLinks.map((item) => {
-              const active =
-                pathname === item.href ||
-                (item.href === "/studies/perrero/shop" &&
-                  pathname?.startsWith("/studies/perrero/shop/"));
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={active ? "pr-nav-active" : undefined}
-                >
-                  {item.label}
-                </Link>
-              );
-            })}
-            <button type="button" onClick={() => setCartOpen(true)}>
-              CART({totalItems})
-            </button>
-          </div>
-        ) : (
-          <div className="pr-scrolled-actions">
-            <Link href="/studies/perrero/shop" className="pr-pill-cta">
-              GET SAUCE
-            </Link>
-            <button
-              type="button"
-              className="pr-icon-btn"
-              aria-label="Open cart"
-              onClick={() => setCartOpen(true)}
-            >
-              <svg
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                aria-hidden="true"
+        <button
+          ref={menuButton}
+          type="button"
+          className="pr-menu-toggle"
+          aria-expanded={menuOpen}
+          aria-controls="pr-store-navigation"
+          onClick={() => setMenuOpen((open) => !open)}
+        >
+          MENU
+        </button>
+
+        <div role="navigation" id="pr-store-navigation" className="pr-topnav" data-open={menuOpen} aria-label="Store navigation">
+          {navLinks.map(({ href, label }) => {
+            const current = pathname === href;
+            const active = current || (href.endsWith("/shop") && pathname?.startsWith(href + "/"));
+            return (
+              <Link
+                key={href}
+                href={href}
+                aria-current={current ? "page" : undefined}
+                className={active ? "pr-nav-active" : undefined}
+                onClick={() => setMenuOpen(false)}
               >
-                <path d="M6 7h12l-1.5 11h-9L6 7z" />
-                <path d="M9 7V5a3 3 0 0 1 6 0v2" />
-              </svg>
-              {totalItems > 0 && <span className="pr-cart-badge">{totalItems}</span>}
-            </button>
-          </div>
-        )}
+                {label}
+              </Link>
+            );
+          })}
+        </div>
+
+        <button
+          type="button"
+          className="pr-icon-btn"
+          aria-label={`Open cart (${totalItems})`}
+          onClick={() => {
+            setMenuOpen(false);
+            setCartOpen(true);
+          }}
+        >
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            aria-hidden="true"
+          >
+            <path d="M6 7h12l-1.5 11h-9L6 7z" />
+            <path d="M9 7V5a3 3 0 0 1 6 0v2" />
+          </svg>
+          {totalItems > 0 && <span className="pr-cart-badge" aria-hidden="true">{totalItems}</span>}
+        </button>
       </header>
 
       <main>{children}</main>
