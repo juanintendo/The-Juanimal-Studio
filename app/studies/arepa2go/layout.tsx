@@ -1,24 +1,21 @@
 import type { Metadata } from "next";
-import { DM_Sans, Fraunces, Space_Grotesk } from "next/font/google";
+import { Fraunces, Inter, Plus_Jakarta_Sans } from "next/font/google";
 import { Arepa2GoShell } from "@/components/studies/arepa2go/Arepa2GoShell";
 import "./arepa2go.css";
 
-const spaceGrotesk = Space_Grotesk({
-  weight: ["500", "700"],
+const inter = Inter({
   subsets: ["latin"],
   variable: "--font-a2g-head",
   display: "swap",
 });
 
 const fraunces = Fraunces({
-  weight: ["600", "800"],
   subsets: ["latin"],
   variable: "--font-a2g-serif",
   display: "swap",
 });
 
-const dmSans = DM_Sans({
-  weight: ["400", "500", "700"],
+const plusJakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
   variable: "--font-a2g-body",
   display: "swap",
@@ -37,7 +34,7 @@ export default function Arepa2GoLayout({
 }>) {
   return (
     <div
-      className={`a2g-root ${spaceGrotesk.variable} ${fraunces.variable} ${dmSans.variable}`}
+      className={`a2g-root ${inter.variable} ${fraunces.variable} ${plusJakarta.variable}`}
     >
       <Arepa2GoShell>{children}</Arepa2GoShell>
     </div>

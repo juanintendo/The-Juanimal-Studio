@@ -44,6 +44,7 @@ export function Arepa2GoShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const [showIntro, setShowIntro] = useState(false);
   const [trayOpen, setTrayOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [ordered, setOrdered] = useState(false);
 
   const [tray, setTray] = useState<TrayItem[]>([
@@ -79,6 +80,10 @@ export function Arepa2GoShell({ children }: { children: ReactNode }) {
       return () => window.clearTimeout(timer);
     }
   }, []);
+
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [pathname]);
 
   const totalItems = useMemo(
     () => tray.reduce((sum, item) => sum + item.qty, 0),
@@ -145,6 +150,10 @@ export function Arepa2GoShell({ children }: { children: ReactNode }) {
 
   return (
     <Arepa2GoContext.Provider value={value}>
+      <a href="#a2g-main" className="a2g-skip-link">
+        Skip to content
+      </a>
+
       {/* ── CALORIEMATE YELLOW WIPE INTRO ──────────────────────── */}
       {showIntro && (
         <div className="a2g-intro-overlay" aria-hidden="true">
@@ -181,6 +190,7 @@ export function Arepa2GoShell({ children }: { children: ReactNode }) {
                     key={item.href}
                     href={item.href}
                     className={active ? "a2g-nav-link active" : "a2g-nav-link"}
+                    aria-current={active ? "page" : undefined}
                   >
                     {item.label}
                   </Link>
@@ -193,15 +203,51 @@ export function Arepa2GoShell({ children }: { children: ReactNode }) {
                 type="button"
                 className="a2g-tray-pill"
                 onClick={() => setTrayOpen(true)}
+                aria-label={`Open takeaway tray (${totalItems} items)`}
               >
                 TRAY ({totalItems})
+              </button>
+              <button
+                type="button"
+                className="a2g-mobile-toggle"
+                aria-expanded={mobileMenuOpen}
+                aria-controls="a2g-mobile-nav"
+                onClick={() => setMobileMenuOpen((prev) => !prev)}
+              >
+                {mobileMenuOpen ? "CLOSE" : "MENU"}
               </button>
             </div>
           </div>
         </div>
+
+        {mobileMenuOpen && (
+          <div
+            id="a2g-mobile-nav"
+            role="navigation"
+            className="a2g-mobile-drawer"
+            aria-label="Arepa 2GO mobile navigation"
+          >
+            {navItems.map((item) => {
+              const active = pathname === item.href;
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={
+                    active ? "a2g-mobile-nav-link active" : "a2g-mobile-nav-link"
+                  }
+                  aria-current={active ? "page" : undefined}
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  {item.label}
+                </Link>
+              );
+            })}
+          </div>
+        )}
       </header>
 
-      <main>{children}</main>
+      <main id="a2g-main">{children}</main>
 
       {/* ── ICONIC CALORIEMATE YELLOW ROUNDED FOOTER ───────────── */}
       <footer className="a2g-cmt-footer-wrap">
@@ -216,9 +262,10 @@ export function Arepa2GoShell({ children }: { children: ReactNode }) {
           <div className="a2g-cmt-footer-top">
             <button
               type="button"
+              aria-label="Scroll back to top"
               onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
             >
-              TOP
+              TOP ↑
             </button>
           </div>
 

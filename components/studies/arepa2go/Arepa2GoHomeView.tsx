@@ -1,9 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
-import { AREPA_MENU, MUSEUM_CHAPTERS } from "./catalog";
-import { useArepa2GoTray } from "./Arepa2GoShell";
+import { MUSEUM_CHAPTERS } from "./catalog";
 
 function DottedArrow({ darkBg = false }: { darkBg?: boolean }) {
   return (
@@ -19,24 +17,144 @@ function DottedArrow({ darkBg = false }: { darkBg?: boolean }) {
   );
 }
 
-const HERO_SLIDES = [
+function MiniBadgeIcon({ kind }: { kind: string }) {
+  switch (kind) {
+    case "corn":
+      return (
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <ellipse cx="14" cy="13" rx="6.5" ry="9" fill="#F7C311" stroke="#000" strokeWidth="1.8" />
+          <path d="M9 10h10M9 14h10M10 18h8" stroke="#000" strokeWidth="1.4" strokeLinecap="round" />
+          <path d="M8 18c-2 2-2 5 0 6h12c2-1 2-4 0-6" stroke="#000" strokeWidth="1.6" strokeLinecap="round" />
+        </svg>
+      );
+    case "fillings":
+      return (
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <circle cx="14" cy="14" r="9" stroke="#000" strokeWidth="1.8" />
+          <path d="M6.5 14h15" stroke="#000" strokeWidth="1.8" />
+          <circle cx="11" cy="11" r="1.7" fill="#F7C311" />
+          <circle cx="16.5" cy="11" r="1.7" fill="#F7C311" />
+          <circle cx="14" cy="17.5" r="1.7" fill="#000" />
+        </svg>
+      );
+    case "grab":
+      return (
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <rect x="6" y="9" width="16" height="13" rx="2.5" fill="#F7C311" stroke="#000" strokeWidth="1.8" />
+          <path d="M10.5 9V7.5a3.5 3.5 0 0 1 7 0V9" stroke="#000" strokeWidth="1.8" />
+          <path d="M11 15.5l2 2 4-4" stroke="#000" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      );
+    case "cheese":
+      return (
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <path d="M5 18l11-9 7 4v7H5v-2z" fill="#F7C311" stroke="#000" strokeWidth="1.8" strokeLinejoin="round" />
+          <circle cx="12" cy="16" r="1.5" fill="#000" />
+          <circle cx="18" cy="16.5" r="1.3" fill="#000" />
+        </svg>
+      );
+    case "plantain":
+      return (
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <path d="M7 20c5 1 11-3 14-12 1 6-2 14-10 15-2.5.3-4-1-4-3z" fill="#F7C311" stroke="#000" strokeWidth="1.8" strokeLinejoin="round" />
+        </svg>
+      );
+    case "sweet":
+      return (
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <path d="M7 20L19 8" stroke="#000" strokeWidth="2.4" strokeLinecap="round" />
+          <path d="M10 21L21 10" stroke="#F7C311" strokeWidth="2.4" strokeLinecap="round" />
+          <circle cx="9" cy="9" r="2" fill="#F7C311" stroke="#000" strokeWidth="1.4" />
+        </svg>
+      );
+    case "cocktail":
+      return (
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <rect x="9" y="8" width="10" height="14" rx="2" fill="#F7C311" stroke="#000" strokeWidth="1.8" />
+          <path d="M14 8V4l4-1" stroke="#000" strokeWidth="1.8" strokeLinecap="round" />
+          <circle cx="19" cy="8" r="2.5" stroke="#000" strokeWidth="1.5" fill="#fff" />
+        </svg>
+      );
+    case "juice":
+      return (
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <circle cx="14" cy="15" r="7.5" fill="#F7C311" stroke="#000" strokeWidth="1.8" />
+          <path d="M14 7.5c1-2.5 3.5-3 5-2-1 2-2.5 3-5 2z" fill="#000" />
+          <path d="M10.5 14.5h7" stroke="#000" strokeWidth="1.5" strokeLinecap="round" />
+        </svg>
+      );
+    default:
+      return (
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <circle cx="9" cy="16" r="3.5" fill="#F7C311" stroke="#000" strokeWidth="1.6" />
+          <circle cx="14" cy="11" r="3.5" fill="#fff" stroke="#000" strokeWidth="1.6" />
+          <circle cx="19" cy="16" r="3.5" fill="#F7C311" stroke="#000" strokeWidth="1.6" />
+        </svg>
+      );
+  }
+}
+
+function NutritionCircleIcon({ kind }: { kind: string }) {
+  switch (kind) {
+    case "corn":
+      return (
+        <svg width="44" height="44" viewBox="0 0 44 44" fill="none" aria-hidden="true">
+          <ellipse cx="22" cy="20" rx="8.5" ry="12" fill="#F7C311" stroke="#000" strokeWidth="2.2" />
+          <path d="M15.5 15h13M14.5 20h15M16 25h12M22 9v22" stroke="#000" strokeWidth="1.6" strokeLinecap="round" />
+          <path d="M12 27c-2.5 3.5-2 7.5 2 9h16c4-1.5 4.5-5.5 2-9" stroke="#000" strokeWidth="2.2" strokeLinecap="round" />
+        </svg>
+      );
+    case "protein":
+      return (
+        <svg width="44" height="44" viewBox="0 0 44 44" fill="none" aria-hidden="true">
+          <rect x="9" y="14" width="26" height="17" rx="8.5" fill="#F7C311" stroke="#000" strokeWidth="2.2" />
+          <path d="M15 20c3-2 6 2 9 0s5-2 6 0M15 25c3-2 6 2 9 0s5-2 6 0" stroke="#000" strokeWidth="2" strokeLinecap="round" />
+        </svg>
+      );
+    case "avocado":
+      return (
+        <svg width="44" height="44" viewBox="0 0 44 44" fill="none" aria-hidden="true">
+          <path d="M22 7c6 0 11 10 11 18a11 11 0 0 1-22 0c0-8 5-18 11-18z" fill="#F7C311" stroke="#000" strokeWidth="2.2" />
+          <circle cx="22" cy="26" r="5" fill="#fff" stroke="#000" strokeWidth="2.2" />
+        </svg>
+      );
+    case "plantain":
+      return (
+        <svg width="44" height="44" viewBox="0 0 44 44" fill="none" aria-hidden="true">
+          <path d="M10 31c8 2 18-4 22-19 2 10-3 22-16 24-4 .5-6.5-1.5-6-5z" fill="#F7C311" stroke="#000" strokeWidth="2.2" strokeLinejoin="round" />
+        </svg>
+      );
+    default:
+      return (
+        <svg width="44" height="44" viewBox="0 0 44 44" fill="none" aria-hidden="true">
+          <circle cx="22" cy="23" r="11.5" fill="#F7C311" stroke="#000" strokeWidth="2.2" />
+          <path d="M22 11.5V34.5M10.5 23h23M14 15l16 16M30 15L14 31" stroke="#000" strokeWidth="1.6" />
+        </svg>
+      );
+  }
+}
+
+const HERO_ITEMS = [
   {
-    id: 0,
-    caption1: "Anytime, anywhere —",
-    caption2: "Venezuela in a bite.",
-    thumb: "/images/studies/arepa2go/hero-triptych-arepa.png",
+    href: "#arepas",
+    src: "/images/studies/arepa2go/hero-triptych-arepa.png",
+    alt: "Caracas Signature Arepa — explore Arepa pockets",
+    label: "01 · AREPAS ↓",
+    tall: false,
   },
   {
-    id: 1,
-    caption1: "Hand-patted corn,",
-    caption2: "100% gluten-free craft.",
-    thumb: "/images/studies/arepa2go/hero-triptych-tequenos.png",
+    href: "#sides",
+    src: "/images/studies/arepa2go/hero-triptych-tequenos.png",
+    alt: "Crispy Golden Tequeños — explore sides & sweets",
+    label: "02 · SIDES ↓",
+    tall: false,
   },
   {
-    id: 2,
-    caption1: "Southsea seaside,",
-    caption2: "no passport needed.",
-    thumb: "/images/studies/arepa2go/hero-triptych-drink.png",
+    href: "#drinks",
+    src: "/images/studies/arepa2go/hero-triptych-drink.png",
+    alt: "Coco Loco Tropical Cocktail — explore drinks & dips",
+    label: "03 · DRINKS ↓",
+    tall: true,
   },
 ];
 
@@ -49,75 +167,38 @@ const FIVE_CIRCLES = [
 ];
 
 export default function Arepa2GoHomeView() {
-  const { addToTray } = useArepa2GoTray();
-  const [slideIdx, setSlideIdx] = useState(0);
-  const currentSlide = HERO_SLIDES[slideIdx] ?? HERO_SLIDES[0];
-
-  const caracasArepa = AREPA_MENU[2];
-  const tequenos = AREPA_MENU[7];
-  const cocoLoco = AREPA_MENU[11];
-
   return (
     <>
       {/* ── 1. HERO KEY VISUAL (CALORIEMATE STUDIO FLOOR) ────────── */}
-      <section className="a2g-cmt-hero">
+      <section className="a2g-cmt-hero" aria-label="Arepa 2GO signature lineup">
         <div className="a2g-cmt-hero-inner">
-          <p className="a2g-cmt-hero-copy">
-            {currentSlide.caption1}
-            <br />
-            {currentSlide.caption2}
-          </p>
+          <div className="a2g-cmt-hero-head">
+            <h1 className="a2g-cmt-hero-copy">
+              Anytime, anywhere —
+              <br />
+              Venezuela in a bite.
+            </h1>
 
-          <div className="a2g-cmt-triptych">
-            <img
-              src="/images/studies/arepa2go/hero-triptych-arepa.png"
-              alt="Caracas Arepa"
-              className={`a2g-cmt-hero-item ${slideIdx === 0 ? "is-focus" : ""}`}
-              onClick={() => addToTray(caracasArepa)}
-            />
-            <img
-              src="/images/studies/arepa2go/hero-triptych-tequenos.png"
-              alt="Crispy Tequeños"
-              className={`a2g-cmt-hero-item ${slideIdx === 1 ? "is-focus" : ""}`}
-              onClick={() => addToTray(tequenos)}
-            />
-            <img
-              src="/images/studies/arepa2go/hero-triptych-drink.png"
-              alt="Coco Loco Cocktail"
-              className={`a2g-cmt-hero-item is-tall ${
-                slideIdx === 2 ? "is-focus" : ""
-              }`}
-              onClick={() => addToTray(cocoLoco)}
-            />
+            <Link href="/studies/arepa2go/menu" className="a2g-black-pill-btn">
+              <span>VIEW FULL MENU</span>
+              <DottedArrow darkBg />
+            </Link>
           </div>
 
-          <div className="a2g-cmt-dots-pill" role="group" aria-label="Hero slides">
-            {HERO_SLIDES.map((s, i) => (
-              <button
-                key={s.id}
-                type="button"
-                aria-label={`Slide ${i + 1}`}
-                className={`a2g-cmt-dot ${slideIdx === i ? "active" : ""}`}
-                onClick={() => setSlideIdx(i)}
-              />
+          <div className="a2g-cmt-triptych">
+            {HERO_ITEMS.map((item) => (
+              <a key={item.href} href={item.href} className="a2g-cmt-hero-card">
+                <img
+                  src={item.src}
+                  alt={item.alt}
+                  className={`a2g-cmt-hero-item ${item.tall ? "is-tall" : ""}`}
+                />
+                <span className="a2g-cmt-hero-label">{item.label}</span>
+              </a>
             ))}
           </div>
         </div>
       </section>
-
-      {/* Thumbnails bar directly beneath hero like CalorieMate */}
-      <div className="a2g-cmt-thumb-strip">
-        {HERO_SLIDES.map((s, i) => (
-          <button
-            key={s.id}
-            type="button"
-            className={`a2g-cmt-thumb ${slideIdx === i ? "active" : ""}`}
-            onClick={() => setSlideIdx(i)}
-          >
-            <img src={s.thumb} alt="" />
-          </button>
-        ))}
-      </div>
 
       {/* ── 2. POETIC STATEMENT + EDGE-BLEEDING PRODUCTS ─────────── */}
       <section className="a2g-cmt-statement">
@@ -190,16 +271,19 @@ export default function Arepa2GoHomeView() {
               src="/images/studies/arepa2go/hero-triptych-arepa.png"
               alt=""
               className="a2g-banner-mini"
+              aria-hidden="true"
             />
             <img
               src="/images/studies/arepa2go/hero-triptych-tequenos.png"
               alt=""
               className="a2g-banner-mini"
+              aria-hidden="true"
             />
             <img
               src="/images/studies/arepa2go/hero-triptych-drink.png"
               alt=""
               className="a2g-banner-mini"
+              aria-hidden="true"
             />
             <Link href="/studies/arepa2go/menu" className="a2g-white-pill-btn">
               <span>FULL MENU</span>
@@ -209,11 +293,11 @@ export default function Arepa2GoHomeView() {
         </div>
 
         {/* Row 1: AREPAS */}
-        <div className="a2g-cmt-row">
+        <div id="arepas" className="a2g-cmt-row">
           <div className="a2g-cmt-row-left">
             <h3>AREPAS</h3>
             <Link href="/studies/arepa2go/menu" className="a2g-black-pill-btn">
-              <span>AREPAS TOP</span>
+              <span>VIEW AREPAS</span>
               <DottedArrow darkBg />
             </Link>
           </div>
@@ -239,12 +323,15 @@ export default function Arepa2GoHomeView() {
             </p>
             <div className="a2g-mini-circles">
               <div className="a2g-mini-circle">
+                <MiniBadgeIcon kind="corn" />
                 <span>100% CORN MASA</span>
               </div>
               <div className="a2g-mini-circle">
+                <MiniBadgeIcon kind="fillings" />
                 <span>6 SIGNATURE FILLINGS</span>
               </div>
               <div className="a2g-mini-circle">
+                <MiniBadgeIcon kind="grab" />
                 <span>GRAB &amp; GO</span>
               </div>
             </div>
@@ -252,11 +339,11 @@ export default function Arepa2GoHomeView() {
         </div>
 
         {/* Row 2: SIDES */}
-        <div className="a2g-cmt-row">
+        <div id="sides" className="a2g-cmt-row">
           <div className="a2g-cmt-row-left">
             <h3>SIDES</h3>
             <Link href="/studies/arepa2go/menu" className="a2g-black-pill-btn">
-              <span>SIDES TOP</span>
+              <span>VIEW SIDES</span>
               <DottedArrow darkBg />
             </Link>
           </div>
@@ -282,12 +369,15 @@ export default function Arepa2GoHomeView() {
             </p>
             <div className="a2g-mini-circles">
               <div className="a2g-mini-circle">
+                <MiniBadgeIcon kind="cheese" />
                 <span>MELTED QUESO</span>
               </div>
               <div className="a2g-mini-circle">
+                <MiniBadgeIcon kind="plantain" />
                 <span>CRISPY PLANTAIN</span>
               </div>
               <div className="a2g-mini-circle">
+                <MiniBadgeIcon kind="sweet" />
                 <span>DULCE DE LECHE</span>
               </div>
             </div>
@@ -295,11 +385,11 @@ export default function Arepa2GoHomeView() {
         </div>
 
         {/* Row 3: DRINKS */}
-        <div className="a2g-cmt-row">
+        <div id="drinks" className="a2g-cmt-row">
           <div className="a2g-cmt-row-left">
             <h3>DRINKS</h3>
             <Link href="/studies/arepa2go/menu" className="a2g-black-pill-btn">
-              <span>DRINKS TOP</span>
+              <span>VIEW DRINKS</span>
               <DottedArrow darkBg />
             </Link>
           </div>
@@ -325,12 +415,15 @@ export default function Arepa2GoHomeView() {
             </p>
             <div className="a2g-mini-circles">
               <div className="a2g-mini-circle">
+                <MiniBadgeIcon kind="cocktail" />
                 <span>COCO LOCO</span>
               </div>
               <div className="a2g-mini-circle">
+                <MiniBadgeIcon kind="juice" />
                 <span>TROPICAL JUICES</span>
               </div>
               <div className="a2g-mini-circle">
+                <MiniBadgeIcon kind="dips" />
                 <span>3 HOUSE DIPS</span>
               </div>
             </div>
@@ -372,7 +465,7 @@ export default function Arepa2GoHomeView() {
           <h2 className="a2g-cmt-section-h2">INGREDIENTS</h2>
           <span className="a2g-cmt-outline-pill">100% GLUTEN-FREE CRAFT</span>
           <p className="a2g-cmt-nutr-copy">
-            Every Arepa 2GO bite balances crisp white cornmasa, slow-cooked
+            Every Arepa 2GO bite balances crisp white corn masa, slow-cooked
             proteins, fresh avocado &amp; tropical fruit.
           </p>
 
@@ -388,6 +481,7 @@ export default function Arepa2GoHomeView() {
           <div className="a2g-five-circles-top">
             {FIVE_CIRCLES.slice(0, 3).map((c) => (
               <div key={c.label} className="a2g-big-circle">
+                <NutritionCircleIcon kind={c.icon} />
                 <span className="a2g-circle-pill">{c.tag}</span>
                 <strong>{c.label}</strong>
               </div>
@@ -396,6 +490,7 @@ export default function Arepa2GoHomeView() {
           <div className="a2g-five-circles-bot">
             {FIVE_CIRCLES.slice(3, 5).map((c) => (
               <div key={c.label} className="a2g-big-circle">
+                <NutritionCircleIcon kind={c.icon} />
                 <span className="a2g-circle-pill">{c.tag}</span>
                 <strong>{c.label}</strong>
               </div>
