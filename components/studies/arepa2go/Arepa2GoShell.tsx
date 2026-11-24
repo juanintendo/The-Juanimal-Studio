@@ -71,10 +71,10 @@ export function Arepa2GoShell({ children }: { children: ReactNode }) {
       window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const seen =
       typeof window !== "undefined" &&
-      window.sessionStorage.getItem("a2g_intro_seen");
+      window.sessionStorage.getItem("a2g_intro_seen_v2");
     if (!reduced && !seen) {
       setShowIntro(true);
-      window.sessionStorage.setItem("a2g_intro_seen", "1");
+      window.sessionStorage.setItem("a2g_intro_seen_v2", "1");
       const timer = window.setTimeout(() => setShowIntro(false), 1250);
       return () => window.clearTimeout(timer);
     }
@@ -137,7 +137,7 @@ export function Arepa2GoShell({ children }: { children: ReactNode }) {
 
   const navItems = [
     { href: "/studies/arepa2go", label: "TOP" },
-    { href: "/studies/arepa2go/menu", label: "MENU" },
+    { href: "/studies/arepa2go/menu", label: "PRODUCT" },
     { href: "/studies/arepa2go/ingredients", label: "INGREDIENTS" },
     { href: "/studies/arepa2go/museum", label: "MUSEUM" },
     { href: "/studies/arepa2go/visit", label: "VISIT" },
@@ -157,85 +157,173 @@ export function Arepa2GoShell({ children }: { children: ReactNode }) {
         </div>
       )}
 
-      {/* ── FLOATING SWISS-JAPANESE HEADER ─────────────────────── */}
-      <header className="a2g-header">
-        <Link href="/studies/arepa2go" className="a2g-brand-link">
-          <img
-            src="/images/studies/arepa2go/logo-arepa2go.png"
-            alt="Arepa 2GO Latin American Kitchen"
-            className="a2g-logo-img"
-          />
-        </Link>
+      {/* ── CALORIEMATE FLOATING FULL-WIDTH HEADER ─────────────── */}
+      <header className="a2g-header-wrap">
+        <div className="a2g-header-bar">
+          <Link href="/studies/arepa2go" className="a2g-brand-link">
+            <img
+              src="/images/studies/arepa2go/logo-arepa2go.png"
+              alt="Arepa 2GO Latin American Kitchen"
+              className="a2g-logo-img"
+            />
+          </Link>
 
-        <div
-          role="navigation"
-          className="a2g-pill-nav"
-          aria-label="Arepa 2GO navigation"
-        >
-          {navItems.map((item) => {
-            const active = pathname === item.href;
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={active ? "a2g-nav-link active" : "a2g-nav-link"}
+          <div className="a2g-header-right">
+            <div
+              role="navigation"
+              className="a2g-text-nav"
+              aria-label="Arepa 2GO navigation"
+            >
+              {navItems.map((item) => {
+                const active = pathname === item.href;
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={active ? "a2g-nav-link active" : "a2g-nav-link"}
+                  >
+                    {item.label}
+                  </Link>
+                );
+              })}
+            </div>
+
+            <div className="a2g-header-icons">
+              <button
+                type="button"
+                className="a2g-tray-pill"
+                onClick={() => setTrayOpen(true)}
               >
-                {item.label}
-              </Link>
-            );
-          })}
-          <button
-            type="button"
-            className="a2g-tray-btn"
-            onClick={() => setTrayOpen(true)}
-          >
-            TRAY ({totalItems})
-          </button>
+                TRAY ({totalItems})
+              </button>
+            </div>
+          </div>
         </div>
       </header>
 
       <main>{children}</main>
 
-      {/* ── CLEAN SWISS GALLERY FOOTER ─────────────────────────── */}
-      <footer className="a2g-footer">
-        <div className="a2g-footer-inner">
-          <div className="a2g-footer-brand">
-            <img
-              src="/images/studies/arepa2go/logo-arepa2go.png"
-              alt="Arepa 2GO"
-              className="a2g-footer-logo"
-            />
-            <p className="a2g-footer-desc">
-              Authentic Venezuelan Cuisine · Five minutes from the beach in
-              Southsea, UK. Hecho a mano, 100% gluten-free white corn arepas &amp;
-              tropical drinks.
-            </p>
+      {/* ── ICONIC CALORIEMATE YELLOW ROUNDED FOOTER ───────────── */}
+      <footer className="a2g-cmt-footer-wrap">
+        <img
+          src="/images/studies/arepa2go/hero-triptych-arepa.png"
+          alt=""
+          className="a2g-footer-peek"
+          aria-hidden="true"
+        />
+
+        <div className="a2g-cmt-footer-card">
+          <div className="a2g-cmt-footer-top">
+            <button
+              type="button"
+              onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+            >
+              TOP
+            </button>
           </div>
 
-          <div className="a2g-footer-col">
-            <h4>EXPERIENCE</h4>
-            <Link href="/studies/arepa2go">Top / Overview</Link>
-            <Link href="/studies/arepa2go/menu">Full Food &amp; Drink Menu</Link>
-            <Link href="/studies/arepa2go/ingredients">Ingredients &amp; Dips</Link>
-            <Link href="/studies/arepa2go/museum">Arepa Museum</Link>
-            <Link href="/studies/arepa2go/visit">Visit &amp; Takeaway</Link>
-          </div>
+          <div className="a2g-cmt-footer-body">
+            <div className="a2g-cmt-footer-left">
+              <Link href="/studies/arepa2go" aria-label="Arepa 2GO Home">
+                <img
+                  src="/images/studies/arepa2go/logo-arepa2go.png"
+                  alt="Arepa 2GO"
+                  className="a2g-footer-logo-lg"
+                />
+              </Link>
+              <div className="a2g-social-pill">
+                <span>SOCIAL</span>
+                <a
+                  href="https://arepa2go.net/"
+                  target="_blank"
+                  rel="noreferrer"
+                  aria-label="Arepa 2GO Website"
+                >
+                  WEB
+                </a>
+                <a href="mailto:arepa2go.info@gmail.com" aria-label="Email">
+                  MAIL
+                </a>
+              </div>
+            </div>
 
-          <div className="a2g-footer-col">
-            <h4>SOUTHSEA KITCHEN</h4>
-            <span>arepa2go.info@gmail.com</span>
-            <span>+44-0239-2791746</span>
-            <span>Southsea, Portsmouth · UK</span>
-            <span className="a2g-badge-gf">GLUTEN-FREE FRIENDLY</span>
+            <div className="a2g-cmt-footer-cols">
+              <div className="a2g-cmt-col">
+                <h4>PRODUCT</h4>
+                <ul>
+                  <li>
+                    <Link href="/studies/arepa2go/menu">Signature Arepas (6)</Link>
+                  </li>
+                  <li>
+                    <Link href="/studies/arepa2go/menu">Empanadas &amp; Sides</Link>
+                  </li>
+                  <li>
+                    <Link href="/studies/arepa2go/menu">Tropical Drinks</Link>
+                  </li>
+                  <li>
+                    <Link href="/studies/arepa2go/menu">Full Menu</Link>
+                  </li>
+                </ul>
+              </div>
+
+              <div className="a2g-cmt-col">
+                <h4>INGREDIENTS</h4>
+                <ul>
+                  <li>
+                    <Link href="/studies/arepa2go/ingredients">
+                      100% Gluten-Free Masa
+                    </Link>
+                  </li>
+                  <li>
+                    <Link href="/studies/arepa2go/ingredients">
+                      3 House Dips Trio
+                    </Link>
+                  </li>
+                  <li>
+                    <Link href="/studies/arepa2go/ingredients">
+                      Slow-Cooked Craft
+                    </Link>
+                  </li>
+                </ul>
+              </div>
+
+              <div className="a2g-cmt-col">
+                <h4>MUSEUM &amp; VISIT</h4>
+                <ul>
+                  <li>
+                    <Link href="/studies/arepa2go/museum">
+                      White Corn Masa Ritual
+                    </Link>
+                  </li>
+                  <li>
+                    <Link href="/studies/arepa2go/museum">
+                      Caribbean Stand in Southsea
+                    </Link>
+                  </li>
+                  <li>
+                    <Link href="/studies/arepa2go/museum">
+                      Takeaway Block Box
+                    </Link>
+                  </li>
+                  <li>
+                    <Link href="/studies/arepa2go/visit">
+                      Southsea Hours &amp; Reviews
+                    </Link>
+                  </li>
+                </ul>
+              </div>
+            </div>
           </div>
         </div>
 
         <div className="a2g-footer-bottom">
           <span>
-            © 2026 Arepa 2GO Study · Architecture inspired by Otsuka CalorieMate
-            (otsuka.co.jp/cmt/)
+            AREPA 2GO SOUTHSEA · +44-0239-2791746 · arepa2go.info@gmail.com
           </span>
-          <span>Designed by The Juanimal Studio</span>
+          <span>
+            Reinterpretation of Otsuka CalorieMate (otsuka.co.jp/cmt/) · The
+            Juanimal Studio
+          </span>
         </div>
       </footer>
 
